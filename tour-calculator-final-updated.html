@@ -1,0 +1,3267 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Calculator - Serbian Private Tours</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- Google API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #F77F00;
+            --light: #F8F9FA;
+            --dark: #212529;
+            --success: #28A745;
+            --danger: #DC3545;
+            --warning: #FFC107;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .nav-item {
+            flex: 1;
+            min-width: 120px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #e9ecef;
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: white;
+        }
+
+        .content {
+            padding: 30px;
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        /* Day Card with drag & drop */
+        .day-card {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+
+        .day-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .day-card.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .day-card.drag-over {
+            border-color: var(--primary);
+            border-style: dashed;
+        }
+
+        .day-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .day-card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .drag-handle {
+            cursor: move;
+            font-size: 1.2em;
+            opacity: 0.5;
+        }
+
+        .day-params {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .param-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .param-item label {
+            display: block;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+            color: #6c757d;
+        }
+
+        .param-item input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .param-item .hotel-name {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .param-item .hotel-name::placeholder {
+            color: #adb5bd;
+        }
+
+        .vehicle-option {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .vehicle-option:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .vehicle-option.selected {
+            border-color: var(--primary);
+            background: #fff5f0;
+        }
+
+        .vehicle-option h4 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .vehicle-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .cost-summary {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            min-width: 300px;
+            z-index: 100;
+        }
+
+        .cost-summary h4 {
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        .cost-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .cost-line.total {
+            border-top: 2px solid var(--primary);
+            font-weight: 700;
+            font-size: 1.2em;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+
+        .tour-card {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tour-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .tour-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .tour-card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .tour-card-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            color: #6c757d;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .settings-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .settings-section h3 {
+            margin-bottom: 20px;
+            color: var(--secondary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #6c757d;
+        }
+
+        .template-card {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .template-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.2);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .pricelist-category {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .pricelist-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .pricelist-table th {
+            background: var(--secondary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        .pricelist-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .pricelist-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .local-guide-card {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .local-guide-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .local-guide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .local-guide-header h4 {
+            color: var(--secondary);
+            margin: 0;
+        }
+
+        /* Google Login Styles */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 25px;
+            color: white;
+            font-size: 0.9em;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .login-btn {
+            background: white;
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        .sync-btn {
+            position: relative;
+        }
+
+        .sync-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .sync-btn:disabled:hover {
+            transform: none;
+        }
+
+        /* Login Modal */
+        .login-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .login-modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .login-modal-header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 30px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .login-modal-header h2 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        .login-modal-body {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .google-signin-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            border: 2px solid #dadce0;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #3c4043;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+
+        .google-signin-btn:hover {
+            border-color: #4285f4;
+            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
+        }
+
+        .google-signin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .google-logo {
+            width: 20px;
+            height: 20px;
+        }
+
+        .offline-mode-btn {
+            color: #666;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .offline-mode-btn:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🚌 Tour Calculator</h1>
+                <p style="opacity: 0.9; margin-top: 5px;">Serbian Private Tours - Profesionalna kalkulacija tura</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn-success sync-btn" onclick="syncToCloud()" id="syncBtn" disabled title="Morate biti ulogovani da biste sinhronizovali">
+                    ☁️ Sync to Cloud
+                </button>
+                <button class="btn btn-primary" onclick="showNewTourModal()">
+                    ➕ Nova Tura
+                </button>
+                <button class="btn btn-secondary" onclick="calculateAndSave()" id="saveBtn" style="display: none;">
+                    💾 Sačuvaj
+                </button>
+                <!-- User Info / Login -->
+                <div id="userSection">
+                    <button class="login-btn" onclick="showLoginModal()">
+                        <svg class="google-logo" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                        Login
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-item active" onclick="showSection('basic')">
+                📝 Osnovno
+            </div>
+            <div class="nav-item" onclick="showSection('itinerary')">
+                🗓️ Itinerer
+            </div>
+            <div class="nav-item" onclick="showSection('localguides')">
+                👥 Lokalni vodiči
+            </div>
+            <div class="nav-item" onclick="showSection('history')">
+                📚 Istorija
+            </div>
+            <div class="nav-item" onclick="showSection('templates')">
+                📋 Šabloni
+            </div>
+            <div class="nav-item" onclick="showSection('pricelists')">
+                💰 Cenovnici
+            </div>
+            <div class="nav-item" onclick="showSection('settings')">
+                ⚙️ Postavke
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Basic Info Section -->
+            <div id="basic" class="section active">
+                <h2 style="margin-bottom: 25px;">Osnovne informacije</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Naziv ture *</label>
+                        <input type="text" class="form-control" id="tourName" placeholder="Western Balkans Tour" onchange="updateCalc()">
+                    </div>
+                    <div class="form-group">
+                        <label>Klijent</label>
+                        <input type="text" class="form-control" id="clientName" placeholder="Ime klijenta" onchange="updateCalc()">
+                    </div>
+                    <div class="form-group">
+                        <label>Broj putnika *</label>
+                        <input type="number" class="form-control" id="numPassengers" value="2" min="1" max="50" onchange="updateCalc()">
+                    </div>
+                    <div class="form-group">
+                        <label>Broj dana *</label>
+                        <input type="number" class="form-control" id="numDays" value="5" min="1" max="30" onchange="updateDays()">
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0;">Tip vozila</h3>
+                <div id="vehicleOptions"></div>
+
+                <div style="margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="openTourSettings()">
+                        ⚙️ Parametri ove ture
+                    </button>
+                    <div id="tourSettingsInfo" style="display: inline-block; margin-left: 15px; padding: 8px 15px; background: #f8f9fa; border-radius: 6px; font-size: 0.9em; color: #6c757d;">
+                        Koriste se globalne postavke
+                    </div>
+                </div>
+
+                <div class="alert alert-info" style="margin-top: 30px;">
+                    <strong>💡 Tip vozila i troškovi:</strong><br>
+                    • <strong>Putnički auto:</strong> Gorivo + Amortizacija (0.12€/km) + 1 vodič (dnevnica + smeštaj + hrana)<br>
+                    • <strong>Kombi:</strong> Gorivo + Renta vozila (bez amortizacije) + 1 vodič (vozi i vodi, dnevnica + smeštaj + hrana)<br>
+                    • <strong>Mini bus:</strong> Renta (sa gorivom) + Dnevnica samo vodiča + Smeštaj i hrana za 2 osobe (vodič + vozač)
+                </div>
+
+                <button class="btn btn-primary" style="margin-top: 20px;" onclick="goToItinerary()">
+                    Dalje: Itinerer →
+                </button>
+            </div>
+
+            <!-- Itinerary Section -->
+            <div id="itinerary" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2>Detaljan itinerer</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="addDay()">
+                        ➕ Dodaj dan
+                    </button>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>💡 Saveti:</strong> Možete pomerati dane prevlačenjem (drag & drop). Kliknite na "💾 Sačuvaj" da sačuvate turu.
+                </div>
+                
+                <div id="daysContainer"></div>
+            </div>
+
+            <!-- Local Guides Section -->
+            <div id="localguides" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2>Lokalni vodiči</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="addLocalGuide()">
+                        ➕ Dodaj lokalnog vodiča
+                    </button>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>💡 Napomena:</strong> Ovi troškovi se dodaju kao fiksni troškovi u kalkulaciju. Unesite ukupan iznos po vodiču.
+                </div>
+                
+                <div id="localGuidesContainer">
+                    <div class="empty-state" style="padding: 40px;">
+                        <p style="font-size: 1.2em; margin-bottom: 10px;">👥</p>
+                        <p>Nemate dodanih lokalnih vodiča.</p>
+                        <p>Kliknite "➕ Dodaj lokalnog vodiča" da dodate.</p>
+                    </div>
+                </div>
+
+                <div id="localGuidesTotal" style="display: none; margin-top: 30px; padding: 20px; background: linear-gradient(135deg, var(--success), #20c997); color: white; border-radius: 12px; text-align: center;">
+                    <h3>Ukupno lokalni vodiči</h3>
+                    <div style="font-size: 2.5em; font-weight: 700; margin-top: 10px;" id="localGuidesTotalAmount">0 EUR</div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div id="history" class="section">
+                <h2 style="margin-bottom: 25px;">Istorija tura</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <input type="text" class="form-control" id="searchHistory" placeholder="🔍 Pretraži ture..." onkeyup="filterHistory()">
+                </div>
+
+                <div id="historyContainer">
+                    <div class="empty-state">
+                        <p style="font-size: 1.2em; margin-bottom: 10px;">📋</p>
+                        <p>Još nemate sačuvanih tura.</p>
+                        <p>Kreirajte novu turu da počnete!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates Section -->
+            <div id="templates" class="section">
+                <h2 style="margin-bottom: 25px;">Šabloni tura</h2>
+                
+                <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" onclick="saveAsTemplate()">
+                        ➕ Sačuvaj trenutnu turu kao šablon
+                    </button>
+                    <button id="updateTemplateBtn" class="btn btn-success" onclick="updateCurrentTemplate()" style="display: none;">
+                        🔄 Ažuriraj šablon
+                    </button>
+                </div>
+
+                <div id="templatesContainer">
+                    <div class="empty-state">
+                        <p style="font-size: 1.2em; margin-bottom: 10px;">📋</p>
+                        <p>Nemate sačuvanih šablona.</p>
+                        <p>Napravite turu pa je sačuvajte kao šablon za brzu upotrebu!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricelists Section -->
+            <div id="pricelists" class="section">
+                <h2 style="margin-bottom: 25px;">Cenovnici dobavljača</h2>
+
+                <div class="pricelist-category">
+                    <h3>🏨 Albanija - Tirana</h3>
+                    <table class="pricelist-table">
+                        <thead>
+                            <tr>
+                                <th>Hotel</th>
+                                <th>Sezona</th>
+                                <th>Single</th>
+                                <th>Double</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Lot Boutique Hotel</td>
+                                <td>Pre 1. April 2026</td>
+                                <td>70 EUR</td>
+                                <td>75 EUR</td>
+                            </tr>
+                            <tr>
+                                <td>Lot Boutique Hotel</td>
+                                <td>Posle 1. April 2026</td>
+                                <td>85 EUR</td>
+                                <td>95 EUR</td>
+                            </tr>
+                            <tr>
+                                <td>Rogner Hotel</td>
+                                <td>Season 2 (19.01-14.12)</td>
+                                <td>128 EUR</td>
+                                <td>153 EUR</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pricelist-category">
+                    <h3>🏛️ BiH - Sarajevo (Funky Tours)</h3>
+                    <table class="pricelist-table">
+                        <thead>
+                            <tr>
+                                <th>Usluga</th>
+                                <th>1 osoba</th>
+                                <th>2-3 osobe</th>
+                                <th>4-6 osoba</th>
+                                <th>6-8 osoba</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Paket (smeštaj + ture)</td>
+                                <td>845 EUR</td>
+                                <td>455 EUR pp</td>
+                                <td>405 EUR pp</td>
+                                <td>355 EUR pp</td>
+                            </tr>
+                            <tr>
+                                <td>Sarajevo walking tour (1-3)</td>
+                                <td colspan="2">110 EUR total</td>
+                                <td colspan="2">-</td>
+                            </tr>
+                            <tr>
+                                <td>Sarajevo walking tour (4-8)</td>
+                                <td colspan="4">140 EUR total</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings" class="section">
+                <h2 style="margin-bottom: 25px;">⚙️ Opšta podešavanja</h2>
+                
+                <div class="alert alert-info" style="margin-bottom: 25px;">
+                    <strong>ℹ️ Napomena:</strong> Ovo su globalne postavke koje se koriste kao default vrednosti za sve NOVE ture. 
+                    Za izmenu parametara specifičnih za pojedinačnu turu, koristite dugme "⚙️ Parametri ove ture" u sekciji Osnovno.
+                </div>
+
+                <div class="settings-grid">
+                    <div class="settings-section">
+                        <h3>⛽ Gorivo</h3>
+                        <div class="form-group">
+                            <label>Cena goriva (EUR/litar)</label>
+                            <input type="number" class="form-control" id="fuelPrice" value="1.6" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Potrošnja putnički auto (l/100km)</label>
+                            <input type="number" class="form-control" id="carConsumption" value="6.5" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Potrošnja kombi (l/100km)</label>
+                            <input type="number" class="form-control" id="vanConsumption" value="8.5" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Potrošnja mini bus (l/100km)</label>
+                            <input type="number" class="form-control" id="minibusConsumption" value="12" step="0.1">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>🔧 Amortizacija i renta</h3>
+                        <div class="form-group">
+                            <label>Amortizacija putnički auto (EUR/km)</label>
+                            <input type="number" class="form-control" id="depreciation" value="0.12" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Dodatak za lokalnu manipulaciju (%)</label>
+                            <input type="number" class="form-control" id="distanceAdjustment" value="10" step="1" min="0" max="50">
+                        </div>
+                        <div class="alert alert-info">
+                            <strong>Napomena:</strong> Amortizacija se primenjuje samo kod vlastitih vozila (putnički auto). Kod kombija i mini busa unosi se renta kao zaseban trošak.<br><br>
+                            <strong>Dodatak za lokalnu manipulaciju:</strong> Empirijski se pokazalo da se pređe 10% više u odnosu na Google Maps prikaz zbog lokalne vožnje, parkinga, itd.
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>👨‍💼 Dnevnice vodiča</h3>
+                        <div class="form-group">
+                            <label>Dnevnica vodiča - Auto (EUR/dan)</label>
+                            <input type="number" class="form-control" id="guideDailyCar" value="100" step="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Dnevnica vodiča - Kombi (EUR/dan)</label>
+                            <input type="number" class="form-control" id="guideDailyVan" value="120" step="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Dnevnica vodiča - Mini bus (EUR/dan)</label>
+                            <input type="number" class="form-control" id="guideDailyMinibus" value="100" step="10">
+                        </div>
+                        <div class="alert alert-info">
+                            <strong>Napomena:</strong> Kod mini busa, vozač je plaćen kroz rentu vozila (dnevnica uključena), ali treba računati smeštaj i hranu za vodiča + vozača (2 osobe).
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>💰 Marže i provizije</h3>
+                        <div class="form-group">
+                            <label>Profitna marža (%)</label>
+                            <input type="number" class="form-control" id="defaultMargin" value="30" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Online Payment Fee (%)</label>
+                            <input type="number" class="form-control" id="trekkSoftCommission" value="6" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Partnerska provizija (%)</label>
+                            <input type="number" class="form-control" id="partnerCommission" value="4" step="0.5">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" style="margin-top: 30px;" onclick="saveSettings()">
+                    💾 Sačuvaj postavke
+                </button>
+
+                <hr style="margin: 50px 0; border: none; border-top: 2px solid #dee2e6;">
+
+                <h3 style="margin-bottom: 20px;">📦 Backup i prenos podataka</h3>
+                
+                <div class="alert alert-info" style="margin-bottom: 20px;">
+                    <strong>ℹ️ Napomena:</strong> Koristite ove opcije da prenesite sve ture, šablone i postavke između računara ili da napravite backup.
+                </div>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="exportAllData()">
+                        📥 Export svih podataka
+                    </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">
+                        📤 Import (zameni sve)
+                    </button>
+                    <button class="btn btn-success" onclick="document.getElementById('mergeFileInput').click()">
+                        🔄 Import i spoji
+                    </button>
+                    <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importAllData(event, false)">
+                    <input type="file" id="mergeFileInput" accept=".json" style="display: none;" onchange="importAllData(event, true)">
+                </div>
+
+                <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em; color: #6c757d;">
+                    <strong>Kako funkcioniše:</strong><br>
+                    • <strong>Export:</strong> Preuzima JSON fajl sa svim podacima<br>
+                    • <strong>Import (zameni sve):</strong> Briše sve trenutne podatke i učitava nove<br>
+                    • <strong>Import i spoji:</strong> Zadržava postojeće ture i dodaje nove (bez duplikata)<br>
+                    • Možete preneti podatke na drugi računar ili napraviti backup
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cost Summary Sidebar -->
+    <div class="cost-summary" id="costSummary" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h4 style="margin: 0;">💰 Kalkulacija</h4>
+            <button onclick="toggleSidebar()" style="background: none; border: none; cursor: pointer; font-size: 1.2em; color: #6c757d;">✕</button>
+        </div>
+        <div id="costDetails"></div>
+    </div>
+    
+    <!-- Floating toggle button when sidebar is hidden -->
+    <button id="sidebarToggle" onclick="toggleSidebar()" style="position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 1.5em; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: none; z-index: 99;">
+        💰
+    </button>
+
+    <!-- Modals -->
+    <div id="newTourModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nova tura</h2>
+                <span class="modal-close" onclick="closeModal('newTourModal')">✕</span>
+            </div>
+            <div style="display: grid; gap: 15px;">
+                <button class="btn btn-primary" style="padding: 20px; text-align: left;" onclick="startFromScratch()">
+                    <strong>📝 Počni od nule</strong><br>
+                    <small style="opacity: 0.8;">Kreiraj potpuno novu turu</small>
+                </button>
+                <button class="btn btn-secondary" style="padding: 20px; text-align: left;" onclick="showTemplateSelection()">
+                    <strong>📋 Koristi šablon</strong><br>
+                    <small style="opacity: 0.8;">Započni sa postojećim šablonom</small>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tourDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="tourDetailTitle">Detalji ture</h2>
+                <span class="modal-close" onclick="closeModal('tourDetailModal')">✕</span>
+            </div>
+            <div id="tourDetailContent"></div>
+        </div>
+    </div>
+
+    <!-- Tour Settings Modal -->
+    <div id="tourSettingsModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2>⚙️ Parametri ove ture</h2>
+                <span class="modal-close" onclick="closeModal('tourSettingsModal')">✕</span>
+            </div>
+            
+            <div class="alert alert-info" style="margin-bottom: 20px;">
+                <strong>ℹ️ Napomena:</strong> Ove izmene se primenjuju samo na trenutnu turu i ne utiču na globalne postavke.
+            </div>
+
+            <div class="settings-grid">
+                <div class="settings-section">
+                    <h3>⛽ Gorivo</h3>
+                    <div class="form-group">
+                        <label>Cena goriva (EUR/litar)</label>
+                        <input type="number" class="form-control" id="tourFuelPrice" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Potrošnja putnički auto (l/100km)</label>
+                        <input type="number" class="form-control" id="tourCarConsumption" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Potrošnja kombi (l/100km)</label>
+                        <input type="number" class="form-control" id="tourVanConsumption" step="0.1">
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>🔧 Amortizacija i renta</h3>
+                    <div class="form-group">
+                        <label>Amortizacija putničkog auta (EUR/km)</label>
+                        <input type="number" class="form-control" id="tourDepreciation" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Dodatak za lokalnu manipulaciju (%)</label>
+                        <input type="number" class="form-control" id="tourDistanceAdjustment" min="0" max="50">
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>👨‍✈️ Dnevnice vodiča</h3>
+                    <div class="form-group">
+                        <label>Dnevnica vodiča - Auto (EUR/dan)</label>
+                        <input type="number" class="form-control" id="tourGuideDailyCar">
+                    </div>
+                    <div class="form-group">
+                        <label>Dnevnica vodiča - Kombi (EUR/dan)</label>
+                        <input type="number" class="form-control" id="tourGuideDailyVan">
+                    </div>
+                    <div class="form-group">
+                        <label>Dnevnica vodiča - Mini bus (EUR/dan)</label>
+                        <input type="number" class="form-control" id="tourGuideDailyMinibus">
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>💰 Marže i provizije</h3>
+                    <div class="form-group">
+                        <label>Profitna marža (%)</label>
+                        <input type="number" class="form-control" id="tourDefaultMargin">
+                    </div>
+                    <div class="form-group">
+                        <label>Online Payment Fee (%)</label>
+                        <input type="number" class="form-control" id="tourTrekkSoftCommission">
+                    </div>
+                    <div class="form-group">
+                        <label>Partnerska provizija (%)</label>
+                        <input type="number" class="form-control" id="tourPartnerCommission">
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="resetToGlobalSettings()">
+                    🔄 Vrati na globalne postavke
+                </button>
+                <button class="btn btn-success" onclick="applyTourSettings()">
+                    💾 Primeni
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentTour = {
+            name: '',
+            client: '',
+            numPassengers: 2,
+            numDays: 5,
+            vehicleType: 'car',
+            days: [],
+            rentCost: 0,
+            localGuides: [],
+            tourSettings: null // Will be set from global settings on new tour
+        };
+
+        let settings = {
+            fuelPrice: 1.6,
+            carConsumption: 6.5,
+            vanConsumption: 8.5,
+            minibusConsumption: 12,
+            depreciation: 0.12,
+            defaultMargin: 30,
+            trekkSoftCommission: 6,
+            partnerCommission: 4,
+            guideDailyCar: 100,
+            guideDailyVan: 120,
+            guideDailyMinibus: 100,
+            distanceAdjustment: 10  // Dodatak za lokalnu manipulaciju (%)
+        };
+
+        let draggedElement = null;
+        let draggedIndex = null;
+
+        // Initialize
+        function init() {
+            loadSettings();
+            initVehicleOptions();
+            updateDays();
+            loadHistory();
+            loadTemplates();
+        }
+
+        // Tour-specific settings management
+        function openTourSettings() {
+            // If tour doesn't have custom settings, copy from global
+            if (!currentTour.tourSettings) {
+                currentTour.tourSettings = {...settings};
+            }
+            
+            // Populate modal with current tour settings
+            document.getElementById('tourFuelPrice').value = currentTour.tourSettings.fuelPrice;
+            document.getElementById('tourCarConsumption').value = currentTour.tourSettings.carConsumption;
+            document.getElementById('tourVanConsumption').value = currentTour.tourSettings.vanConsumption;
+            document.getElementById('tourDepreciation').value = currentTour.tourSettings.depreciation;
+            document.getElementById('tourDistanceAdjustment').value = currentTour.tourSettings.distanceAdjustment || 10;
+            document.getElementById('tourGuideDailyCar').value = currentTour.tourSettings.guideDailyCar;
+            document.getElementById('tourGuideDailyVan').value = currentTour.tourSettings.guideDailyVan;
+            document.getElementById('tourGuideDailyMinibus').value = currentTour.tourSettings.guideDailyMinibus;
+            document.getElementById('tourDefaultMargin').value = currentTour.tourSettings.defaultMargin;
+            document.getElementById('tourTrekkSoftCommission').value = currentTour.tourSettings.trekkSoftCommission;
+            document.getElementById('tourPartnerCommission').value = currentTour.tourSettings.partnerCommission;
+            
+            openModal('tourSettingsModal');
+        }
+
+        function resetToGlobalSettings() {
+            if (confirm('Da li ste sigurni da želite da vratite na globalne postavke?')) {
+                currentTour.tourSettings = null;
+                updateTourSettingsInfo();
+                closeModal('tourSettingsModal');
+                updateCalc();
+            }
+        }
+
+        function applyTourSettings() {
+            // Save tour-specific settings
+            currentTour.tourSettings = {
+                fuelPrice: parseFloat(document.getElementById('tourFuelPrice').value),
+                carConsumption: parseFloat(document.getElementById('tourCarConsumption').value),
+                vanConsumption: parseFloat(document.getElementById('tourVanConsumption').value),
+                depreciation: parseFloat(document.getElementById('tourDepreciation').value),
+                distanceAdjustment: parseFloat(document.getElementById('tourDistanceAdjustment').value),
+                guideDailyCar: parseFloat(document.getElementById('tourGuideDailyCar').value),
+                guideDailyVan: parseFloat(document.getElementById('tourGuideDailyVan').value),
+                guideDailyMinibus: parseFloat(document.getElementById('tourGuideDailyMinibus').value),
+                defaultMargin: parseFloat(document.getElementById('tourDefaultMargin').value),
+                trekkSoftCommission: parseFloat(document.getElementById('tourTrekkSoftCommission').value),
+                partnerCommission: parseFloat(document.getElementById('tourPartnerCommission').value)
+            };
+            
+            updateTourSettingsInfo();
+            closeModal('tourSettingsModal');
+            updateCalc(); // Immediately recalculate
+        }
+
+        function updateTourSettingsInfo() {
+            const infoDiv = document.getElementById('tourSettingsInfo');
+            if (currentTour.tourSettings) {
+                infoDiv.innerHTML = '⚙️ Koriste se prilagođeni parametri';
+                infoDiv.style.background = '#fff3cd';
+                infoDiv.style.color = '#856404';
+            } else {
+                infoDiv.innerHTML = 'Koriste se globalne postavke';
+                infoDiv.style.background = '#f8f9fa';
+                infoDiv.style.color = '#6c757d';
+            }
+        }
+
+        // Get effective settings (tour-specific or global)
+        function getEffectiveSettings() {
+            return currentTour.tourSettings || settings;
+        }
+
+        // Settings
+        function loadSettings() {
+            const saved = localStorage.getItem('tourSettings');
+            if (saved) {
+                settings = {...settings, ...JSON.parse(saved)};
+            }
+            
+            // Update form
+            Object.keys(settings).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.value = settings[key];
+            });
+        }
+
+        function saveSettings() {
+            Object.keys(settings).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) settings[key] = parseFloat(el.value);
+            });
+            localStorage.setItem('tourSettings', JSON.stringify(settings));
+            alert('✅ Postavke uspešno sačuvane!');
+
+            // AUTO-SYNC to cloud if logged in
+            if (googleUser) {
+                saveSettingsToSheet().catch(err => {
+                    console.error('Auto-sync error:', err);
+                });
+            }
+        }
+
+        // Vehicle options
+        function initVehicleOptions() {
+            const container = document.getElementById('vehicleOptions');
+            const vehicles = [
+                {
+                    id: 'car',
+                    name: 'Putnički auto (1-3 putnika)',
+                    icon: '🚗',
+                    details: {
+                        'Gorivo': 'Da (kalkulacija)',
+                        'Amortizacija': '0.12 EUR/km',
+                        'Osoblje': '1 vodič',
+                        'Dnevnica vodiča': settings.guideDailyCar + ' EUR/dan'
+                    }
+                },
+                {
+                    id: 'van',
+                    name: 'Kombi (4-7 putnika)',
+                    icon: '🚐',
+                    details: {
+                        'Gorivo': 'Da (kalkulacija)',
+                        'Renta': 'Ručni unos',
+                        'Osoblje': '1 vodič (vozi i vodi)',
+                        'Dnevnica vodiča': settings.guideDailyVan + ' EUR/dan'
+                    }
+                },
+                {
+                    id: 'minibus',
+                    name: 'Mini bus (8-19 putnika)',
+                    icon: '🚌',
+                    details: {
+                        'Gorivo': 'Uključeno u rentu',
+                        'Renta': 'Ručni unos (sve u ceni)',
+                        'Osoblje': '1 vodič + 1 vozač',
+                        'Dnevnica': 'Samo vodič: ' + settings.guideDailyMinibus + ' EUR/dan',
+                        'Napomena': 'Vozač plaćen kroz rentu, ali treba smeštaj i hrana za 2 osobe'
+                    }
+                }
+            ];
+
+            container.innerHTML = vehicles.map(v => `
+                <div class="vehicle-option ${currentTour.vehicleType === v.id ? 'selected' : ''}" 
+                     onclick="selectVehicle('${v.id}')">
+                    <h4>${v.icon} ${v.name}</h4>
+                    <div class="vehicle-details">
+                        ${Object.entries(v.details).map(([key, val]) => 
+                            `<div><strong>${key}:</strong> ${val}</div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Show rent input for van and minibus
+            if (currentTour.vehicleType !== 'car') {
+                const rentHtml = `
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label>Renta vozila (EUR - ukupno za ${currentTour.numDays} dana)</label>
+                        <input type="number" class="form-control" id="rentCost" value="${currentTour.rentCost || 0}" 
+                               onchange="currentTour.rentCost = parseFloat(this.value) || 0; updateCalc();">
+                    </div>
+                `;
+                container.innerHTML += rentHtml;
+            }
+        }
+
+        function selectVehicle(type) {
+            currentTour.vehicleType = type;
+            
+            // Reset rent cost if switching to car (car doesn't use rent)
+            if (type === 'car') {
+                currentTour.rentCost = 0;
+            }
+            
+            initVehicleOptions();
+            updateCalc();
+        }
+
+        // Days management
+        function updateDays() {
+            const numDays = parseInt(document.getElementById('numDays').value);
+            currentTour.numDays = numDays;
+            
+            while (currentTour.days.length < numDays) {
+                currentTour.days.push({
+                    dayNumber: currentTour.days.length + 1,
+                    description: '',
+                    distance: 0,
+                    tolls: 0,
+                    guideAccommodation: 0,
+                    guideAccommodationName: '',
+                    guideMeals: 0,
+                    guideMealsLocation: '',
+                    passengerAccommodation: 0,
+                    passengerAccommodationName: '',
+                    passengerMeals: 0,
+                    passengerMealsLocation: '',
+                    tickets: 0
+                });
+            }
+            
+            while (currentTour.days.length > numDays) {
+                currentTour.days.pop();
+            }
+            
+            renderDays();
+            updateCalc();
+        }
+
+        function addDay() {
+            currentTour.days.push({
+                dayNumber: currentTour.days.length + 1,
+                description: '',
+                distance: 0,
+                tolls: 0,
+                guideAccommodation: 0,
+                guideAccommodationName: '',
+                guideMeals: 0,
+                guideMealsLocation: '',
+                passengerAccommodation: 0,
+                passengerAccommodationName: '',
+                passengerMeals: 0,
+                passengerMealsLocation: '',
+                tickets: 0
+            });
+            document.getElementById('numDays').value = currentTour.days.length;
+            currentTour.numDays = currentTour.days.length;
+            renderDays();
+            updateCalc();
+        }
+
+        function removeDay(index) {
+            if (currentTour.days.length > 1) {
+                currentTour.days.splice(index, 1);
+                currentTour.days.forEach((day, i) => day.dayNumber = i + 1);
+                document.getElementById('numDays').value = currentTour.days.length;
+                currentTour.numDays = currentTour.days.length;
+                renderDays();
+                updateCalc();
+            }
+        }
+
+        function renderDays() {
+            const container = document.getElementById('daysContainer');
+            if (currentTour.days.length === 0) {
+                updateDays();
+                return;
+            }
+
+            container.innerHTML = currentTour.days.map((day, index) => `
+                <div class="day-card" draggable="true" 
+                     ondragstart="handleDragStart(event, ${index})"
+                     ondragover="handleDragOver(event)"
+                     ondrop="handleDrop(event, ${index})"
+                     ondragend="handleDragEnd(event)">
+                    <div class="day-card-header">
+                        <div class="day-card-title">
+                            <span class="drag-handle">☰</span>
+                            Dan ${day.dayNumber}
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="removeDay(${index})" 
+                                ${currentTour.days.length === 1 ? 'disabled' : ''}>
+                            🗑️
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Opis dana</label>
+                        <input type="text" class="form-control" 
+                               value="${day.description}" 
+                               onchange="currentTour.days[${index}].description = this.value"
+                               placeholder="Npr: Beograd - Sarajevo, via Mokra Gora">
+                    </div>
+
+                    <div class="day-params">
+                        <div class="param-item">
+                            <label>Pređeni put (km)</label>
+                            <input type="number" value="${day.distance}" 
+                                   onchange="currentTour.days[${index}].distance = parseFloat(this.value) || 0; updateCalc();">
+                        </div>
+                        <div class="param-item">
+                            <label>Putarina/Parking (EUR)</label>
+                            <input type="number" value="${day.tolls}" 
+                                   onchange="currentTour.days[${index}].tolls = parseFloat(this.value) || 0; updateCalc();">
+                        </div>
+                        <div class="param-item">
+                            <label>
+                                Smeštaj osoblja (EUR)
+                                ${index > 0 ? '<span onclick="cloneValue(\'guideAccommodation\', ' + index + ')" style="cursor: pointer; color: var(--primary); margin-left: 5px;" title="Kopiraj iz prethodnog dana">↑</span>' : ''}
+                            </label>
+                            <input type="number" value="${day.guideAccommodation}" 
+                                   onchange="currentTour.days[${index}].guideAccommodation = parseFloat(this.value) || 0; updateCalc();">
+                            <input type="text" class="hotel-name" value="${day.guideAccommodationName || ''}" 
+                                   onchange="currentTour.days[${index}].guideAccommodationName = this.value"
+                                   placeholder="Hotel / Mesto">
+                        </div>
+                        <div class="param-item">
+                            <label>Obrok osoblja (EUR)</label>
+                            <input type="number" value="${day.guideMeals}" 
+                                   onchange="currentTour.days[${index}].guideMeals = parseFloat(this.value) || 0; updateCalc();">
+                            <input type="text" class="hotel-name" value="${day.guideMealsLocation || ''}" 
+                                   onchange="currentTour.days[${index}].guideMealsLocation = this.value"
+                                   placeholder="Restoran / Mesto">
+                        </div>
+                        <div class="param-item">
+                            <label>
+                                Smeštaj putnika pp (EUR)
+                                ${index > 0 ? '<span onclick="cloneValue(\'passengerAccommodation\', ' + index + ')" style="cursor: pointer; color: var(--primary); margin-left: 5px;" title="Kopiraj iz prethodnog dana">↑</span>' : ''}
+                            </label>
+                            <input type="number" value="${day.passengerAccommodation}" 
+                                   onchange="currentTour.days[${index}].passengerAccommodation = parseFloat(this.value) || 0; updateCalc();">
+                            <input type="text" class="hotel-name" value="${day.passengerAccommodationName || ''}" 
+                                   onchange="currentTour.days[${index}].passengerAccommodationName = this.value"
+                                   placeholder="Hotel / Mesto">
+                        </div>
+                        <div class="param-item">
+                            <label>Obrok putnika pp (EUR)</label>
+                            <input type="number" value="${day.passengerMeals}" 
+                                   onchange="currentTour.days[${index}].passengerMeals = parseFloat(this.value) || 0; updateCalc();">
+                            <input type="text" class="hotel-name" value="${day.passengerMealsLocation || ''}" 
+                                   onchange="currentTour.days[${index}].passengerMealsLocation = this.value"
+                                   placeholder="Restoran / Mesto">
+                        </div>
+                        <div class="param-item">
+                            <label>Ulaznice pp (EUR)</label>
+                            <input type="number" value="${day.tickets}" 
+                                   onchange="currentTour.days[${index}].tickets = parseFloat(this.value) || 0; updateCalc();">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Drag and Drop handlers
+        function handleDragStart(e, index) {
+            draggedIndex = index;
+            e.currentTarget.classList.add('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDrop(e, targetIndex) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (draggedIndex !== null && draggedIndex !== targetIndex) {
+                const draggedDay = currentTour.days[draggedIndex];
+                currentTour.days.splice(draggedIndex, 1);
+                currentTour.days.splice(targetIndex, 0, draggedDay);
+                
+                // Renumber days
+                currentTour.days.forEach((day, i) => day.dayNumber = i + 1);
+                renderDays();
+            }
+        }
+
+        function handleDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.day-card').forEach(card => {
+                card.classList.remove('drag-over');
+            });
+            draggedIndex = null;
+        }
+
+        // Calculate tour
+        function updateCalc() {
+            currentTour.name = document.getElementById('tourName').value;
+            currentTour.client = document.getElementById('clientName').value;
+            currentTour.numPassengers = parseInt(document.getElementById('numPassengers').value);
+
+            // Show save button if tour has name
+            document.getElementById('saveBtn').style.display = currentTour.name ? 'block' : 'none';
+
+            // Get effective settings (tour-specific or global)
+            const effectiveSettings = getEffectiveSettings();
+
+            // Calculate
+            let totalDistance = 0;
+            let totalTolls = 0;
+            let totalGuideAccommodation = 0;
+            let totalGuideMeals = 0;
+            let totalPassengerAccommodation = 0;
+            let totalPassengerMeals = 0;
+            let totalTickets = 0;
+
+            currentTour.days.forEach(day => {
+                totalDistance += day.distance;
+                totalTolls += day.tolls;
+                totalGuideAccommodation += day.guideAccommodation;
+                totalGuideMeals += day.guideMeals;
+                totalPassengerAccommodation += day.passengerAccommodation;
+                totalPassengerMeals += day.passengerMeals;
+                totalTickets += day.tickets;
+            });
+
+            // Apply distance adjustment (for local manipulation)
+            const adjustmentPercent = effectiveSettings.distanceAdjustment || 10;
+            const adjustedDistance = totalDistance * (1 + adjustmentPercent / 100);
+
+            // Fuel calculation
+            let fuelCost = 0;
+            let depreciationCost = 0;
+            let rentCost = currentTour.rentCost || 0;
+
+            if (currentTour.vehicleType === 'car') {
+                fuelCost = (adjustedDistance * effectiveSettings.carConsumption / 100) * effectiveSettings.fuelPrice;
+                depreciationCost = adjustedDistance * effectiveSettings.depreciation;
+            } else if (currentTour.vehicleType === 'van') {
+                fuelCost = (adjustedDistance * effectiveSettings.vanConsumption / 100) * effectiveSettings.fuelPrice;
+                depreciationCost = 0;
+            } else {
+                fuelCost = 0;
+                depreciationCost = 0;
+            }
+
+            // Guide costs
+            let guideCost = 0;
+            if (currentTour.vehicleType === 'car') {
+                guideCost = currentTour.numDays * effectiveSettings.guideDailyCar;
+            } else if (currentTour.vehicleType === 'van') {
+                guideCost = currentTour.numDays * effectiveSettings.guideDailyVan;
+            } else {
+                // Mini bus: samo dnevnica vodiča (vozač je plaćen kroz rentu)
+                guideCost = currentTour.numDays * effectiveSettings.guideDailyMinibus;
+            }
+
+            // Local guides cost
+            const localGuidesCost = currentTour.localGuides.reduce((sum, g) => sum + g.cost, 0);
+
+            // Total costs
+            const fixedCosts = fuelCost + depreciationCost + rentCost + totalTolls + 
+                             totalGuideAccommodation + totalGuideMeals + guideCost + localGuidesCost;
+
+            const perPersonCosts = (totalPassengerAccommodation + totalPassengerMeals + totalTickets) * currentTour.numPassengers;
+
+            const totalCosts = fixedCosts + perPersonCosts;
+            const costPerPerson = totalCosts / currentTour.numPassengers;
+
+            // Selling price
+            const margin = effectiveSettings.defaultMargin / 100;
+            const commission = effectiveSettings.trekkSoftCommission / 100;
+            const partnerComm = effectiveSettings.partnerCommission / 100;
+            
+            const sellingPrice = totalCosts / (1 - margin - commission - partnerComm);
+            const pricePerPerson = sellingPrice / currentTour.numPassengers;
+            const profit = sellingPrice - totalCosts;
+
+            // Update summary
+            const summaryEl = document.getElementById('costSummary');
+            const detailsEl = document.getElementById('costDetails');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            
+            if (currentTour.days.length > 0) {
+                // Show sidebar or toggle button
+                if (summaryEl.style.display === 'none') {
+                    toggleBtn.style.display = 'block';
+                } else {
+                    summaryEl.style.display = 'block';
+                    toggleBtn.style.display = 'none';
+                }
+                detailsEl.innerHTML = `
+                    <div class="cost-line">
+                        <span>Ukupna kilometraža:</span>
+                        <strong>${totalDistance.toFixed(0)} km</strong>
+                    </div>
+                    ${adjustmentPercent > 0 ? `
+                    <div class="cost-line" style="font-size: 0.9em; opacity: 0.8;">
+                        <span>+ lokalna manipulacija (${adjustmentPercent}%):</span>
+                        <strong>${(adjustedDistance - totalDistance).toFixed(0)} km</strong>
+                    </div>
+                    <div class="cost-line" style="border-top: 1px solid #dee2e6; padding-top: 5px; margin-top: 5px;">
+                        <span>Prilagođena kilometraža:</span>
+                        <strong>${adjustedDistance.toFixed(0)} km</strong>
+                    </div>` : ''}
+                    <div class="cost-line">
+                        <span>Gorivo:</span>
+                        <strong>${fuelCost.toFixed(0)} EUR</strong>
+                    </div>
+                    ${depreciationCost > 0 ? `
+                    <div class="cost-line">
+                        <span>Amortizacija:</span>
+                        <strong>${depreciationCost.toFixed(0)} EUR</strong>
+                    </div>` : ''}
+                    ${rentCost > 0 ? `
+                    <div class="cost-line">
+                        <span>Renta vozila:</span>
+                        <strong>${rentCost.toFixed(0)} EUR</strong>
+                    </div>` : ''}
+                    <div class="cost-line">
+                        <span>Osoblje:</span>
+                        <strong>${(guideCost + totalGuideAccommodation + totalGuideMeals).toFixed(0)} EUR</strong>
+                    </div>
+                    ${localGuidesCost > 0 ? `
+                    <div class="cost-line">
+                        <span>Lokalni vodiči:</span>
+                        <strong>${localGuidesCost.toFixed(0)} EUR</strong>
+                    </div>` : ''}
+                    <div class="cost-line">
+                        <span>Troškovi putnika:</span>
+                        <strong>${perPersonCosts.toFixed(0)} EUR</strong>
+                    </div>
+                    <div class="cost-line total">
+                        <span>UKUPNO:</span>
+                        <strong>${totalCosts.toFixed(0)} EUR</strong>
+                    </div>
+                    <div class="cost-line total" style="border-top: none; color: var(--success);">
+                        <span>PRODAJNA CENA:</span>
+                        <strong>${sellingPrice.toFixed(0)} EUR</strong>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                        <div style="font-size: 0.9em; color: #6c757d;">Cena po osobi</div>
+                        <div style="font-size: 1.5em; font-weight: 700; color: var(--primary);">
+                            ${pricePerPerson.toFixed(0)} EUR
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success" style="width: 100%; margin-top: 20px;" onclick="exportToExcel()">
+                        📊 Export u Excel
+                    </button>
+                `;
+            } else {
+                summaryEl.style.display = 'none';
+                toggleBtn.style.display = 'none';
+            }
+
+            // Store calculations
+            currentTour.calculations = {
+                totalDistance, adjustedDistance, adjustmentPercent, fuelCost, depreciationCost, rentCost, totalTolls,
+                guideCost, totalGuideAccommodation, totalGuideMeals, fixedCosts,
+                totalPassengerAccommodation, totalPassengerMeals, totalTickets,
+                perPersonCosts, totalCosts, costPerPerson,
+                sellingPrice, pricePerPerson, profit
+            };
+        }
+
+        // Save tour
+        function calculateAndSave() {
+            if (!currentTour.name) {
+                alert('⚠️ Molimo unesite naziv ture!');
+                return;
+            }
+
+            currentTour.id = currentTour.id || Date.now();
+            currentTour.createdAt = currentTour.createdAt || new Date().toISOString();
+            currentTour.updatedAt = new Date().toISOString();
+            
+            // Sačuvaj trenutne postavke sa turom za potpunu transparentnost
+            currentTour.usedSettings = {...settings};
+
+            let tours = JSON.parse(localStorage.getItem('tours') || '[]');
+            const existingIndex = tours.findIndex(t => t.id === currentTour.id);
+            
+            if (existingIndex >= 0) {
+                tours[existingIndex] = {...currentTour};
+            } else {
+                tours.push({...currentTour});
+            }
+            
+            localStorage.setItem('tours', JSON.stringify(tours));
+            alert('✅ Tura uspešno sačuvana!');
+            loadHistory();
+
+            // AUTO-SYNC to cloud if logged in
+            if (googleUser) {
+                saveToursToSheet().catch(err => {
+                    console.error('Auto-sync error:', err);
+                });
+            }
+        }
+
+        // History
+        function loadHistory() {
+            const tours = JSON.parse(localStorage.getItem('tours') || '[]');
+            const container = document.getElementById('historyContainer');
+            
+            if (tours.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p style="font-size: 1.2em; margin-bottom: 10px;">📋</p>
+                        <p>Još nemate sačuvanih tura.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tours.reverse().map(tour => {
+                const calc = tour.calculations || {};
+                const usedSettings = tour.usedSettings || {};
+                const hasSettings = Object.keys(usedSettings).length > 0;
+                
+                return `
+                    <div class="tour-card" onclick="loadTour(${tour.id})">
+                        <div class="tour-card-header">
+                            <div class="tour-card-title">${tour.name}</div>
+                            <div>
+                                ${hasSettings ? '<span class="badge badge-success" style="margin-right: 10px;" title="Sačuvane postavke">⚙️</span>' : ''}
+                                <button class="btn btn-warning btn-sm" onclick="event.stopPropagation(); cloneTour(${tour.id})">
+                                    📋 Kloniraj
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteTour(${tour.id})">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        <div class="tour-card-info">
+                            <div><strong>Klijent:</strong> ${tour.client || '-'}</div>
+                            <div><strong>Putnika:</strong> ${tour.numPassengers}</div>
+                            <div><strong>Dana:</strong> ${tour.numDays}</div>
+                            <div><strong>Vozilo:</strong> ${tour.vehicleType === 'car' ? '🚗 Auto' : tour.vehicleType === 'van' ? '🚐 Kombi' : '🚌 Mini bus'}</div>
+                            <div><strong>Km:</strong> ${calc.totalDistance?.toFixed(0) || 0}</div>
+                            <div><strong>Cena pp:</strong> <span style="color: var(--primary); font-weight: 700;">${calc.pricePerPerson?.toFixed(0) || 0} EUR</span></div>
+                        </div>
+                        ${hasSettings ? `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #dee2e6; font-size: 0.85em; color: #6c757d;">
+                            Korišćene postavke: Gorivo ${usedSettings.fuelPrice || '-'}€/l, Dnevnica ${usedSettings['guideDailyCar'] || usedSettings['guideDailyVan'] || usedSettings['guideDailyMinibus'] || '-'}€
+                        </div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterHistory() {
+            const search = document.getElementById('searchHistory').value.toLowerCase();
+            const tours = JSON.parse(localStorage.getItem('tours') || '[]');
+            const filtered = tours.filter(t => 
+                t.name.toLowerCase().includes(search) || 
+                (t.client && t.client.toLowerCase().includes(search))
+            );
+            
+            const container = document.getElementById('historyContainer');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Nema rezultata pretrage.</p></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.reverse().map(tour => {
+                const calc = tour.calculations || {};
+                return `
+                    <div class="tour-card" onclick="loadTour(${tour.id})">
+                        <div class="tour-card-header">
+                            <div class="tour-card-title">${tour.name}</div>
+                            <div>
+                                <button class="btn btn-warning btn-sm" onclick="event.stopPropagation(); cloneTour(${tour.id})">
+                                    📋 Kloniraj
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteTour(${tour.id})">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        <div class="tour-card-info">
+                            <div><strong>Klijent:</strong> ${tour.client || '-'}</div>
+                            <div><strong>Putnika:</strong> ${tour.numPassengers}</div>
+                            <div><strong>Vozilo:</strong> ${tour.vehicleType === 'car' ? '🚗' : tour.vehicleType === 'van' ? '🚐' : '🚌'}</div>
+                            <div><strong>Cena pp:</strong> ${calc.pricePerPerson?.toFixed(0) || 0} EUR</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadTour(id) {
+            const tours = JSON.parse(localStorage.getItem('tours') || '[]');
+            const tour = tours.find(t => t.id === id);
+            if (!tour) return;
+
+            currentTour = {...tour};
+            
+            // Ensure localGuides array exists
+            if (!currentTour.localGuides) {
+                currentTour.localGuides = [];
+            }
+            
+            // Update form
+            document.getElementById('tourName').value = currentTour.name;
+            document.getElementById('clientName').value = currentTour.client || '';
+            document.getElementById('numPassengers').value = currentTour.numPassengers;
+            document.getElementById('numDays').value = currentTour.numDays;
+            
+            initVehicleOptions();
+            renderDays();
+            renderLocalGuides();
+            updateTourSettingsInfo();
+            showUpdateTemplateButton();  // Show if tour came from template
+            updateCalc();
+            
+            showSection('basic');
+            document.querySelectorAll('.nav-item')[0].click();
+        }
+
+        function cloneTour(id) {
+            const tours = JSON.parse(localStorage.getItem('tours') || '[]');
+            const tour = tours.find(t => t.id === id);
+            if (!tour) return;
+
+            currentTour = {...tour};
+            currentTour.id = Date.now();
+            currentTour.name = tour.name + ' (kopija)';
+            currentTour.createdAt = new Date().toISOString();
+            
+            // Ensure localGuides array exists
+            if (!currentTour.localGuides) {
+                currentTour.localGuides = [];
+            }
+            
+            document.getElementById('tourName').value = currentTour.name;
+            document.getElementById('clientName').value = currentTour.client || '';
+            document.getElementById('numPassengers').value = currentTour.numPassengers;
+            document.getElementById('numDays').value = currentTour.numDays;
+            
+            initVehicleOptions();
+            renderDays();
+            renderLocalGuides();
+            updateTourSettingsInfo();
+            showUpdateTemplateButton();  // Show if cloned tour came from template
+            updateCalc();
+            
+            showSection('basic');
+            document.querySelectorAll('.nav-item')[0].click();
+        }
+
+        function deleteTour(id) {
+            if (!confirm('Da li ste sigurni da želite da obrišete ovu turu?')) return;
+            
+            let tours = JSON.parse(localStorage.getItem('tours') || '[]');
+            tours = tours.filter(t => t.id !== id);
+            localStorage.setItem('tours', JSON.stringify(tours));
+            loadHistory();
+        }
+
+        // Templates
+        function loadTemplates() {
+            const templates = JSON.parse(localStorage.getItem('templates') || '[]');
+            const container = document.getElementById('templatesContainer');
+            
+            if (templates.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p style="font-size: 1.2em; margin-bottom: 10px;">📋</p>
+                        <p>Nemate sačuvanih šablona.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = templates.map(template => `
+                <div class="template-card" onclick="loadTemplate(${template.id})">
+                    <h4>${template.name}</h4>
+                    <p style="color: #6c757d; margin: 10px 0;">${template.description || ''}</p>
+                    <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                        <span><strong>${template.numDays} dana</strong></span>
+                        <span><strong>${template.calculations?.totalDistance?.toFixed(0) || 0} km</strong></span>
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteTemplate(${template.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveAsTemplate() {
+            if (!currentTour.name) {
+                alert('⚠️ Molimo prvo kreirajte turu!');
+                return;
+            }
+
+            const templateName = prompt('Unesite naziv šablona:', currentTour.name);
+            if (!templateName) return;
+
+            const template = {
+                ...currentTour,
+                id: Date.now(),
+                name: templateName,
+                description: `${currentTour.numDays} dana, ${currentTour.vehicleType}`,
+                createdAt: new Date().toISOString()
+            };
+
+            let templates = JSON.parse(localStorage.getItem('templates') || '[]');
+            templates.push(template);
+            localStorage.setItem('templates', JSON.stringify(templates));
+            
+            alert('✅ Šablon uspešno sačuvan!');
+            loadTemplates();
+
+            // AUTO-SYNC to cloud if logged in
+            if (googleUser) {
+                saveTemplatesToSheet().catch(err => {
+                    console.error('Auto-sync error:', err);
+                });
+            }
+        }
+
+        function loadTemplate(id) {
+            const templates = JSON.parse(localStorage.getItem('templates') || '[]');
+            const template = templates.find(t => t.id === id);
+            if (!template) return;
+
+            currentTour = {...template};
+            currentTour.id = Date.now();
+            currentTour.name = '';
+            currentTour.client = '';
+            currentTour.sourceTemplateId = template.id;  // Track which template this came from
+            currentTour.sourceTemplateName = template.name;  // For display
+            
+            // Ensure localGuides array exists
+            if (!currentTour.localGuides) {
+                currentTour.localGuides = [];
+            }
+            
+            document.getElementById('tourName').value = '';
+            document.getElementById('clientName').value = '';
+            document.getElementById('numPassengers').value = currentTour.numPassengers;
+            document.getElementById('numDays').value = currentTour.numDays;
+            
+            initVehicleOptions();
+            renderDays();
+            renderLocalGuides();
+            updateTourSettingsInfo();  // Show if template has custom settings
+            updateCalc();
+            showUpdateTemplateButton();  // Show "Update Template" button
+            
+            showSection('basic');
+            document.querySelectorAll('.nav-item')[0].click();
+        }
+
+        function deleteTemplate(id) {
+            if (!confirm('Da li ste sigurni da želite da obrišete ovaj šablon?')) return;
+            
+            let templates = JSON.parse(localStorage.getItem('templates') || '[]');
+            templates = templates.filter(t => t.id !== id);
+            localStorage.setItem('templates', JSON.stringify(templates));
+            loadTemplates();
+        }
+
+        function updateCurrentTemplate() {
+            if (!currentTour.sourceTemplateId) {
+                alert('⚠️ Ova tura nije kreirana iz šablona!');
+                return;
+            }
+
+            const templateName = currentTour.sourceTemplateName || 'šablon';
+            
+            if (!confirm(`Da li želite da AŽURIRATE šablon "${templateName}"?\n\n✅ Šablon će biti prepisan sa trenutnim podacima:\n• Broj dana, tip vozila\n• Svi dani i opisi\n• Lokalni vodiči\n• Parametri (marže, dnevnice, itd.)\n\n⚠️ Naziv ture i klijent se NE čuvaju u šablon.`)) {
+                return;
+            }
+
+            let templates = JSON.parse(localStorage.getItem('templates') || '[]');
+            const templateIndex = templates.findIndex(t => t.id === currentTour.sourceTemplateId);
+            
+            if (templateIndex === -1) {
+                alert('❌ Šablon nije pronađen!');
+                return;
+            }
+
+            // Update template with current tour data (except name and client)
+            const updatedTemplate = {
+                ...currentTour,
+                id: currentTour.sourceTemplateId,  // Keep original template ID
+                name: templates[templateIndex].name,  // Keep original template name
+                description: `${currentTour.numDays} dana, ${currentTour.vehicleType}`,
+                createdAt: templates[templateIndex].createdAt,  // Keep original creation date
+                updatedAt: new Date().toISOString()  // Add update timestamp
+            };
+
+            // Remove sourceTemplateId and sourceTemplateName from saved template
+            delete updatedTemplate.sourceTemplateId;
+            delete updatedTemplate.sourceTemplateName;
+
+            templates[templateIndex] = updatedTemplate;
+            localStorage.setItem('templates', JSON.stringify(templates));
+            
+            alert(`✅ Šablon "${templateName}" uspešno ažuriran!`);
+            loadTemplates();
+        }
+
+        function showUpdateTemplateButton() {
+            const btn = document.getElementById('updateTemplateBtn');
+            if (currentTour.sourceTemplateId) {
+                btn.style.display = 'inline-block';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        function deleteTemplate(id) {
+            if (!confirm('Da li ste sigurni da želite da obrišete ovaj šablon?')) return;
+            
+            let templates = JSON.parse(localStorage.getItem('templates') || '[]');
+            templates = templates.filter(t => t.id !== id);
+            localStorage.setItem('templates', JSON.stringify(templates));
+            loadTemplates();
+        }
+
+        function showTemplateSelection() {
+            closeModal('newTourModal');
+            showSection('templates');
+            document.querySelectorAll('.nav-item')[3].click();
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function goToItinerary() {
+            showSection('itinerary');
+            document.querySelectorAll('.nav-item')[1].click();
+        }
+
+        // Modals
+        function showNewTourModal() {
+            document.getElementById('newTourModal').classList.add('active');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function startFromScratch() {
+            // Load latest settings
+            loadSettings();
+            
+            currentTour = {
+                name: '',
+                client: '',
+                numPassengers: 2,
+                numDays: 5,
+                vehicleType: 'car',
+                days: [],
+                rentCost: 0,
+                localGuides: [],
+                tourSettings: null // Use global settings
+            };
+            
+            // Clear form
+            document.getElementById('tourName').value = '';
+            document.getElementById('clientName').value = '';
+            document.getElementById('numPassengers').value = 2;
+            document.getElementById('numDays').value = 5;
+            
+            closeModal('newTourModal');
+            initVehicleOptions();
+            updateDays();
+            renderLocalGuides();
+            updateTourSettingsInfo();
+            showUpdateTemplateButton();  // Hide update button
+            updateCalc(); // Force recalculation
+            showSection('basic');
+            document.querySelectorAll('.nav-item')[0].click();
+        }
+
+        // Export/Import functionality
+        function exportAllData() {
+            const data = {
+                tours: JSON.parse(localStorage.getItem('tours') || '[]'),
+                templates: JSON.parse(localStorage.getItem('templates') || '[]'),
+                settings: JSON.parse(localStorage.getItem('tourSettings') || '{}'),
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `tour-calculator-backup-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            alert('✅ Podaci uspešno exportovani!\n\nFajl je preuzet u Downloads folder.');
+        }
+
+        function importAllData(event, mergeMode = false) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate data structure
+                    if (!data.tours || !data.templates || !data.settings) {
+                        alert('❌ Neispravan format fajla!');
+                        return;
+                    }
+
+                    const toursCount = data.tours.length;
+                    const templatesCount = data.templates.length;
+
+                    if (mergeMode) {
+                        // MERGE MODE - spoji sa postojećim
+                        const existingTours = JSON.parse(localStorage.getItem('tours') || '[]');
+                        const existingTemplates = JSON.parse(localStorage.getItem('templates') || '[]');
+                        
+                        // Confirm merge
+                        if (!confirm(`Želite li da SPOJITE podatke?\n\n📥 Importuje se:\n• ${toursCount} tura\n• ${templatesCount} šablona\n\n📂 Trenutno imate:\n• ${existingTours.length} tura\n• ${existingTemplates.length} šablona\n\n✅ Sve ture i šabloni će biti sačuvani (bez duplikata)`)) {
+                            return;
+                        }
+
+                        // Merge tours - avoid duplicates by ID
+                        const existingTourIds = new Set(existingTours.map(t => t.id));
+                        const newTours = data.tours.filter(t => !existingTourIds.has(t.id));
+                        const mergedTours = [...existingTours, ...newTours];
+
+                        // Merge templates - avoid duplicates by ID
+                        const existingTemplateIds = new Set(existingTemplates.map(t => t.id));
+                        const newTemplates = data.templates.filter(t => !existingTemplateIds.has(t.id));
+                        const mergedTemplates = [...existingTemplates, ...newTemplates];
+
+                        // Save merged data
+                        localStorage.setItem('tours', JSON.stringify(mergedTours));
+                        localStorage.setItem('templates', JSON.stringify(mergedTemplates));
+                        
+                        // Settings are NOT merged - keep existing
+                        
+                        alert(`✅ Podaci uspešno spojeni!\n\n📊 TURE:\n• Postojeće: ${existingTours.length}\n• Nove: ${newTours.length}\n• Duplikati preskočeni: ${toursCount - newTours.length}\n• UKUPNO: ${mergedTours.length}\n\n📋 ŠABLONI:\n• Postojeći: ${existingTemplates.length}\n• Novi: ${newTemplates.length}\n• Duplikati preskočeni: ${templatesCount - newTemplates.length}\n• UKUPNO: ${mergedTemplates.length}\n\nOsveži stranicu da vidiš promene.`);
+                    } else {
+                        // REPLACE MODE - zameni sve
+                        if (!confirm(`Želite li da ZAMENITE sve podatke?\n\n📥 Importuje se:\n• ${toursCount} tura\n• ${templatesCount} šablona\n• Postavke\n\n⚠️ Ovo će OBRISATI sve trenutne podatke!`)) {
+                            return;
+                        }
+
+                        // Replace all data
+                        localStorage.setItem('tours', JSON.stringify(data.tours));
+                        localStorage.setItem('templates', JSON.stringify(data.templates));
+                        localStorage.setItem('tourSettings', JSON.stringify(data.settings));
+
+                        alert('✅ Podaci uspešno importovani!\n\nOsveži stranicu da vidiš promene.');
+                    }
+                    
+                    // Reload page
+                    location.reload();
+                } catch (error) {
+                    alert('❌ Greška pri učitavanju fajla!\n\n' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Initialize on load
+        init();
+        
+        // Toggle sidebar function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('costSummary');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            
+            if (sidebar.style.display === 'none') {
+                sidebar.style.display = 'block';
+                toggleBtn.style.display = 'none';
+            } else {
+                sidebar.style.display = 'none';
+                toggleBtn.style.display = 'block';
+            }
+        }
+        
+        // Clone value from previous day
+        function cloneValue(fieldName, currentIndex) {
+            if (currentIndex > 0) {
+                const previousDay = currentTour.days[currentIndex - 1];
+                const currentDay = currentTour.days[currentIndex];
+                
+                // Clone the value
+                currentDay[fieldName] = previousDay[fieldName];
+                
+                // Clone the name/location field if it exists
+                if (fieldName === 'guideAccommodation') {
+                    currentDay.guideAccommodationName = previousDay.guideAccommodationName || '';
+                } else if (fieldName === 'passengerAccommodation') {
+                    currentDay.passengerAccommodationName = previousDay.passengerAccommodationName || '';
+                }
+                
+                renderDays();
+                updateCalc();
+            }
+        }
+
+        // Local Guides Management
+        function addLocalGuide() {
+            const guide = {
+                id: Date.now(),
+                location: '',
+                description: '',
+                cost: 0
+            };
+            currentTour.localGuides.push(guide);
+            renderLocalGuides();
+        }
+
+        function removeLocalGuide(id) {
+            currentTour.localGuides = currentTour.localGuides.filter(g => g.id !== id);
+            renderLocalGuides();
+            updateCalc();
+        }
+
+        function renderLocalGuides() {
+            const container = document.getElementById('localGuidesContainer');
+            const totalBox = document.getElementById('localGuidesTotal');
+            const totalAmount = document.getElementById('localGuidesTotalAmount');
+
+            if (currentTour.localGuides.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 40px;">
+                        <p style="font-size: 1.2em; margin-bottom: 10px;">👥</p>
+                        <p>Nemate dodanih lokalnih vodiča.</p>
+                        <p>Kliknite "➕ Dodaj lokalnog vodiča" da dodate.</p>
+                    </div>
+                `;
+                totalBox.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = currentTour.localGuides.map(guide => `
+                <div class="local-guide-card">
+                    <div class="local-guide-header">
+                        <h4>📍 Lokalni vodič</h4>
+                        <button class="btn btn-danger btn-sm" onclick="removeLocalGuide(${guide.id})">
+                            🗑️ Ukloni
+                        </button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Lokacija/Mesto</label>
+                            <input type="text" class="form-control" value="${guide.location}" 
+                                   onchange="updateLocalGuide(${guide.id}, 'location', this.value)"
+                                   placeholder="Npr: Sarajevo, Zagreb...">
+                        </div>
+                        <div class="form-group">
+                            <label>Opis usluge</label>
+                            <input type="text" class="form-control" value="${guide.description}" 
+                                   onchange="updateLocalGuide(${guide.id}, 'description', this.value)"
+                                   placeholder="Npr: Walking tour, Old Town tour...">
+                        </div>
+                        <div class="form-group">
+                            <label>Trošak (EUR)</label>
+                            <input type="number" class="form-control" value="${guide.cost}" 
+                                   onchange="updateLocalGuide(${guide.id}, 'cost', parseFloat(this.value) || 0)"
+                                   placeholder="0">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Calculate total
+            const total = currentTour.localGuides.reduce((sum, g) => sum + g.cost, 0);
+            totalAmount.textContent = `${total.toFixed(0)} EUR`;
+            totalBox.style.display = total > 0 ? 'block' : 'none';
+        }
+
+        function updateLocalGuide(id, field, value) {
+            const guide = currentTour.localGuides.find(g => g.id === id);
+            if (guide) {
+                guide[field] = value;
+                renderLocalGuides();
+                updateCalc();
+            }
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            if (!currentTour.name) {
+                alert('⚠️ Molimo prvo sačuvajte turu!');
+                return;
+            }
+
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Prepare data for export
+            const data = [];
+            
+            // Header
+            data.push(['KALKULATOR TURA - ' + currentTour.name.toUpperCase()]);
+            data.push(['']);
+            data.push(['Klijent:', currentTour.client || '']);
+            data.push(['Broj putnika:', currentTour.numPassengers]);
+            data.push(['Broj dana:', currentTour.numDays]);
+            data.push(['Vozilo:', currentTour.vehicleType === 'car' ? 'Automobil (1-3)' : currentTour.vehicleType === 'van' ? 'Kombi (4-7)' : 'Minibus (8-19)']);
+            data.push(['']);
+            
+            // Days header
+            data.push(['DAN', 'OPIS', 'KM', 'PUTARINA', 'SMEŠTAJ OSOBLJA', 'HOTEL', 'OBROK OSOBLJA', 'MESTO', 'SMEŠTAJ PUTNIKA', 'HOTEL', 'OBROK PUTNIKA', 'MESTO', 'ULAZNICE']);
+            
+            // Days data
+            currentTour.days.forEach(day => {
+                data.push([
+                    day.dayNumber,
+                    day.description || '',
+                    day.distance || 0,
+                    day.tolls || 0,
+                    day.guideAccommodation || 0,
+                    day.guideAccommodationName || '',
+                    day.guideMeals || 0,
+                    day.guideMealsLocation || '',
+                    day.passengerAccommodation || 0,
+                    day.passengerAccommodationName || '',
+                    day.passengerMeals || 0,
+                    day.passengerMealsLocation || '',
+                    day.tickets || 0
+                ]);
+            });
+            
+            data.push(['']);
+            
+            // Local guides
+            if (currentTour.localGuides && currentTour.localGuides.length > 0) {
+                data.push(['LOKALNI VODIČI']);
+                data.push(['LOKACIJA', 'OPIS', 'TROŠAK (EUR)']);
+                currentTour.localGuides.forEach(guide => {
+                    data.push([guide.location, guide.description, guide.cost]);
+                });
+                const totalGuides = currentTour.localGuides.reduce((sum, g) => sum + g.cost, 0);
+                data.push(['', 'UKUPNO:', totalGuides]);
+                data.push(['']);
+            }
+            
+            // Calculations
+            const calc = currentTour.calculations || {};
+            data.push(['KALKULACIJA']);
+            data.push(['']);
+            data.push(['Ukupna kilometraža (Google Maps):', calc.totalDistance || 0]);
+            if (calc.adjustmentPercent && calc.adjustmentPercent > 0) {
+                data.push([`Dodatak za lokalnu manipulaciju (${calc.adjustmentPercent}%):`, calc.adjustedDistance ? (calc.adjustedDistance - calc.totalDistance).toFixed(0) : 0]);
+                data.push(['Prilagođena kilometraža:', calc.adjustedDistance ? calc.adjustedDistance.toFixed(0) : 0]);
+            }
+            data.push(['Gorivo:', calc.fuelCost ? calc.fuelCost.toFixed(2) : 0]);
+            data.push(['Deprecijacija:', calc.depreciationCost ? calc.depreciationCost.toFixed(2) : 0]);
+            data.push(['Renta vozila:', calc.rentCost || 0]);
+            data.push(['Putarina:', calc.totalTolls || 0]);
+            data.push(['Dnevnica vodiča:', calc.guideCost || 0]);
+            data.push(['Smeštaj osoblja:', calc.totalGuideAccommodation || 0]);
+            data.push(['Obrok osoblja:', calc.totalGuideMeals || 0]);
+            
+            const localGuidesCost = currentTour.localGuides ? currentTour.localGuides.reduce((sum, g) => sum + g.cost, 0) : 0;
+            if (localGuidesCost > 0) {
+                data.push(['Lokalni vodiči:', localGuidesCost]);
+            }
+            
+            data.push(['']);
+            data.push(['TROŠKOVI PUTNIKA (ukupno)']);
+            data.push(['Smeštaj:', calc.totalPassengerAccommodation || 0]);
+            data.push(['Obroci:', calc.totalPassengerMeals || 0]);
+            data.push(['Ulaznice:', calc.totalTickets || 0]);
+            data.push(['Ukupno troškovi putnika:', calc.perPersonCosts || 0]);
+            data.push(['']);
+            data.push(['UKUPNI TROŠKOVI:', calc.totalCosts ? calc.totalCosts.toFixed(2) : 0]);
+            data.push(['PRODAJNA CENA:', calc.sellingPrice ? calc.sellingPrice.toFixed(2) : 0]);
+            data.push(['CENA PO OSOBI:', calc.pricePerPerson ? calc.pricePerPerson.toFixed(2) : 0]);
+            data.push(['PROFIT:', calc.profit ? calc.profit.toFixed(2) : 0]);
+            
+            // Create worksheet
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            
+            // Set column widths
+            ws['!cols'] = [
+                {wch: 10}, {wch: 30}, {wch: 10}, {wch: 12}, 
+                {wch: 15}, {wch: 25}, {wch: 15}, {wch: 25},
+                {wch: 15}, {wch: 25}, {wch: 15}, {wch: 25}, {wch: 12}
+            ];
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, "Kalkulacija");
+            
+            // Generate filename
+            const filename = `${currentTour.name.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            
+            // Download
+            XLSX.writeFile(wb, filename);
+        }
+
+        // ==========================================
+        // GOOGLE SHEETS INTEGRATION
+        // ==========================================
+
+        // Configuration
+        const GOOGLE_CONFIG = {
+            clientId: '181563367173-j547tc22c8s87vumajq84q5q107u9slj.apps.googleusercontent.com',
+            discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            scopes: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+            spreadsheetId: '1pcRDGUpSIJUS4P4GxNdfaU8eMrUCK4nb6upRn4RHwq8',
+            whitelist: [
+                'miljan@serbianprivatetours.com',
+                'tour@serbianprivatetours.com',
+                'tamara@serbianprivatetours.com',
+                'andrija.vatovic@serbianprivatetours.com'
+            ]
+        };
+
+        let googleUser = null;
+        let gapiInited = false;
+        let gisInited = false;
+        let tokenClient;
+
+        // Initialize Google API
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            try {
+                await gapi.client.init({
+                    discoveryDocs: GOOGLE_CONFIG.discoveryDocs,
+                });
+                gapiInited = true;
+                console.log('GAPI initialized ✅');
+                checkIfReady();
+            } catch (error) {
+                console.error('GAPI init error:', error);
+                gapiInited = true; // Set to true anyway to proceed
+                checkIfReady();
+            }
+        }
+
+        // Initialize Google Identity Services
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CONFIG.clientId,
+                scope: GOOGLE_CONFIG.scopes,
+                callback: handleAuthCallback,
+            });
+            gisInited = true;
+            console.log('GIS initialized ✅');
+            checkIfReady();
+        }
+
+        // Check if both APIs are ready
+        function checkIfReady() {
+            if (gapiInited && gisInited) {
+                console.log('🎉 Google APIs ready for login!');
+                // Enable login button if it exists
+                const loginBtn = document.getElementById('googleSignInBtn');
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.style.opacity = '1';
+                    loginBtn.style.cursor = 'pointer';
+                    loginBtn.innerHTML = `
+                        <svg class="google-logo" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                        Prijavite se sa Google
+                    `;
+                }
+            }
+        }
+
+        // Show Login Modal
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+
+        // Close Login Modal
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        // Clear any cached tokens
+        function clearCachedTokens() {
+            // Clear GAPI token
+            if (typeof gapi !== 'undefined' && gapi.client) {
+                const token = gapi.client.getToken();
+                if (token) {
+                    gapi.client.setToken(null);
+                }
+            }
+            
+            // Clear cookies related to Google OAuth
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            console.log('✅ Cached tokens cleared');
+        }
+
+        // Continue Offline
+        function continueOffline() {
+            closeLoginModal();
+            alert('Nastavljate u offline režimu. Cloud sync je onemogućen.');
+        }
+
+        // Google Sign In
+        function handleGoogleSignIn() {
+            if (!gapiInited || !gisInited) {
+                alert('Google API se još učitava. Pokušajte ponovo za nekoliko sekundi.');
+                return;
+            }
+
+            // Clear any cached tokens first
+            clearCachedTokens();
+
+            // Force consent to get new scopes
+            tokenClient.requestAccessToken({prompt: 'consent'});
+        }
+
+        // Handle Auth Callback
+        async function handleAuthCallback(resp) {
+            console.log('Auth callback received:', resp);
+            
+            if (resp.error !== undefined) {
+                console.error('Auth error:', resp.error);
+                alert('Greška pri prijavljivanju: ' + resp.error);
+                return;
+            }
+
+            // Get user info
+            try {
+                console.log('Fetching user info...');
+                const token = gapi.client.getToken();
+                console.log('Token:', token);
+                
+                const userInfo = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token.access_token
+                    }
+                }).then(r => r.json());
+
+                console.log('User info received:', userInfo);
+                console.log('User email:', userInfo.email);
+                console.log('Whitelist:', GOOGLE_CONFIG.whitelist);
+                console.log('Is whitelisted?', GOOGLE_CONFIG.whitelist.includes(userInfo.email));
+
+                // Check whitelist
+                if (!GOOGLE_CONFIG.whitelist.includes(userInfo.email)) {
+                    console.error('Email not whitelisted:', userInfo.email);
+                    alert('Vaš email (' + (userInfo.email || 'nepoznat') + ') nije na whitelisti. Kontaktirajte administratora.\n\nWhitelisted emails:\n' + GOOGLE_CONFIG.whitelist.join('\n'));
+                    handleSignOut();
+                    return;
+                }
+
+                console.log('✅ User whitelisted! Creating user object...');
+
+                googleUser = {
+                    email: userInfo.email,
+                    name: userInfo.name,
+                    picture: userInfo.picture
+                };
+
+                console.log('Google user object:', googleUser);
+
+                updateUserInterface();
+                closeLoginModal();
+                alert('Uspešno ste se prijavili! Cloud sync je sada aktivan.');
+
+                // Load data from cloud
+                await loadFromCloud();
+
+            } catch (error) {
+                console.error('Error getting user info:', error);
+                alert('Greška pri preuzimanju informacija o korisniku.');
+            }
+        }
+
+        // Update UI after login
+        function updateUserInterface() {
+            const userSection = document.getElementById('userSection');
+            const syncBtn = document.getElementById('syncBtn');
+
+            if (googleUser) {
+                // Show user info
+                userSection.innerHTML = `
+                    <div class="user-info">
+                        <img src="${googleUser.picture}" alt="User" class="user-avatar">
+                        <span>${googleUser.name}</span>
+                        <button class="logout-btn" onclick="handleSignOut()">Logout</button>
+                    </div>
+                `;
+
+                // Enable sync button
+                syncBtn.disabled = false;
+                syncBtn.title = 'Sinhronizuj sa Google Sheets';
+            } else {
+                // Show login button
+                userSection.innerHTML = `
+                    <button class="login-btn" onclick="showLoginModal()">
+                        <svg class="google-logo" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                        Login
+                    </button>
+                `;
+
+                // Disable sync button
+                syncBtn.disabled = true;
+                syncBtn.title = 'Morate biti ulogovani da biste sinhronizovali';
+            }
+        }
+
+        // Sign Out
+        function handleSignOut() {
+            const token = gapi.client.getToken();
+            if (token !== null) {
+                // Revoke the token
+                google.accounts.oauth2.revoke(token.access_token, () => {
+                    console.log('Token revoked');
+                });
+                gapi.client.setToken(null);
+            }
+            googleUser = null;
+            updateUserInterface();
+            alert('Odjavili ste se. Cloud sync je onemogućen.');
+        }
+
+        // Sync to Cloud (Manual)
+        async function syncToCloud() {
+            if (!googleUser) {
+                alert('Morate biti ulogovani za sinhronizaciju!');
+                return;
+            }
+
+            try {
+                // Save tours
+                await saveToursToSheet();
+                
+                // Save templates
+                await saveTemplatesToSheet();
+                
+                // Save settings
+                await saveSettingsToSheet();
+
+                alert('Sinhronizacija uspešna! ✅');
+            } catch (error) {
+                console.error('Sync error:', error);
+                alert('Greška pri sinhronizaciji: ' + error.message);
+            }
+        }
+
+        // Load from Cloud
+        async function loadFromCloud() {
+            if (!googleUser) return;
+
+            try {
+                // Load tours from sheet
+                await loadToursFromSheet();
+                
+                // Load templates from sheet
+                await loadTemplatesFromSheet();
+                
+                // Load settings from sheet
+                await loadSettingsFromSheet();
+
+                console.log('Data loaded from cloud');
+            } catch (error) {
+                console.error('Load error:', error);
+            }
+        }
+
+        // Placeholder functions for Sheet operations (to be implemented next)
+        // ==========================================
+        // GOOGLE SHEETS HELPER FUNCTIONS
+        // ==========================================
+
+        // Read data from sheet
+        async function readSheet(sheetName) {
+            try {
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: GOOGLE_CONFIG.spreadsheetId,
+                    range: `${sheetName}!A:G`, // All columns including version
+                });
+                return response.result.values || [];
+            } catch (error) {
+                console.error(`Error reading ${sheetName}:`, error);
+                throw error;
+            }
+        }
+
+        // Write data to sheet (append or update)
+        async function writeSheet(sheetName, values) {
+            try {
+                // Clear existing data (except header)
+                await gapi.client.sheets.spreadsheets.values.clear({
+                    spreadsheetId: GOOGLE_CONFIG.spreadsheetId,
+                    range: `${sheetName}!A2:G`,
+                });
+
+                // Write new data
+                if (values.length > 0) {
+                    await gapi.client.sheets.spreadsheets.values.update({
+                        spreadsheetId: GOOGLE_CONFIG.spreadsheetId,
+                        range: `${sheetName}!A2`,
+                        valueInputOption: 'RAW',
+                        resource: {
+                            values: values
+                        }
+                    });
+                }
+                
+                console.log(`✅ Written ${values.length} rows to ${sheetName}`);
+            } catch (error) {
+                console.error(`Error writing to ${sheetName}:`, error);
+                throw error;
+            }
+        }
+
+        // Initialize sheet with headers if empty
+        async function initializeSheet(sheetName, headers) {
+            try {
+                const data = await readSheet(sheetName);
+                if (data.length === 0) {
+                    await gapi.client.sheets.spreadsheets.values.update({
+                        spreadsheetId: GOOGLE_CONFIG.spreadsheetId,
+                        range: `${sheetName}!A1`,
+                        valueInputOption: 'RAW',
+                        resource: {
+                            values: [headers]
+                        }
+                    });
+                    console.log(`✅ Initialized ${sheetName} with headers`);
+                }
+            } catch (error) {
+                console.error(`Error initializing ${sheetName}:`, error);
+            }
+        }
+
+        // ==========================================
+        // SAVE FUNCTIONS
+        // ==========================================
+
+        async function saveToursToSheet() {
+            console.log('Saving tours to sheet...');
+            
+            try {
+                // Initialize sheet if needed
+                await initializeSheet('Tours', ['id', 'name', 'user_email', 'data', 'updated_at', 'updated_by', 'version']);
+
+                // Get tours from localStorage
+                const savedTours = JSON.parse(localStorage.getItem('savedTours') || '[]');
+                
+                if (savedTours.length === 0) {
+                    console.log('No tours to save');
+                    return;
+                }
+
+                // Read existing data to check versions
+                const existingData = await readSheet('Tours');
+                const existingMap = new Map();
+                
+                // Skip header row (index 0)
+                for (let i = 1; i < existingData.length; i++) {
+                    const row = existingData[i];
+                    if (row[0]) { // if has id
+                        existingMap.set(row[0], {
+                            version: parseInt(row[6]) || 0,
+                            row: i + 1 // Sheet row number (1-based, +1 for header)
+                        });
+                    }
+                }
+
+                // Prepare rows for writing
+                const rows = savedTours.map(tour => {
+                    const tourId = tour.id || tour.name; // Use name as fallback ID
+                    const existing = existingMap.get(tourId);
+                    const newVersion = existing ? existing.version + 1 : 1;
+                    const now = new Date().toISOString();
+
+                    return [
+                        tourId,
+                        tour.name,
+                        googleUser.email,
+                        JSON.stringify(tour),
+                        now,
+                        googleUser.name,
+                        newVersion
+                    ];
+                });
+
+                await writeSheet('Tours', rows);
+                console.log(`✅ Saved ${rows.length} tours to sheet`);
+                
+            } catch (error) {
+                console.error('Error saving tours:', error);
+                throw error;
+            }
+        }
+
+        async function saveTemplatesToSheet() {
+            console.log('Saving templates to sheet...');
+            
+            try {
+                // Initialize sheet if needed
+                await initializeSheet('Templates', ['id', 'name', 'user_email', 'data', 'updated_at', 'updated_by', 'version']);
+
+                // Get templates from localStorage
+                const savedTemplates = JSON.parse(localStorage.getItem('savedTemplates') || '[]');
+                
+                if (savedTemplates.length === 0) {
+                    console.log('No templates to save');
+                    return;
+                }
+
+                // Read existing data to check versions
+                const existingData = await readSheet('Templates');
+                const existingMap = new Map();
+                
+                for (let i = 1; i < existingData.length; i++) {
+                    const row = existingData[i];
+                    if (row[0]) {
+                        existingMap.set(row[0], {
+                            version: parseInt(row[6]) || 0
+                        });
+                    }
+                }
+
+                // Prepare rows
+                const rows = savedTemplates.map(template => {
+                    const templateId = template.id || template.name;
+                    const existing = existingMap.get(templateId);
+                    const newVersion = existing ? existing.version + 1 : 1;
+                    const now = new Date().toISOString();
+
+                    return [
+                        templateId,
+                        template.name,
+                        googleUser.email,
+                        JSON.stringify(template),
+                        now,
+                        googleUser.name,
+                        newVersion
+                    ];
+                });
+
+                await writeSheet('Templates', rows);
+                console.log(`✅ Saved ${rows.length} templates to sheet`);
+                
+            } catch (error) {
+                console.error('Error saving templates:', error);
+                throw error;
+            }
+        }
+
+        async function saveSettingsToSheet() {
+            console.log('Saving settings to sheet...');
+            
+            try {
+                // Initialize sheet if needed
+                await initializeSheet('Settings', ['user_email', 'data', 'updated_at', 'updated_by', 'version']);
+
+                // Get settings from localStorage
+                const settings = localStorage.getItem('tourCalculatorSettings');
+                
+                if (!settings) {
+                    console.log('No settings to save');
+                    return;
+                }
+
+                // Read existing data
+                const existingData = await readSheet('Settings');
+                let existingVersion = 0;
+                
+                // Find existing settings for this user
+                for (let i = 1; i < existingData.length; i++) {
+                    const row = existingData[i];
+                    if (row[0] === googleUser.email) {
+                        existingVersion = parseInt(row[4]) || 0;
+                        break;
+                    }
+                }
+
+                const newVersion = existingVersion + 1;
+                const now = new Date().toISOString();
+
+                // Prepare row
+                const row = [
+                    googleUser.email,
+                    settings,
+                    now,
+                    googleUser.name,
+                    newVersion
+                ];
+
+                // Read all existing data
+                const allRows = [];
+                let userRowFound = false;
+                
+                for (let i = 1; i < existingData.length; i++) {
+                    if (existingData[i][0] === googleUser.email) {
+                        allRows.push(row); // Replace user's row
+                        userRowFound = true;
+                    } else {
+                        allRows.push(existingData[i]); // Keep other users' rows
+                    }
+                }
+                
+                if (!userRowFound) {
+                    allRows.push(row); // Add new user row
+                }
+
+                await writeSheet('Settings', allRows);
+                console.log(`✅ Saved settings to sheet`);
+                
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                throw error;
+            }
+        }
+
+        async function loadToursFromSheet() {
+            console.log('Loading tours from sheet...');
+            
+            try {
+                const data = await readSheet('Tours');
+                
+                if (data.length <= 1) { // Only header or empty
+                    console.log('No tours in sheet');
+                    return;
+                }
+
+                const tours = [];
+                
+                // Skip header (index 0)
+                for (let i = 1; i < data.length; i++) {
+                    const row = data[i];
+                    if (row[3]) { // if has data column
+                        try {
+                            const tour = JSON.parse(row[3]);
+                            tours.push(tour);
+                        } catch (e) {
+                            console.error('Error parsing tour:', e);
+                        }
+                    }
+                }
+
+                // REPLACE localStorage (not merge)
+                localStorage.setItem('savedTours', JSON.stringify(tours));
+                console.log(`✅ Loaded ${tours.length} tours from sheet (replaced localStorage)`);
+                
+            } catch (error) {
+                console.error('Error loading tours:', error);
+                throw error;
+            }
+        }
+
+        async function loadTemplatesFromSheet() {
+            console.log('Loading templates from sheet...');
+            
+            try {
+                const data = await readSheet('Templates');
+                
+                if (data.length <= 1) {
+                    console.log('No templates in sheet');
+                    return;
+                }
+
+                const templates = [];
+                
+                for (let i = 1; i < data.length; i++) {
+                    const row = data[i];
+                    if (row[3]) {
+                        try {
+                            const template = JSON.parse(row[3]);
+                            templates.push(template);
+                        } catch (e) {
+                            console.error('Error parsing template:', e);
+                        }
+                    }
+                }
+
+                // REPLACE localStorage
+                localStorage.setItem('savedTemplates', JSON.stringify(templates));
+                console.log(`✅ Loaded ${templates.length} templates from sheet (replaced localStorage)`);
+                
+            } catch (error) {
+                console.error('Error loading templates:', error);
+                throw error;
+            }
+        }
+
+        async function loadSettingsFromSheet() {
+            console.log('Loading settings from sheet...');
+            
+            try {
+                const data = await readSheet('Settings');
+                
+                if (data.length <= 1) {
+                    console.log('No settings in sheet');
+                    return;
+                }
+
+                // Find settings for current user
+                for (let i = 1; i < data.length; i++) {
+                    const row = data[i];
+                    if (row[0] === googleUser.email && row[1]) {
+                        // REPLACE localStorage
+                        localStorage.setItem('tourCalculatorSettings', row[1]);
+                        console.log(`✅ Loaded settings from sheet for ${googleUser.email} (replaced localStorage)`);
+                        return;
+                    }
+                }
+
+                console.log('No settings found for this user in sheet');
+                
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                throw error;
+            }
+        }
+
+        // Initialize Google APIs on page load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, checking for Google APIs...');
+            
+            // Check if scripts loaded
+            let gapiCheckCount = 0;
+            let gisCheckCount = 0;
+            
+            const checkGapi = setInterval(() => {
+                gapiCheckCount++;
+                if (typeof gapi !== 'undefined') {
+                    console.log('GAPI script found!');
+                    clearInterval(checkGapi);
+                    gapiLoaded();
+                } else if (gapiCheckCount > 20) {
+                    console.error('GAPI script failed to load after 10 seconds');
+                    clearInterval(checkGapi);
+                    enableButtonAnyway();
+                }
+            }, 500);
+            
+            const checkGis = setInterval(() => {
+                gisCheckCount++;
+                if (typeof google !== 'undefined' && google.accounts) {
+                    console.log('GIS script found!');
+                    clearInterval(checkGis);
+                    gisLoaded();
+                } else if (gisCheckCount > 20) {
+                    console.error('GIS script failed to load after 10 seconds');
+                    clearInterval(checkGis);
+                    enableButtonAnyway();
+                }
+            }, 500);
+        });
+
+        // Enable button anyway if APIs don't load (fallback)
+        function enableButtonAnyway() {
+            const loginBtn = document.getElementById('googleSignInBtn');
+            if (loginBtn && loginBtn.disabled) {
+                loginBtn.disabled = false;
+                loginBtn.style.opacity = '1';
+                loginBtn.style.cursor = 'pointer';
+                loginBtn.innerHTML = `
+                    <svg class="google-logo" viewBox="0 0 48 48">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                    Prijavite se sa Google
+                `;
+                console.log('Button enabled as fallback');
+            }
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target == modal) {
+                closeLoginModal();
+            }
+        }
+    </script>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="login-modal">
+        <div class="login-modal-content">
+            <div class="login-modal-header">
+                <h2>🔐 Prijavite se</h2>
+                <p style="margin-top: 10px; opacity: 0.9;">Sinhronizujte svoje podatke sa Google Sheets</p>
+            </div>
+            <div class="login-modal-body">
+                <p style="color: #666; margin-bottom: 20px;">
+                    Prijavite se sa Google nalogom da omogućite sinhronizaciju tura, šablona i postavki između uređaja.
+                </p>
+                
+                <button class="google-signin-btn" onclick="handleGoogleSignIn()" id="googleSignInBtn" disabled style="opacity: 0.6; cursor: wait;">
+                    <svg class="google-logo" viewBox="0 0 48 48">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                    Učitavanje...
+                </button>
+
+                <div style="border-top: 1px solid #ddd; margin: 30px 0; padding-top: 20px;">
+                    <p style="color: #999; font-size: 0.85em; margin-bottom: 10px;">
+                        Ili nastavite bez prijave
+                    </p>
+                    <span class="offline-mode-btn" onclick="continueOffline()">
+                        Nastavi offline
+                    </span>
+                </div>
+
+                <div style="margin-top: 30px; font-size: 0.8em; color: #999;">
+                    <p>🔒 Vaši podaci su bezbedni i nikada se ne dele.</p>
+                    <p style="margin-top: 5px;">Samo whitelisted email-ovi mogu pristupiti.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
