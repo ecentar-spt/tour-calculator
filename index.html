@@ -2157,15 +2157,27 @@
 
         function loadTemplate(id) {
             const templates = JSON.parse(localStorage.getItem('templates') || '[]');
-            const template = templates.find(t => t.id === id);
-            if (!template) return;
-
+            
+            console.log('📖 Loading template ID:', id, 'Type:', typeof id);
+            
+            // Normalize ID comparison to string
+            const template = templates.find(t => String(t.id) === String(id));
+            
+            if (!template) {
+                console.error('❌ Template not found:', id);
+                console.log('Available template IDs:', templates.map(t => t.id));
+                return;
+            }
+            
+            console.log('✅ Found template:', template.name);
+            
             currentTour = {...template};
-            currentTour.id = Date.now();
+            currentTour.id = String(Date.now());
             currentTour.name = '';
             currentTour.client = '';
-            currentTour.sourceTemplateId = template.id;  // Track which template this came from
-            currentTour.sourceTemplateName = template.name;  // For display
+            currentTour.sourceTemplateId = template.id;
+            currentTour.sourceTemplateName = template.name;
+            currentTour.isDirty = false; // New tour from template is NOT dirty yet
             
             // Ensure localGuides array exists
             if (!currentTour.localGuides) {
@@ -2180,9 +2192,9 @@
             initVehicleOptions();
             renderDays();
             renderLocalGuides();
-            updateTourSettingsInfo();  // Show if template has custom settings
+            updateTourSettingsInfo();
             updateCalc();
-            showUpdateTemplateButton();  // Show "Update Template" button
+            showUpdateTemplateButton();
             
             showSection('basic');
             document.querySelectorAll('.nav-item')[0].click();
