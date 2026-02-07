@@ -2088,6 +2088,11 @@
                 localStorage.setItem('deletedTours', JSON.stringify(deletedTours));
                 console.log('📝 Added to deletedTours list:', id);
             }
+            
+            loadHistory();
+            
+            console.log('✅ Tour deleted and history refreshed');
+        }
 
         // Templates
         function loadTemplates() {
