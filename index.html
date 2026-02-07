@@ -3362,10 +3362,14 @@
 
                 // Prepare rows
                 const rows = mergedTemplates.map(item => {
-                    const template = item.template;
+                    const template = {...item.template};
                     const templateId = String(template.id || template.name);
                     const version = item.version || 1;
                     const now = new Date().toISOString();
+                    
+                    // CRITICAL: Remove tracking fields from data JSON
+                    delete template.version;
+                    delete template.isDirty;
                     
                     // Use template's own metadata
                     const updated_at = template.createdAt || now;
@@ -3375,10 +3379,10 @@
                         templateId,                 // id
                         template.name,              // name
                         googleUser.email,           // user_email (who is syncing)
-                        JSON.stringify(template),   // data
+                        JSON.stringify(template),   // data (WITHOUT version/isDirty)
                         updated_at,                 // updated_at (when created/edited)
                         updated_by,                 // updated_by (who created/edited)
-                        version                     // version
+                        version                     // version (in column, NOT in data)
                     ];
                 });
 
