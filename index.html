@@ -2080,10 +2080,14 @@
             
             console.log('📊 After delete:', tours.length, 'tours');
             localStorage.setItem('tours', JSON.stringify(tours));
-            loadHistory();
             
-            console.log('✅ Tour deleted and history refreshed');
-        }
+            // Track deleted tours to prevent cloud from restoring them
+            let deletedTours = JSON.parse(localStorage.getItem('deletedTours') || '[]');
+            if (!deletedTours.includes(String(id))) {
+                deletedTours.push(String(id));
+                localStorage.setItem('deletedTours', JSON.stringify(deletedTours));
+                console.log('📝 Added to deletedTours list:', id);
+            }
 
         // Templates
         function loadTemplates() {
@@ -3151,8 +3155,17 @@
                 }
                 
                 // Add remaining cloud tours (not in local)
+                // BUT skip tours that were explicitly deleted locally
+                const deletedTours = JSON.parse(localStorage.getItem('deletedTours') || '[]');
+                
                 for (const [tourId, cloudTour] of cloudToursMap) {
-                    if (!mergedToursMap.has(tourId)) { // Prevent duplicate addition
+                    if (!mergedToursMap.has(tourId)) {
+                        // Check if this tour was deleted locally
+                        if (deletedTours.includes(String(tourId))) {
+                            console.log(`🗑️ Skipping deleted tour: ${cloudTour.data.name} (ID: ${tourId})`);
+                            continue; // Don't restore deleted tours
+                        }
+                        
                         mergedToursMap.set(tourId, {
                             tour: cloudTour.data,
                             source: 'cloud_only',
