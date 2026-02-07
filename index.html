@@ -3173,18 +3173,17 @@
                     }
                 }
 
-               // Prepare rows for writing
+                // Prepare rows for writing
                 const rows = mergedTours.map(item => {
-                    const tour = {...item.tour};
+                    const tour = item.tour;
                     const tourId = String(tour.id || tour.name);
                     const version = item.version || 1;
                     const now = new Date().toISOString();
 
-                    // CRITICAL: Remove tracking fields from data JSON
-                    delete tour.version;
-                    delete tour.isDirty;
-
-                    // Use tour's own metadata, not current user!
+                    // CRITICAL: Use tour's own metadata, not current user!
+                    // updated_at = when the tour was EDITED (from tour.updatedAt)
+                    // updated_by = who EDITED the tour (from tour.updatedBy)
+                    // user_email = who is SYNCING now (current user)
                     const updated_at = tour.updatedAt || now;
                     const updated_by = tour.updatedBy || (googleUser ? googleUser.name : 'Unknown');
 
@@ -3192,10 +3191,10 @@
                         tourId,                     // id
                         tour.name,                  // name
                         googleUser.email,           // user_email (who is syncing)
-                        JSON.stringify(tour),       // data (WITHOUT version/isDirty)
+                        JSON.stringify(tour),       // data
                         updated_at,                 // updated_at (when edited)
                         updated_by,                 // updated_by (who edited)
-                        version                     // version (in column, NOT in data)
+                        version                     // version
                     ];
                 });
 
@@ -3362,14 +3361,10 @@
 
                 // Prepare rows
                 const rows = mergedTemplates.map(item => {
-                    const template = {...item.template};
+                    const template = item.template;
                     const templateId = String(template.id || template.name);
                     const version = item.version || 1;
                     const now = new Date().toISOString();
-                    
-                    // CRITICAL: Remove tracking fields from data JSON
-                    delete template.version;
-                    delete template.isDirty;
                     
                     // Use template's own metadata
                     const updated_at = template.createdAt || now;
@@ -3379,10 +3374,10 @@
                         templateId,                 // id
                         template.name,              // name
                         googleUser.email,           // user_email (who is syncing)
-                        JSON.stringify(template),   // data (WITHOUT version/isDirty)
+                        JSON.stringify(template),   // data
                         updated_at,                 // updated_at (when created/edited)
                         updated_by,                 // updated_by (who created/edited)
-                        version                     // version (in column, NOT in data)
+                        version                     // version
                     ];
                 });
 
