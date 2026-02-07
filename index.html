@@ -2292,29 +2292,39 @@ function commitCurrentTourToSourceTemplate({ bumpUpdatedMeta = false } = {}) {
     ...original,
     ...currentTour,
     id: original.id,
-    name: original.name,
-    description: original.description,
+
+    // OVO JE KRITIČNO: naziv šablona mora da ostane naziv šablona
+    name: original.name || currentTour.sourceTemplateName || currentTour.name || '',
+
+    // description za šablon (možeš i da je računaš, ali makar nemoj da je prazniš)
+    description: original.description || `${currentTour.numDays} dana, ${currentTour.vehicleType}`,
+
     createdAt: original.createdAt,
     updatedAt: bumpUpdatedMeta
       ? new Date().toISOString()
       : (original.updatedAt || new Date().toISOString()),
     updatedBy: bumpUpdatedMeta
       ? (googleUser ? googleUser.name : 'Unknown')
-      : original.updatedBy,
+      : (original.updatedBy || 'Unknown'),
+
+    // verziju možeš da držiš lokalno ili samo u Sheets, ali pošto je već koristiš — ostavljamo
     version: (original.version || 1) + (bumpUpdatedMeta ? 1 : 0)
   };
 
-  // Template ne sme da pamti template-specifične reference
+  // Template ne sme da pamti "tour instance" reference
   delete mergedTemplate.sourceTemplateId;
   delete mergedTemplate.sourceTemplateName;
+
+  // Ne čuvamo klijenta u šablonu
   delete mergedTemplate.client;
-  delete mergedTemplate.name;
+
+  // NE BRISATI mergedTemplate.name !!!
 
   templates[idx] = mergedTemplate;
   localStorage.setItem('templates', JSON.stringify(templates));
 
   console.log(
-    `🔁 Template "${original.name}" committed (v${original.version || 1} → ${mergedTemplate.version})`
+    `🔁 Template "${mergedTemplate.name}" committed (v${original.version || 1} → ${mergedTemplate.version})`
   );
 
   return true;
