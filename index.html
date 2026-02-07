@@ -3173,17 +3173,18 @@
                     }
                 }
 
-                // Prepare rows for writing
+               // Prepare rows for writing
                 const rows = mergedTours.map(item => {
-                    const tour = item.tour;
+                    const tour = {...item.tour};
                     const tourId = String(tour.id || tour.name);
                     const version = item.version || 1;
                     const now = new Date().toISOString();
 
-                    // CRITICAL: Use tour's own metadata, not current user!
-                    // updated_at = when the tour was EDITED (from tour.updatedAt)
-                    // updated_by = who EDITED the tour (from tour.updatedBy)
-                    // user_email = who is SYNCING now (current user)
+                    // CRITICAL: Remove tracking fields from data JSON
+                    delete tour.version;
+                    delete tour.isDirty;
+
+                    // Use tour's own metadata, not current user!
                     const updated_at = tour.updatedAt || now;
                     const updated_by = tour.updatedBy || (googleUser ? googleUser.name : 'Unknown');
 
@@ -3191,10 +3192,10 @@
                         tourId,                     // id
                         tour.name,                  // name
                         googleUser.email,           // user_email (who is syncing)
-                        JSON.stringify(tour),       // data
+                        JSON.stringify(tour),       // data (WITHOUT version/isDirty)
                         updated_at,                 // updated_at (when edited)
                         updated_by,                 // updated_by (who edited)
-                        version                     // version
+                        version                     // version (in column, NOT in data)
                     ];
                 });
 
