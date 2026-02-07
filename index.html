@@ -3427,23 +3427,30 @@ function showTemplateSelection() {
                 console.log(`☁️ Found ${existingData.length - 1} templates in cloud`);
                 
                 // Build map of cloud templates
-                const cloudTemplatesMap = new Map();
-                for (let i = 1; i < existingData.length; i++) {
-                    const row = existingData[i];
-                    if (row[0]) {
-                        try {
-                            const templateData = JSON.parse(row[3]);
-                            cloudTemplatesMap.set(row[0], {
-                                data: templateData,
-                                updated_at: row[4],
-                                updated_by: row[5],
-                                version: parseInt(row[6]) || 0
-                            });
-                        } catch (e) {
-                            console.error(`Error parsing cloud template ${row[0]}:`, e);
-                        }
-                    }
-                }
+const cloudTemplatesMap = new Map();
+for (let i = 1; i < existingData.length; i++) {
+  const row = existingData[i];
+  if (row[0]) {
+    try {
+      const templateData = JSON.parse(row[3]);
+
+      // ✅ REPAIR: ako JSON nema name, uzmi ga iz Sheets kolone "name"
+      const sheetName = row[1];
+      if (!templateData.name && sheetName) {
+        templateData.name = sheetName;
+      }
+
+      cloudTemplatesMap.set(row[0], {
+        data: templateData,
+        updated_at: row[4],
+        updated_by: row[5],
+        version: parseInt(row[6]) || 0
+      });
+    } catch (e) {
+      console.error(`Error parsing cloud template ${row[0]}:`, e);
+    }
+  }
+}
 
                 // MERGE LOGIC - use Map to prevent duplicates
                 const mergedTemplatesMap = new Map();
