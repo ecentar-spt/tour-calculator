@@ -3322,7 +3322,7 @@
                 const mergedTemplatesMap = new Map();
                 const conflicts = [];
                 
-                for (const localTemplate of localTemplates) {
+                 for (const localTemplate of localTemplates) {
                     const templateId = String(localTemplate.id || localTemplate.name);
                     const cloudTemplate = cloudTemplatesMap.get(templateId);
                     
@@ -3337,13 +3337,19 @@
                         const localTime = new Date(localTemplate.createdAt || 0).getTime();
                         const cloudTime = new Date(cloudTemplate.updated_at || 0).getTime();
                         
+                        // DEBUG: Detailed comparison
+                        console.log(`🔍 Comparing template "${localTemplate.name}" (ID: ${templateId}):`);
+                        console.log(`  📱 LOCAL:  createdAt=${localTemplate.createdAt}, updatedBy=${localTemplate.updatedBy}, version=${localTemplate.version || 'unknown'}`);
+                        console.log(`  ☁️  CLOUD: updated_at=${cloudTemplate.updated_at}, updated_by=${cloudTemplate.updated_by}, version=${cloudTemplate.version}`);
+                        console.log(`  ⏱️  TIME COMPARE: local=${localTime}, cloud=${cloudTime}, diff=${localTime - cloudTime}ms`);
+                        
                         if (localTime > cloudTime) {
                             mergedTemplatesMap.set(templateId, {
                                 template: localTemplate,
                                 source: 'local_newer',
                                 version: cloudTemplate.version + 1
                             });
-                            console.log(`📝 Local newer: ${localTemplate.name} (v${cloudTemplate.version} -> v${cloudTemplate.version + 1})`);
+                            console.log(`  ✅ DECISION: Local is newer → uploading (v${cloudTemplate.version} -> v${cloudTemplate.version + 1})`);
                         } else if (localTime < cloudTime) {
                             mergedTemplatesMap.set(templateId, {
                                 template: cloudTemplate.data,
@@ -3355,14 +3361,14 @@
                                 local: localTime,
                                 cloud: cloudTime
                             });
-                            console.log(`⚠️ Cloud newer: ${localTemplate.name} (keeping cloud v${cloudTemplate.version})`);
+                            console.log(`  ⚠️  DECISION: Cloud is newer → using cloud (v${cloudTemplate.version})`);
                         } else {
                             mergedTemplatesMap.set(templateId, {
                                 template: localTemplate,
                                 source: 'same',
                                 version: cloudTemplate.version
                             });
-                            console.log(`✅ Same version: ${localTemplate.name} (v${cloudTemplate.version})`);
+                            console.log(`  ⚖️  DECISION: Same timestamp → keeping local (v${cloudTemplate.version})`);
                         }
                     }
                 }
