@@ -3580,24 +3580,28 @@ for (let i = 1; i < existingData.length; i++) {
                 console.log(`✅ Saved ${rows.length} templates to sheet successfully`);
                 
                 // CRITICAL FIX: Update localStorage with merged data AND preserve versions
-                const mergedTemplatesData = mergedTemplates.map(item => {
-                    const template = item.template;
-                    // PRESERVE VERSION in the template object
-                    template.version = item.version;
-                    // Normalize ID to string
-                    template.id = String(template.id || template.name);
-                    return template;
-                });
-                
-                localStorage.setItem('templates', JSON.stringify(mergedTemplatesData));
-                console.log(`💾 Updated localStorage with ${mergedTemplatesData.length} merged templates (versions preserved)`);
-                loadTemplates(); // Refresh UI
-                
-            } catch (error) {
-                console.error('❌ Error saving templates:', error);
-                throw error;
-            }
-        }
+const mergedTemplatesData = mergedTemplates.map(item => {
+  const template = item.template;
+
+  // Normalize ID to string (pre svega)
+  const templateId = String(template.id || template.name);
+
+  // ✅ SAFE NAME: nikad ne dozvoli da name bude prazan u localStorage
+  const cloudName = cloudTemplatesMap.get(String(templateId))?.data?.name;
+  template.name = template.name || cloudName || '(Unnamed template)';
+
+  // PRESERVE VERSION in the template object
+  template.version = item.version;
+
+  // Normalize ID to string (ali ne oslanjaj se na name ako već ima id)
+  template.id = String(template.id || templateId);
+
+  return template;
+});
+
+localStorage.setItem('templates', JSON.stringify(mergedTemplatesData));
+console.log(`💾 Updated localStorage with ${mergedTemplatesData.length} merged templates (versions preserved)`);
+loadTemplates(); // Refresh UI
 
         async function saveSettingsToSheet() {
             console.log('📤 Saving settings to sheet...');
