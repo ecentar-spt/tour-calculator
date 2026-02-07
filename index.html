@@ -3362,12 +3362,12 @@ function showTemplateSelection() {
                         });
                         console.log(`🆕 New template: ${localTemplate.name}`);
                     } else {
-                        const localTime = new Date(localTemplate.createdAt || 0).getTime();
+                        const localTime = new Date(localTemplate.updatedAt || localTemplate.createdAt || 0).getTime();
                         const cloudTime = new Date(cloudTemplate.updated_at || 0).getTime();
                         
                         // DEBUG: Detailed comparison
                         console.log(`🔍 Comparing template "${localTemplate.name}" (ID: ${templateId}):`);
-                        console.log(`  📱 LOCAL:  createdAt=${localTemplate.createdAt}, updatedBy=${localTemplate.updatedBy}, version=${localTemplate.version || 'unknown'}`);
+                        console.log(`  📱 LOCAL:  updatedAt=${localTemplate.updatedAt}, updatedBy=${localTemplate.updatedBy}, version=${localTemplate.version || 'unknown'}`);
                         console.log(`  ☁️  CLOUD: updated_at=${cloudTemplate.updated_at}, updated_by=${cloudTemplate.updated_by}, version=${cloudTemplate.version}`);
                         console.log(`  ⏱️  TIME COMPARE: local=${localTime}, cloud=${cloudTime}, diff=${localTime - cloudTime}ms`);
                         
@@ -3390,14 +3390,24 @@ function showTemplateSelection() {
                                 cloud: cloudTime
                             });
                             console.log(`  ⚠️  DECISION: Cloud is newer → using cloud (v${cloudTemplate.version})`);
-                        } else {
-                            mergedTemplatesMap.set(templateId, {
-                                template: localTemplate,
-                                source: 'same',
-                                version: cloudTemplate.version
-                            });
-                            console.log(`  ⚖️  DECISION: Same timestamp → keeping local (v${cloudTemplate.version})`);
-                        }
+                       } else {
+                        const merged = { ...localTemplate };
+
+                            // Ako lokalni objekat nema metadata, preuzmi ih iz clouda
+                            if (!merged.updatedAt && cloudTemplate.updated_at) {
+                            merged.updatedAt = cloudTemplate.updated_at;
+                           }
+                            if (!merged.updatedBy && cloudTemplate.updated_by) {
+                            merged.updatedBy = cloudTemplate.updated_by;
+                           }
+
+                           mergedTemplatesMap.set(templateId, {
+                              template: merged,
+                              source: 'same',
+                              version: cloudTemplate.version
+                           });
+                        console.log(`  ⚖️  DECISION: Same timestamp → keeping local (v${cloudTemplate.version})`);
+                      }
                     }
                 }
                 
@@ -3445,7 +3455,7 @@ function showTemplateSelection() {
                     delete template.isDirty;
                     
                     // Use template's own metadata
-                    const updated_at = template.createdAt || now;
+                    const updated_at = template.updatedAt || template.createdAt || now;
                     const updated_by = template.updatedBy || (googleUser ? googleUser.name : 'Unknown');
 
                     return [
