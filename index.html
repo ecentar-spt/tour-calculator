@@ -2266,6 +2266,60 @@ if (currentTour.sourceTemplateId) {
   updateCalc(); // Immediately recalculate
 }
 
+// ==========================================
+// COMMIT CURRENT TOUR BACK TO ITS SOURCE TEMPLATE
+// ==========================================
+function commitCurrentTourToSourceTemplate({ bumpUpdatedMeta = false } = {}) {
+  if (!currentTour || !currentTour.sourceTemplateId) {
+    console.warn('⚠️ No source template to commit to');
+    return false;
+  }
+
+  let templates = JSON.parse(localStorage.getItem('templates') || '[]');
+  const idx = templates.findIndex(
+    t => String(t.id) === String(currentTour.sourceTemplateId)
+  );
+
+  if (idx === -1) {
+    console.error('❌ Source template not found:', currentTour.sourceTemplateId);
+    return false;
+  }
+
+  const original = templates[idx];
+
+  // Merge current tour → template
+  const mergedTemplate = {
+    ...original,
+    ...currentTour,
+    id: original.id,
+    name: original.name,
+    description: original.description,
+    createdAt: original.createdAt,
+    updatedAt: bumpUpdatedMeta
+      ? new Date().toISOString()
+      : (original.updatedAt || new Date().toISOString()),
+    updatedBy: bumpUpdatedMeta
+      ? (googleUser ? googleUser.name : 'Unknown')
+      : original.updatedBy,
+    version: (original.version || 1) + (bumpUpdatedMeta ? 1 : 0)
+  };
+
+  // Template ne sme da pamti template-specifične reference
+  delete mergedTemplate.sourceTemplateId;
+  delete mergedTemplate.sourceTemplateName;
+  delete mergedTemplate.client;
+  delete mergedTemplate.name;
+
+  templates[idx] = mergedTemplate;
+  localStorage.setItem('templates', JSON.stringify(templates));
+
+  console.log(
+    `🔁 Template "${original.name}" committed (v${original.version || 1} → ${mergedTemplate.version})`
+  );
+
+  return true;
+}
+        
 function updateCurrentTemplate() {
   if (!currentTour.sourceTemplateId) {
     alert('⚠️ Ova tura nije kreirana iz šablona!');
