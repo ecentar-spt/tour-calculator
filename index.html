@@ -2230,6 +2230,41 @@ function deleteTemplate(id) {
 
   loadTemplates();
 }
+        
+function applyTourSettings() {
+  // Save tour-specific settings
+  currentTour.tourSettings = {
+    fuelPrice: parseFloat(document.getElementById('tourFuelPrice').value),
+    carConsumption: parseFloat(document.getElementById('tourCarConsumption').value),
+    vanConsumption: parseFloat(document.getElementById('tourVanConsumption').value),
+    depreciation: parseFloat(document.getElementById('tourDepreciation').value),
+    distanceAdjustment: parseFloat(document.getElementById('tourDistanceAdjustment').value),
+    guideDailyCar: parseFloat(document.getElementById('tourGuideDailyCar').value),
+    guideDailyVan: parseFloat(document.getElementById('tourGuideDailyVan').value),
+    guideDailyMinibus: parseFloat(document.getElementById('tourGuideDailyMinibus').value),
+    defaultMargin: parseFloat(document.getElementById('tourDefaultMargin').value),
+    trekkSoftCommission: parseFloat(document.getElementById('tourTrekkSoftCommission').value),
+    partnerCommission: parseFloat(document.getElementById('tourPartnerCommission').value)
+  };
+
+  // MARK: this is a real change
+  currentTour.isDirty = true;
+  currentTour.updatedAt = new Date().toISOString();
+  currentTour.updatedBy = googleUser ? googleUser.name : 'Unknown';
+
+  // If we are editing a tour derived from a template, commit immediately to that template
+if (currentTour.sourceTemplateId) {
+  const ok = commitCurrentTourToSourceTemplate({ bumpUpdatedMeta: true });
+  if (ok) {
+    currentTour.isDirty = false; // parametri su sada sačuvani u template
+    loadTemplates();
+  }
+}
+
+  updateTourSettingsInfo();
+  closeModal('tourSettingsModal');
+  updateCalc(); // Immediately recalculate
+}
 
 function updateCurrentTemplate() {
   if (!currentTour.sourceTemplateId) {
