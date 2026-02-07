@@ -2127,26 +2127,27 @@
                 alert('⚠️ Molimo prvo kreirajte turu!');
                 return;
             }
-
+            
             const templateName = prompt('Unesite naziv šablona:', currentTour.name);
             if (!templateName) return;
-
+            
             const template = {
                 ...currentTour,
-                id: Date.now(),
+                id: crypto.randomUUID?.() ?? String(Date.now()),
                 name: templateName,
                 description: `${currentTour.numDays} dana, ${currentTour.vehicleType}`,
                 createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(), // ADD THIS!
                 updatedBy: googleUser ? googleUser.name : 'Unknown'
             };
-
+            
             let templates = JSON.parse(localStorage.getItem('templates') || '[]');
             templates.push(template);
             localStorage.setItem('templates', JSON.stringify(templates));
             
             alert('✅ Šablon uspešno sačuvan!');
             loadTemplates();
-
+            
             // AUTO-SYNC to cloud if logged in (with cooldown)
             if (googleUser && canAttemptSync('templates')) {
                 saveTemplatesToSheet().catch(err => {
@@ -2214,48 +2215,54 @@
                 alert('⚠️ Ova tura nije kreirana iz šablona!');
                 return;
             }
-
+            
             const templateName = currentTour.sourceTemplateName || 'šablon';
             
             if (!confirm(`Da li želite da AŽURIRATE šablon "${templateName}"?\n\n✅ Šablon će biti prepisan sa trenutnim podacima:\n• Broj dana, tip vozila\n• Svi dani i opisi\n• Lokalni vodiči\n• Parametri (marže, dnevnice, itd.)\n\n⚠️ Naziv ture i klijent se NE čuvaju u šablon.`)) {
                 return;
             }
-
+            
             let templates = JSON.parse(localStorage.getItem('templates') || '[]');
-            const templateIndex = templates.findIndex(t => t.id === currentTour.sourceTemplateId);
+            const templateIndex = templates.findIndex(t => String(t.id) === String(currentTour.sourceTemplateId));
             
             if (templateIndex === -1) {
                 alert('❌ Šablon nije pronađen!');
                 return;
             }
-
+            
+            console.log('🔄 Updating template:', templateName);
+            console.log('  Old version:', templates[templateIndex].version || 'unknown');
+            
             // Update template with current tour data (except name and client)
             const updatedTemplate = {
                 ...currentTour,
-                id: currentTour.sourceTemplateId,  // Keep original template ID
-                name: templates[templateIndex].name,  // Keep original template name
+                id: currentTour.sourceTemplateId,
+                name: templates[templateIndex].name,
                 description: `${currentTour.numDays} dana, ${currentTour.vehicleType}`,
-                createdAt: templates[templateIndex].createdAt,  // Keep original creation date
-                updatedAt: new Date().toISOString()  // Add update timestamp
+                createdAt: templates[templateIndex].createdAt,
+                updatedAt: new Date().toISOString(), // CRITICAL!
+                updatedBy: googleUser ? googleUser.name : 'Unknown', // ADD THIS!
+                version: templates[templateIndex].version || 1 // PRESERVE VERSION
             };
-
+            
             // Remove sourceTemplateId and sourceTemplateName from saved template
             delete updatedTemplate.sourceTemplateId;
             delete updatedTemplate.sourceTemplateName;
-
+            
             templates[templateIndex] = updatedTemplate;
             localStorage.setItem('templates', JSON.stringify(templates));
             
+            console.log('  New updatedAt:', updatedTemplate.updatedAt);
+            console.log('  Updated by:', updatedTemplate.updatedBy);
+            
             alert(`✅ Šablon "${templateName}" uspešno ažuriran!`);
             loadTemplates();
-        }
-
-        function showUpdateTemplateButton() {
-            const btn = document.getElementById('updateTemplateBtn');
-            if (currentTour.sourceTemplateId) {
-                btn.style.display = 'inline-block';
-            } else {
-                btn.style.display = 'none';
+            
+            // AUTO-SYNC to cloud if logged in
+            if (googleUser && canAttemptSync('templates')) {
+                saveTemplatesToSheet().catch(err => {
+                    console.error('Auto-sync error:', err);
+                });
             }
         }
 
