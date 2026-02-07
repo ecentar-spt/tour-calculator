@@ -3559,7 +3559,7 @@ function showTemplateSelection() {
 
                     return [
                         templateId,                 // id
-                        template.name,              // name
+                        (template.name || '(Unnamed template)'),   // name ✅ AIRBAG
                         googleUser.email,           // user_email (who is syncing)
                         JSON.stringify(template),   // data (WITHOUT version/isDirty)
                         updated_at,                 // updated_at (when created/edited)
