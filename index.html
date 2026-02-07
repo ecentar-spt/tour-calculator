@@ -3579,15 +3579,26 @@ for (let i = 1; i < existingData.length; i++) {
                 await writeSheet('Templates', rows);
                 console.log(`✅ Saved ${rows.length} templates to sheet successfully`);
                 
-                // CRITICAL FIX: Update localStorage with merged data AND preserve versions
-                const mergedTemplatesData = mergedTemplates.map(item => {
-                    const template = item.template;
-                    // PRESERVE VERSION in the template object
+               // CRITICAL FIX: Update localStorage with merged data AND preserve versions
+               const mergedTemplatesData = mergedTemplates.map(item => {
+               const template = item.template;
+
+               // Normalize ID (pre svega)
+               const templateId = String(template.id || template.name);
+
+               // ✅ SAFE NAME: nikad ne dozvoli prazan name u localStorage
+               const cloudName = cloudTemplatesMap.get(templateId)?.data?.name;
+                    template.name = template.name || cloudName || '(Unnamed template)';
+
+                // PRESERVE VERSION in the template object
                     template.version = item.version;
-                    // Normalize ID to string
-                    template.id = String(template.id || template.name);
-                    return template;
-                });
+
+                // Normalize ID to string (ali ne oslanjaj se na name)
+                    template.id = String(template.id || templateId);
+
+                return template;
+});
+
                 
                 localStorage.setItem('templates', JSON.stringify(mergedTemplatesData));
                 console.log(`💾 Updated localStorage with ${mergedTemplatesData.length} merged templates (versions preserved)`);
