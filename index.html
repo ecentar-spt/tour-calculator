@@ -3566,7 +3566,7 @@ for (let i = 1; i < existingData.length; i++) {
 
                     return [
                         templateId,                 // id
-                        (template.name || '(Unnamed template)'),   // name ✅ AIRBAG
+                        (template.name || cloudTemplatesMap.get(String(templateId))?.data?.name || '(Unnamed template)')   // name ✅ AIRBAG
                         googleUser.email,           // user_email (who is syncing)
                         JSON.stringify(template),   // data (WITHOUT version/isDirty)
                         updated_at,                 // updated_at (when created/edited)
