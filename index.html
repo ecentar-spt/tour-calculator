@@ -1435,7 +1435,7 @@
                                    oninput="updatePartner('${p.id}', 'commission', this.value)">
                         </div>
                     </div>
-                    <div style="background: #e8f5e9; padding: 8px 12px; border-radius: 5px; font-size: 0.9em;">
+                    <div id="partnerPreview_${p.id}" style="background: #e8f5e9; padding: 8px 12px; border-radius: 5px; font-size: 0.9em;">
                         → Sa provizijom: <strong>${withCommission.toFixed(2)} EUR/pax</strong>
                         × ${currentTour.numPassengers} pax = 
                         <strong>${(withCommission * currentTour.numPassengers).toFixed(2)} EUR ukupno</strong>
