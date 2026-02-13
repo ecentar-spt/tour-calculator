@@ -1389,7 +1389,19 @@
             const partner = currentTour.partners.find(p => String(p.id) === String(id));
             if (partner) {
                 partner[field] = field === 'name' ? value : parseFloat(value) || 0;
-                renderPartners();
+                
+                // Samo update preview, ne re-renderuj ceo blok!
+                if (field !== 'name') {
+                    const withCommission = partner.pricePerPerson / (1 - partner.commission / 100);
+                    const total = withCommission * currentTour.numPassengers;
+                    const preview = document.getElementById(`partnerPreview_${id}`);
+                    if (preview) {
+                        preview.innerHTML = `→ Sa provizijom: <strong>${withCommission.toFixed(2)} EUR/pax</strong>
+                        × ${currentTour.numPassengers} pax = 
+                        <strong>${(total).toFixed(2)} EUR ukupno</strong>`;
+                    }
+                }
+                
                 updateCalc();
             }
         }
