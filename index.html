@@ -1831,13 +1831,31 @@
             // Local guides cost
             const localGuidesCost = currentTour.localGuides.reduce((sum, g) => sum + g.cost, 0);
 
+           // Partner services cost
+            let partnersCost = 0;
+            let partnersBreakdown = [];
+            if (currentTour.partners && currentTour.partners.length > 0) {
+                currentTour.partners.forEach(p => {
+                    const withCommission = p.pricePerPerson / (1 - p.commission / 100);
+                    const total = withCommission * currentTour.numPassengers;
+                    partnersCost += total;
+                    partnersBreakdown.push({
+                        name: p.name || 'Partner',
+                        pricePerPerson: p.pricePerPerson,
+                        commission: p.commission,
+                        withCommission,
+                        total
+                    });
+                });
+            }
+
             // Total costs
             const fixedCosts = fuelCost + depreciationCost + rentCost + totalTolls + 
                              totalGuideAccommodation + totalGuideMeals + guideCost + localGuidesCost;
 
             const perPersonCosts = (totalPassengerAccommodation + totalPassengerMeals + totalTickets) * currentTour.numPassengers;
 
-            const totalCosts = fixedCosts + perPersonCosts;
+            const totalCosts = fixedCosts + perPersonCosts + partnersCost;
             const costPerPerson = totalCosts / currentTour.numPassengers;
 
             // Selling price
@@ -1848,7 +1866,6 @@
             const sellingPrice = totalCosts / (1 - margin - commission - partnerComm);
             const pricePerPerson = sellingPrice / currentTour.numPassengers;
             const profit = sellingPrice - totalCosts;
-
             // Update summary
             const summaryEl = document.getElementById('costSummary');
             const detailsEl = document.getElementById('costDetails');
