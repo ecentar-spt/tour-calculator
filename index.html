@@ -2889,6 +2889,22 @@ function showTemplateSelection() {
             data.push(['Ulaznice:', calc.totalTickets || 0]);
             data.push(['Ukupno troškovi putnika:', calc.perPersonCosts || 0]);
             data.push(['']);
+            // Partner services
+            if (calc.partnersBreakdown && calc.partnersBreakdown.length > 0) {
+                data.push(['']);
+                data.push(['PARTNER USLUGE']);
+                data.push(['PARTNER', 'CENA/PAX', 'PROVIZIJA %', 'SA PROVIZIJOM/PAX', 'UKUPNO']);
+                calc.partnersBreakdown.forEach(p => {
+                    data.push([
+                        p.name,
+                        p.pricePerPerson.toFixed(2),
+                        p.commission + '%',
+                        p.withCommission.toFixed(2),
+                        p.total.toFixed(2)
+                    ]);
+                });
+                data.push(['', '', '', 'UKUPNO PARTNER:', calc.partnersCost.toFixed(2)]);
+            }
             data.push(['UKUPNI TROŠKOVI:', calc.totalCosts ? calc.totalCosts.toFixed(2) : 0]);
             data.push(['PRODAJNA CENA:', calc.sellingPrice ? calc.sellingPrice.toFixed(2) : 0]);
             data.push(['CENA PO OSOBI:', calc.pricePerPerson ? calc.pricePerPerson.toFixed(2) : 0]);
