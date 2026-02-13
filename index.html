@@ -1916,6 +1916,16 @@
                         <span>Lokalni vodiči:</span>
                         <strong>${localGuidesCost.toFixed(0)} EUR</strong>
                     </div>` : ''}
+                    ${partnersCost > 0 ? `
+                    <div class="cost-line" style="border-top: 1px dashed #dee2e6; padding-top: 5px; margin-top: 5px;">
+                        <span>🤝 Partner usluge:</span>
+                        <strong>${partnersCost.toFixed(0)} EUR</strong>
+                    </div>
+                    ${partnersBreakdown.map(p => `
+                    <div class="cost-line" style="font-size: 0.85em; opacity: 0.8; padding-left: 15px;">
+                        <span>${p.name}: ${p.withCommission.toFixed(0)} EUR/pax</span>
+                        <strong>${p.total.toFixed(0)} EUR</strong>
+                    </div>`).join('')}` : ''}
                     <div class="cost-line">
                         <span>Troškovi putnika:</span>
                         <strong>${perPersonCosts.toFixed(0)} EUR</strong>
