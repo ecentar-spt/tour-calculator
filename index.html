@@ -1349,7 +1349,97 @@
             closeModal('tourSettingsModal');
             updateCalc(); // Immediately recalculate
         }
+// ─── PARTNER USLUGA ───────────────────────────────────────────
+        
+        function togglePartnerService() {
+            const enabled = document.getElementById('partnerServiceEnabled').checked;
+            document.getElementById('partnerServicesContainer').style.display = enabled ? 'block' : 'none';
+            
+            if (enabled && (!currentTour.partners || currentTour.partners.length === 0)) {
+                currentTour.partners = [];
+                addPartner(); // Dodaj prvog partnera automatski
+            }
+        }
 
+        function addPartner() {
+            if (!currentTour.partners) currentTour.partners = [];
+            
+            const partner = {
+                id: String(Date.now()),
+                name: '',
+                pricePerPerson: 0,
+                commission: 10 // Default 10%
+            };
+            
+            currentTour.partners.push(partner);
+            renderPartners();
+        }
+
+        function removePartner(id) {
+            currentTour.partners = currentTour.partners.filter(p => String(p.id) !== String(id));
+            if (currentTour.partners.length === 0) {
+                document.getElementById('partnerServiceEnabled').checked = false;
+                document.getElementById('partnerServicesContainer').style.display = 'none';
+            }
+            renderPartners();
+            updateCalc();
+        }
+
+        function updatePartner(id, field, value) {
+            const partner = currentTour.partners.find(p => String(p.id) === String(id));
+            if (partner) {
+                partner[field] = field === 'name' ? value : parseFloat(value) || 0;
+                renderPartners();
+                updateCalc();
+            }
+        }
+
+        function renderPartners() {
+            const container = document.getElementById('partnersList');
+            if (!container) return;
+            
+            container.innerHTML = currentTour.partners.map((p, index) => {
+                const withCommission = p.pricePerPerson / (1 - p.commission / 100);
+                return `
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong>Partner ${index + 1}</strong>
+                        <button class="btn btn-danger" style="padding: 2px 8px; font-size: 0.8em;" onclick="removePartner('${p.id}')">✕ Ukloni</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Naziv partnera</label>
+                        <input type="text" class="form-control" value="${p.name}" 
+                               onchange="updatePartner('${p.id}', 'name', this.value)" placeholder="npr. Kompas Tours Sarajevo">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Cena po osobi (EUR)</label>
+                            <input type="number" class="form-control" value="${p.pricePerPerson}" 
+                                   oninput="updatePartner('${p.id}', 'pricePerPerson', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Provizija (%)</label>
+                            <input type="number" class="form-control" value="${p.commission}" 
+                                   oninput="updatePartner('${p.id}', 'commission', this.value)">
+                        </div>
+                    </div>
+                    <div style="background: #e8f5e9; padding: 8px 12px; border-radius: 5px; font-size: 0.9em;">
+                        → Sa provizijom: <strong>${withCommission.toFixed(2)} EUR/pax</strong>
+                        × ${currentTour.numPassengers} pax = 
+                        <strong>${(withCommission * currentTour.numPassengers).toFixed(2)} EUR ukupno</strong>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openTourSettingsWithPartner() {
+            openTourSettings();
+            // Sync partner checkbox state
+            const hasPartners = currentTour.partners && currentTour.partners.length > 0;
+            document.getElementById('partnerServiceEnabled').checked = hasPartners;
+            document.getElementById('partnerServicesContainer').style.display = hasPartners ? 'block' : 'none';
+            if (hasPartners) renderPartners();
+        }
         function updateTourSettingsInfo() {
             const infoDiv = document.getElementById('tourSettingsInfo');
             if (currentTour.tourSettings) {
