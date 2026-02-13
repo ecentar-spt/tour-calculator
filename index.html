@@ -1427,7 +1427,7 @@
                         <div class="form-group">
                             <label>Cena po osobi (EUR)</label>
                             <input type="number" class="form-control" value="${p.pricePerPerson}" 
-                                   oninput="updatePartner('${p.id}', 'pricePerPerson', this.value)">
+                                  onchange="updatePartner('${p.id}', 'pricePerPerson', this.value)"
                         </div>
                         <div class="form-group">
                             <label>Provizija (%)</label>
