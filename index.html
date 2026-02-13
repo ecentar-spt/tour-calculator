@@ -1432,7 +1432,7 @@
                         <div class="form-group">
                             <label>Provizija (%)</label>
                             <input type="number" class="form-control" value="${p.commission}" 
-                                   oninput="updatePartner('${p.id}', 'commission', this.value)">
+                                   onchange="updatePartner('${p.id}', 'commission', this.value)"
                         </div>
                     </div>
                     <div id="partnerPreview_${p.id}" style="background: #e8f5e9; padding: 8px 12px; border-radius: 5px; font-size: 0.9em;">
