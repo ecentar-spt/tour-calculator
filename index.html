@@ -2187,7 +2187,7 @@
 
         function cloneTour(id) {
             const tours = JSON.parse(localStorage.getItem('tours') || '[]');
-            const tour = tours.find(t => t.id === id);
+            const tour = tours.find(t => String(t.id) === String(id));
             if (!tour) return;
 
             currentTour = {...tour};
@@ -2546,7 +2546,7 @@ function updateCurrentTemplate() {
 function showTemplateSelection() {
   closeModal('newTourModal');
   showSection('templates');
-  document.querySelectorAll('.nav-item')[3].click();
+  document.querySelectorAll('.nav-item')[4].click();
 }
 
 
