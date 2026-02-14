@@ -3386,6 +3386,10 @@ function showTemplateSelection() {
                     if (row[0]) { // has ID
                         try {
                             const tourData = JSON.parse(row[3]);
+                            if (!tourData.name && row[1]) tourData.name = row[1];
+                            if (!tourData.updatedAt && row[4]) tourData.updatedAt = row[4];
+                            if (!tourData.updatedBy && row[5]) tourData.updatedBy = row[5];
+                            tourData.id = String(row[0]);
                             cloudToursMap.set(row[0], {
                                 data: tourData,
                                 updated_at: row[4],
