@@ -3545,14 +3545,24 @@ function showTemplateSelection() {
                 await writeSheet('Tours', rows);
                 console.log(`✅ Saved ${rows.length} tours to sheet successfully`);
                 
-                // CRITICAL FIX: Update localStorage with merged data (Cloud is Truth)
-                // AND write version back into tour objects!
                 const mergedToursData = mergedTours.map(item => {
                     const tour = item.tour;
-                    // PRESERVE VERSION in the tour object itself
+                    const tourId = String(tour.id || tour.name);
+                    const cloudTour = cloudToursMap.get(tourId);
+                    
+                    // NORMALIZE: garantuj name
+                    tour.name = tour.name || cloudTour?.data?.name || '(Unnamed tour)';
+                    
+                    // NORMALIZE: garantuj updatedAt/updatedBy iz cloud-a ako fali
+                    tour.updatedAt = tour.updatedAt || cloudTour?.updated_at || tour.createdAt || new Date().toISOString();
+                    tour.updatedBy = tour.updatedBy || cloudTour?.updated_by || (googleUser ? googleUser.name : 'Unknown');
+                    
+                    // PRESERVE VERSION
                     tour.version = item.version;
-                    // Normalize ID to string
-                    tour.id = String(tour.id || tour.name);
+                    
+                    // NORMALIZE ID
+                    tour.id = tourId;
+                    
                     return tour;
                 });
                 
