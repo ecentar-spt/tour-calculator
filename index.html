@@ -3421,7 +3421,7 @@ function showTemplateSelection() {
                         console.log(`🆕 New tour: ${localTour.name}`);
                     } else {
                         // Exists in both - compare timestamps
-                        const localTime = new Date(localTour.updatedAt || 0).getTime();
+                        const localTime = new Date(localTour.updatedAt || localTour.createdAt || 0).getTime();
                         const cloudTime = new Date(cloudTour.updated_at || 0).getTime();
                         
                         // DEBUG: Detailed comparison
