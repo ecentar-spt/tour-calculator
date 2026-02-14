@@ -3451,10 +3451,21 @@ function showTemplateSelection() {
                                 cloud: cloudTime
                             });
                             console.log(`  ⚠️  DECISION: Cloud is newer → using cloud (v${cloudTour.version})`);
-                        } else {
+                                                  } else {
                             // Same timestamp - keep local but preserve version
+                            // REPAIR: dopuni local metadata iz cloud-a ako fali
+                            const repairedTour = {...localTour};
+                            if (!repairedTour.name && cloudTour.data?.name) {
+                                repairedTour.name = cloudTour.data.name;
+                            }
+                            if (!repairedTour.updatedBy && cloudTour.updated_by) {
+                                repairedTour.updatedBy = cloudTour.updated_by;
+                            }
+                            if (!repairedTour.updatedAt && cloudTour.updated_at) {
+                                repairedTour.updatedAt = cloudTour.updated_at;
+                            }
                             mergedToursMap.set(tourId, {
-                                tour: localTour,
+                                tour: repairedTour,
                                 source: 'same',
                                 version: cloudTour.version
                             });
