@@ -1780,6 +1780,10 @@
 
         // Calculate tour
         function updateCalc() {
+            // Mark as dirty only if tour is already loaded (not initial render)
+            if (currentTour.days && currentTour.days.length > 0 && currentTour.name) {
+                currentTour.isDirty = true;
+            }
             currentTour.name = document.getElementById('tourName').value;
             currentTour.client = document.getElementById('clientName').value;
             currentTour.numPassengers = parseInt(document.getElementById('numPassengers').value);
