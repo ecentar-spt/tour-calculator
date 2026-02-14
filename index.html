@@ -3532,7 +3532,7 @@ function showTemplateSelection() {
 
                     return [
                         tourId,                     // id
-                        tour.name,                  // name
+                       (tour.name || cloudToursMap.get(tourId)?.data?.name || '(Unnamed tour)'),
                         googleUser.email,           // user_email (who is syncing)
                         JSON.stringify(tour),       // data (WITHOUT version/isDirty)
                         updated_at,                 // updated_at (when edited)
