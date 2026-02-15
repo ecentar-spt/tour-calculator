@@ -2394,7 +2394,7 @@ function loadTemplates() {
           <span><strong>${template.numDays} dana</strong></span>
           <span><strong>${template.calculations?.totalDistance?.toFixed(0) || 0} km</strong></span>
           <button class="btn btn-danger btn-sm"
-            onclick="event.stopPropagation(); deleteTemplate('${id}')">🗑️</button>
+            onclick="event.stopPropagation(); deleteTemplate('${String(id)}')">🗑️</button>
         </div>
       </div>
     `;
