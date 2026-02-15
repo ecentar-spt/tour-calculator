@@ -2387,7 +2387,7 @@ function loadTemplates() {
     const id = String(template.id).replace(/'/g, "\\'");
 
     return `
-      <div class="template-card" onclick="loadTemplate('${id}')">
+      <div class="template-card" onclick="loadTemplate('${String(id)}')">
         <h4>${template.name}</h4>
         <p style="color: #6c757d; margin: 10px 0;">${template.description || ''}</p>
         <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
