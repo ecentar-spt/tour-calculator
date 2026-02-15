@@ -1908,7 +1908,12 @@ function validatePassengers() {
                 totalGuideMeals += day.guideMeals;
                 totalPassengerAccommodation += day.passengerAccommodation;
                 totalPassengerMeals += day.passengerMeals;
-                totalTickets += day.tickets;
+               // Support both old format (number) and new format (array)
+                if (day.ticketItems && Array.isArray(day.ticketItems)) {
+                    totalTickets += day.ticketItems.reduce((sum, t) => sum + (t.price || 0), 0);
+                } else {
+                    totalTickets += day.tickets || 0;
+                }
             });
 
             // Apply distance adjustment (for local manipulation)
