@@ -1694,6 +1694,7 @@ function validatePassengers() {
                     (sum, t) => sum + (t.price || 0), 0
                 );
                 currentTour.isDirty = true;
+                renderDays(); // Re-render to update Ukupno display
                 updateCalc();
             }
         }
