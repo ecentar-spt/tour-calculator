@@ -1690,11 +1690,18 @@ function validatePassengers() {
             if (item) {
                 item[field] = field === 'name' ? value : parseFloat(value) || 0;
                 // Update total tickets for backward compatibility
-                currentTour.days[dayIndex].tickets = currentTour.days[dayIndex].ticketItems.reduce(
+                const total = currentTour.days[dayIndex].ticketItems.reduce(
                     (sum, t) => sum + (t.price || 0), 0
                 );
+                currentTour.days[dayIndex].tickets = total;
+                
+                // Update Ukupno display without re-rendering
+                const ukupnoEl = document.getElementById(`ticketTotal_${dayIndex}`);
+                if (ukupnoEl) {
+                    ukupnoEl.innerHTML = total % 1 === 0 ? total.toFixed(0) : total.toFixed(2);
+                }
+                
                 currentTour.isDirty = true;
-                renderDays(); // Re-render to update Ukupno display
                 updateCalc();
             }
         }
