@@ -1820,7 +1820,7 @@ function validatePassengers() {
                                 return `
                                 <div id="ticketItems_${index}">
                                     ${d.ticketItems.map(item => `
-                                    <div style="display: grid; grid-template-columns: 2fr 80px 30px; gap: 5px; margin-bottom: 5px;">
+                                    <div style="display: grid; grid-template-columns: 3fr 60px 28px; gap: 5px; margin-bottom: 5px;">
                                         <input type="text" class="form-control" value="${item.name}" 
                                                placeholder="Naziv (npr. Kuća cveća)"
                                                onchange="updateTicketItem(${index}, '${item.id}', 'name', this.value)">
