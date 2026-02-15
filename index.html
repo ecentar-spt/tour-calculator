@@ -2096,7 +2096,7 @@
                             <div><strong>Klijent:</strong> ${tour.client || '-'}</div>
                             <div><strong>Putnika:</strong> ${tour.numPassengers}</div>
                             <div><strong>Dana:</strong> ${tour.numDays}</div>
-                            <div><strong>Vozilo:</strong> ${tour.vehicleType === 'car' ? '🚗 Auto' : tour.vehicleType === 'van' ? '🚐 Kombi' : '🚌 Mini bus'}</div>
+                            <div><strong>Vozilo:</strong> ${tour.vehicleType === 'car' ? '🚗 Auto' : tour.vehicleType === 'van' ? '🚐 Kombi' : '🚌 Mini bus/Bus'}</div>
                             <div><strong>Km:</strong> ${calc.totalDistance?.toFixed(0) || 0}</div>
                             <div><strong>Cena pp:</strong> <span style="color: var(--primary); font-weight: 700;">${calc.pricePerPerson?.toFixed(0) || 0} EUR</span></div>
                         </div>
@@ -2837,7 +2837,7 @@ function showTemplateSelection() {
             data.push(['Klijent:', currentTour.client || '']);
             data.push(['Broj putnika:', currentTour.numPassengers]);
             data.push(['Broj dana:', currentTour.numDays]);
-            data.push(['Vozilo:', currentTour.vehicleType === 'car' ? 'Automobil (1-3)' : currentTour.vehicleType === 'van' ? 'Kombi (4-7)' : 'Minibus (8-19)']);
+            data.push(['Vozilo:', currentTour.vehicleType === 'car' ? 'Automobil (1-3)' : currentTour.vehicleType === 'van' ? 'Kombi (4-7)' : 'Minibus/Bus (8-88)']);
             data.push(['']);
             
             // Days header
