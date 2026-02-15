@@ -1834,7 +1834,7 @@ function validatePassengers() {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
                                 <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.75em;"
                                             onclick="addTicketItem(${index})">+ Dodaj</button>
-                                  <span style="font-size: 0.8em; color: #666; margin-left: 10px;">Ukupno: <strong>${total.toFixed(0)} EUR</strong></span>
+                                  <span style="font-size: 0.8em; color: #666; margin-left: 10px;">Ukupno: <strong>${total % 1 === 0 ? total.toFixed(0) : total.toFixed(2)} EUR</strong></strong></span>
                                 </div>`;
                             })()}
                         </div>
