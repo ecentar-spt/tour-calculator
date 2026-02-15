@@ -2191,7 +2191,7 @@ function validatePassengers() {
                 const hasSettings = Object.keys(usedSettings).length > 0;
                 
                 return `
-                    <div class="tour-card" onclick="loadTour(${tour.id})">
+                   <div class="tour-card" onclick="loadTour('${String(tour.id)}')">
                         <div class="tour-card-header">
                             <div class="tour-card-title">${tour.name}</div>
                             <div>
@@ -2237,7 +2237,7 @@ function validatePassengers() {
             container.innerHTML = filtered.reverse().map(tour => {
                 const calc = tour.calculations || {};
                 return `
-                    <div class="tour-card" onclick="loadTour(${tour.id})">
+                    <div class="tour-card" onclick="loadTour('${String(tour.id)}')">
                         <div class="tour-card-header">
                             <div class="tour-card-title">${tour.name}</div>
                             <div>
