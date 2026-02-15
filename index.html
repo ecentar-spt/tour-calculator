@@ -2961,7 +2961,7 @@ function showTemplateSelection() {
                     day.passengerAccommodationName || '',
                     day.passengerMeals || 0,
                     day.passengerMealsLocation || '',
-                    day.tickets || 0
+                    day.ticketItems ? day.ticketItems.reduce((sum, t) => sum + (t.price || 0), 0) : (day.tickets || 0)
                 ]);
             });
             
