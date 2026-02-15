@@ -2196,7 +2196,7 @@ function validatePassengers() {
                             <div class="tour-card-title">${tour.name}</div>
                             <div>
                                 ${hasSettings ? '<span class="badge badge-success" style="margin-right: 10px;" title="Sačuvane postavke">⚙️</span>' : ''}
-                                <button class="btn btn-warning btn-sm" onclick="event.stopPropagation(); cloneTour(${tour.id})">
+                                <button class="btn btn-warning btn-sm" onclick="event.stopPropagation(); cloneTour('${String(tour.id)}')">
                                     📋 Kloniraj
                                 </button>
                                 <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteTour(${tour.id})">
@@ -2241,7 +2241,7 @@ function validatePassengers() {
                         <div class="tour-card-header">
                             <div class="tour-card-title">${tour.name}</div>
                             <div>
-                                <button class="btn btn-warning btn-sm" onclick="event.stopPropagation(); cloneTour(${tour.id})">
+                                <button class="btn btn-warning btn-sm" onclick="event.stopPropagation(); cloneTour('${String(tour.id)}')">
                                     📋 Kloniraj
                                 </button>
                                 <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteTour(${tour.id})">
