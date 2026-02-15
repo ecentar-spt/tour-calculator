@@ -2489,7 +2489,21 @@ function deleteTemplate(id) {
   templates = templates.filter(t => String(t.id) !== String(id));
   localStorage.setItem('templates', JSON.stringify(templates));
 
+  // Track deleted templates to prevent cloud from restoring them
+  let deletedTemplates = JSON.parse(localStorage.getItem('deletedTemplates') || '[]');
+  if (!deletedTemplates.includes(String(id))) {
+      deletedTemplates.push(String(id));
+      localStorage.setItem('deletedTemplates', JSON.stringify(deletedTemplates));
+  }
+
   loadTemplates();
+
+  // AUTO-SYNC to cloud if logged in
+  if (googleUser && canAttemptSync('templates')) {
+      saveTemplatesToSheet().catch(err => {
+          console.error('Auto-sync error:', err);
+      });
+  }
 }
         
 function applyTourSettings() {
