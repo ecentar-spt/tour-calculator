@@ -1821,9 +1821,10 @@ function validatePassengers() {
                                 <div id="ticketItems_${index}">
                                     ${d.ticketItems.map(item => `
                                     <div style="display: grid; grid-template-columns: 3fr 60px 28px; gap: 5px; margin-bottom: 5px;">
-                                        <input type="text" class="form-control" value="${item.name}" 
+                                       <input type="text" class="form-control" value="${item.name}" 
                                                placeholder="Naziv (npr. Kuća cveća)"
-                                               onchange="updateTicketItem(${index}, '${item.id}', 'name', this.value)">
+                                               title="${item.name}"
+                                               onchange="updateTicketItem(${index}, '${item.id}', 'name', this.value); this.title=this.value;">
                                         <input type="number" class="form-control" value="${item.price}"
                                                onchange="updateTicketItem(${index}, '${item.id}', 'price', this.value)">
                                         <button class="btn btn-danger" style="padding: 2px 6px;" 
