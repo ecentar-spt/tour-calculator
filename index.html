@@ -1812,10 +1812,30 @@ function validatePassengers() {
                                    onchange="currentTour.days[${index}].passengerMealsLocation = this.value"
                                    placeholder="Restoran / Mesto">
                         </div>
-                        <div class="param-item">
-                            <label>Ulaznice pp (EUR)</label>
-                            <input type="number" value="${day.tickets}" 
-                                   onchange="currentTour.days[${index}].tickets = parseFloat(this.value) || 0; updateCalc();">
+                        <div class="param-item" style="grid-column: 1 / -1;">
+                            <label>Ulaznice/Aktivnosti pp</label>
+                            ${(() => {
+                                const d = normalizeTickets(day);
+                                const total = d.ticketItems.reduce((sum, t) => sum + (t.price || 0), 0);
+                                return `
+                                <div id="ticketItems_${index}">
+                                    ${d.ticketItems.map(item => `
+                                    <div style="display: grid; grid-template-columns: 1fr 80px 30px; gap: 5px; margin-bottom: 5px;">
+                                        <input type="text" class="form-control" value="${item.name}" 
+                                               placeholder="Naziv (npr. Kuća cveća)"
+                                               onchange="updateTicketItem(${index}, '${item.id}', 'name', this.value)">
+                                        <input type="number" class="form-control" value="${item.price}"
+                                               onchange="updateTicketItem(${index}, '${item.id}', 'price', this.value)">
+                                        <button class="btn btn-danger" style="padding: 2px 6px;" 
+                                                onclick="removeTicketItem(${index}, '${item.id}')">✕</button>
+                                    </div>`).join('')}
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                                    <button class="btn btn-secondary" style="padding: 3px 10px; font-size: 0.85em;"
+                                            onclick="addTicketItem(${index})">+ Dodaj</button>
+                                    <span style="font-size: 0.9em; color: #666;">Ukupno: <strong>${total.toFixed(0)} EUR</strong></span>
+                                </div>`;
+                            })()}
                         </div>
                     </div>
                 </div>
