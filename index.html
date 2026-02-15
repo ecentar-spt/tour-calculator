@@ -1820,7 +1820,7 @@ function validatePassengers() {
                                 return `
                                 <div id="ticketItems_${index}">
                                     ${d.ticketItems.map(item => `
-                                    <div style="display: grid; grid-template-columns: 1fr 80px 30px; gap: 5px; margin-bottom: 5px;">
+                                    <div style="display: grid; grid-template-columns: 2fr 80px 30px; gap: 5px; margin-bottom: 5px;">
                                         <input type="text" class="form-control" value="${item.name}" 
                                                placeholder="Naziv (npr. Kuća cveća)"
                                                onchange="updateTicketItem(${index}, '${item.id}', 'name', this.value)">
@@ -1831,9 +1831,9 @@ function validatePassengers() {
                                     </div>`).join('')}
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                                    <button class="btn btn-secondary" style="padding: 3px 10px; font-size: 0.85em;"
+                                <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 0.75em;"
                                             onclick="addTicketItem(${index})">+ Dodaj</button>
-                                    <span style="font-size: 0.9em; color: #666;">Ukupno: <strong>${total.toFixed(0)} EUR</strong></span>
+                                  <span style="font-size: 0.8em; color: #666; margin-left: 10px;">Ukupno: <strong>${total.toFixed(0)} EUR</strong></span>
                                 </div>`;
                             })()}
                         </div>
