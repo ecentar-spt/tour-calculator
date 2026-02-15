@@ -1646,6 +1646,58 @@ function validatePassengers() {
             updateCalc();
         }
 
+        function normalizeTickets(day) {
+            // Convert old format (number) to new format (array)
+            if (!day.ticketItems || !Array.isArray(day.ticketItems)) {
+                if (day.tickets && day.tickets > 0) {
+                    day.ticketItems = [{
+                        id: String(Date.now() + Math.random()),
+                        name: 'Ulaznice',
+                        price: day.tickets
+                    }];
+                } else {
+                    day.ticketItems = [];
+                }
+            }
+            return day;
+        }
+
+        function addTicketItem(dayIndex) {
+            currentTour.days[dayIndex] = normalizeTickets(currentTour.days[dayIndex]);
+            currentTour.days[dayIndex].ticketItems.push({
+                id: String(Date.now() + Math.random()),
+                name: '',
+                price: 0
+            });
+            currentTour.isDirty = true;
+            renderDays();
+            updateCalc();
+        }
+
+        function removeTicketItem(dayIndex, itemId) {
+            currentTour.days[dayIndex] = normalizeTickets(currentTour.days[dayIndex]);
+            currentTour.days[dayIndex].ticketItems = currentTour.days[dayIndex].ticketItems.filter(
+                t => t.id !== itemId
+            );
+            currentTour.isDirty = true;
+            renderDays();
+            updateCalc();
+        }
+
+        function updateTicketItem(dayIndex, itemId, field, value) {
+            currentTour.days[dayIndex] = normalizeTickets(currentTour.days[dayIndex]);
+            const item = currentTour.days[dayIndex].ticketItems.find(t => t.id === itemId);
+            if (item) {
+                item[field] = field === 'name' ? value : parseFloat(value) || 0;
+                // Update total tickets for backward compatibility
+                currentTour.days[dayIndex].tickets = currentTour.days[dayIndex].ticketItems.reduce(
+                    (sum, t) => sum + (t.price || 0), 0
+                );
+                currentTour.isDirty = true;
+                updateCalc();
+            }
+        }
+        
         function addDay() {
             currentTour.days.push({
                 dayNumber: currentTour.days.length + 1,
