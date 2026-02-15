@@ -3834,8 +3834,14 @@ for (let i = 1; i < existingData.length; i++) {
                 }
                 
                 // Add remaining cloud templates
+                const deletedTemplates = JSON.parse(localStorage.getItem('deletedTemplates') || '[]');
                 for (const [templateId, cloudTemplate] of cloudTemplatesMap) {
                     if (!mergedTemplatesMap.has(templateId)) {
+                        // Skip templates that were deleted locally
+                        if (deletedTemplates.includes(String(templateId))) {
+                            console.log(`🗑️ Skipping deleted template: ${cloudTemplate.data.name}`);
+                            continue;
+                        }
                         mergedTemplatesMap.set(templateId, {
                             template: cloudTemplate.data,
                             source: 'cloud_only',
