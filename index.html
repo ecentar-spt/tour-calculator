@@ -2412,7 +2412,7 @@ function saveAsTemplate() {
 
   const template = {
     ...currentTour,
-    id: crypto.randomUUID?.() ?? String(Date.now()),
+    id: String(Date.now()),
     name: templateName,
     description: `${currentTour.numDays} dana, ${currentTour.vehicleType}`,
     createdAt: new Date().toISOString(),
