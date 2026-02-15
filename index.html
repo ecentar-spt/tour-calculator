@@ -1588,7 +1588,32 @@
             initVehicleOptions();
             updateCalc();
         }
-
+        
+function validatePassengers() {
+            const passengers = parseInt(document.getElementById('numPassengers').value) || 0;
+            const vehicle = currentTour.vehicleType;
+            
+            let warning = null;
+            
+            if (vehicle === 'car' && (passengers < 1 || passengers > 3)) {
+                warning = `⚠️ Putnički auto je predviđen za 1-3 putnika.\nUneseno: ${passengers} putnika.\n\nDa li želite da nastavite?`;
+            } else if (vehicle === 'van' && (passengers < 4 || passengers > 7)) {
+                warning = `⚠️ Kombi je predviđen za 4-7 putnika.\nUneseno: ${passengers} putnika.\n\nDa li želite da nastavite?`;
+            } else if (vehicle === 'minibus' && (passengers < 8 || passengers > 88)) {
+                warning = `⚠️ Minibus/Bus je predviđen za 8-88 putnika.\nUneseno: ${passengers} putnika.\n\nDa li želite da nastavite?`;
+            }
+            
+            if (warning) {
+                if (!confirm(warning)) {
+                    // Vrati na preporučenu vrednost
+                    if (vehicle === 'car') document.getElementById('numPassengers').value = 2;
+                    else if (vehicle === 'van') document.getElementById('numPassengers').value = 5;
+                    else if (vehicle === 'minibus') document.getElementById('numPassengers').value = 12;
+                    updateCalc();
+                }
+            }
+        }
+        
         // Days management
         function updateDays() {
             const numDays = parseInt(document.getElementById('numDays').value);
