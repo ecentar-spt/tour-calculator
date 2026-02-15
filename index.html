@@ -1577,8 +1577,9 @@
             }
         }
 
-        function selectVehicle(type) {
+       function selectVehicle(type) {
             currentTour.vehicleType = type;
+            validatePassengers();
             
             // Reset rent cost if switching to car (car doesn't use rent)
             if (type === 'car') {
