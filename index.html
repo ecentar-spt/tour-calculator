@@ -2454,7 +2454,7 @@ function loadTemplate(id) {
   currentTour = { ...template };
 
   // New tour instance derived from template
-  currentTour.id = crypto.randomUUID?.() ?? String(Date.now());
+ currentTour.id = String(Date.now());
   currentTour.name = '';
   currentTour.client = '';
   currentTour.sourceTemplateId = template.id;
