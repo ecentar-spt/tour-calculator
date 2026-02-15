@@ -805,7 +805,7 @@
                     <strong>💡 Tip vozila i troškovi:</strong><br>
                     • <strong>Putnički auto:</strong> Gorivo + Amortizacija (0.12€/km) + 1 vodič (dnevnica + smeštaj + hrana)<br>
                     • <strong>Kombi:</strong> Gorivo + Renta vozila (bez amortizacije) + 1 vodič (vozi i vodi, dnevnica + smeštaj + hrana)<br>
-                    • <strong>Mini bus:</strong> Renta (sa gorivom) + Dnevnica samo vodiča + Smeštaj i hrana za 2 osobe (vodič + vozač)
+                    • <strong>Minibus/Bus:</strong> Renta (sa gorivom) + Dnevnica samo vodiča + Smeštaj i hrana za 2 osobe (vodič + vozač)<br>
                 </div>
 
                 <button class="btn btn-primary" style="margin-top: 20px;" onclick="goToItinerary()">
@@ -992,7 +992,7 @@
                             <input type="number" class="form-control" id="vanConsumption" value="8.5" step="0.1">
                         </div>
                         <div class="form-group">
-                            <label>Potrošnja mini bus (l/100km)</label>
+                            <label>Potrošnja mini bus/bus (l/100km)</label>
                             <input type="number" class="form-control" id="minibusConsumption" value="12" step="0.1">
                         </div>
                     </div>
@@ -1008,7 +1008,7 @@
                             <input type="number" class="form-control" id="distanceAdjustment" value="10" step="1" min="0" max="50">
                         </div>
                         <div class="alert alert-info">
-                            <strong>Napomena:</strong> Amortizacija se primenjuje samo kod vlastitih vozila (putnički auto). Kod kombija i mini busa unosi se renta kao zaseban trošak.<br><br>
+                            <strong>Napomena:</strong> Amortizacija se primenjuje samo kod vlastitih vozila (putnički auto). Kod kombija i mini busa/busa unosi se renta kao zaseban trošak.<br><br>
                             <strong>Dodatak za lokalnu manipulaciju:</strong> Empirijski se pokazalo da se pređe 10% više u odnosu na Google Maps prikaz zbog lokalne vožnje, parkinga, itd.
                         </div>
                     </div>
@@ -1024,11 +1024,11 @@
                             <input type="number" class="form-control" id="guideDailyVan" value="120" step="10">
                         </div>
                         <div class="form-group">
-                            <label>Dnevnica vodiča - Mini bus (EUR/dan)</label>
+                            <label>Dnevnica vodiča - Mini bus/bus (EUR/dan)</label>
                             <input type="number" class="form-control" id="guideDailyMinibus" value="100" step="10">
                         </div>
                         <div class="alert alert-info">
-                            <strong>Napomena:</strong> Kod mini busa, vozač je plaćen kroz rentu vozila (dnevnica uključena), ali treba računati smeštaj i hranu za vodiča + vozača (2 osobe).
+                            <strong>Napomena:</strong> Kod mini busa/busa, vozač je plaćen kroz rentu vozila (dnevnica uključena), ali treba računati smeštaj i hranu za vodiča + vozača (2 osobe).
                         </div>
                     </div>
 
@@ -1182,7 +1182,7 @@
                         <input type="number" class="form-control" id="tourGuideDailyVan">
                     </div>
                     <div class="form-group">
-                        <label>Dnevnica vodiča - Mini bus (EUR/dan)</label>
+                        <label>Dnevnica vodiča - Mini bus/bus (EUR/dan)</label>
                         <input type="number" class="form-control" id="tourGuideDailyMinibus">
                     </div>
                 </div>
