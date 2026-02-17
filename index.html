@@ -3431,7 +3431,7 @@ function showTemplateSelection() {
             taxFields.style.display = category === 'smestaj' ? 'block' : 'none';
         }
 
-        function saveSupplier() {
+       function saveSupplier() {
             const id = document.getElementById('supplierId').value;
             const name = document.getElementById('supplierName').value.trim();
             const category = document.getElementById('supplierCategory').value;
@@ -3439,6 +3439,17 @@ function showTemplateSelection() {
             if (!name) {
                 alert('Unesite naziv dobavljača');
                 return;
+            }
+            
+            // Provera duplikata - samo pri dodavanju novog (ne pri izmeni postojećeg)
+            if (!id) {
+                const duplicate = suppliers.find(s => s.name.toLowerCase() === name.toLowerCase());
+                if (duplicate) {
+                    const overwrite = confirm(`Dobavljač "${name}" već postoji. Da li želite da kreirate duplikat?`);
+                    if (!overwrite) {
+                        return;
+                    }
+                }
             }
             
             const supplierData = {
