@@ -1404,7 +1404,13 @@
 
        function getSuppliersFromStorage() {
             const data = localStorage.getItem('suppliers');
-            return data ? JSON.parse(data) : [];
+            const suppliers = data ? JSON.parse(data) : [];
+            
+            // Osiguraj da svi imaju expanded: false (skupljeno na startu)
+            return suppliers.map(s => ({
+                ...s,
+                expanded: false
+            }));
         }
 
         function saveSuppliersToStorage() {
