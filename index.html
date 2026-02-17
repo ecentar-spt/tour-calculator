@@ -1407,8 +1407,58 @@
             return data ? JSON.parse(data) : [];
         }
 
-        function saveSuppliersToStorage() {
-            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+       function saveSupplier() {
+            const id = document.getElementById('supplierId').value;
+            const name = document.getElementById('supplierName').value.trim();
+            const category = document.getElementById('supplierCategory').value;
+            
+            if (!name) {
+                alert('Unesite naziv dobavljača');
+                return;
+            }
+            
+            // Provera duplikata - samo pri dodavanju novog (ne pri izmeni postojećeg)
+            if (!id) {
+                const duplicate = suppliers.find(s => s.name.toLowerCase() === name.toLowerCase());
+                if (duplicate) {
+                    const overwrite = confirm(`Dobavljač "${name}" već postoji. Da li želite da kreirate duplikat?`);
+                    if (!overwrite) {
+                        return;
+                    }
+                }
+            }
+            
+            const supplierData = {
+                name,
+                category,
+                country: document.getElementById('supplierCountry').value.trim(),
+                contact: document.getElementById('supplierContact').value.trim(),
+                sourceFile: document.getElementById('supplierSourceFile').value.trim(),
+                notes: document.getElementById('supplierNotes').value.trim(),
+                touristTax: category === 'smestaj' ? parseFloat(document.getElementById('supplierTouristTax').value) || 0 : 0,
+                touristTaxSeasonal: category === 'smestaj' ? document.getElementById('supplierTouristTaxSeasonal').checked : false,
+                updatedAt: Date.now()
+            };
+            
+            if (id) {
+                // Edit existing
+                const supplier = suppliers.find(s => s.id === id);
+                if (supplier) {
+                    Object.assign(supplier, supplierData);
+                }
+            } else {
+                // Create new
+                suppliers.push({
+                    id: String(Date.now()),
+                    ...supplierData,
+                    items: [],
+                    expanded: false
+                });
+            }
+            
+            saveSuppliersToStorage();
+            closeModal('supplierModal');
+            renderSuppliers();
         }
 
         function getCategoryIcon(category) {
