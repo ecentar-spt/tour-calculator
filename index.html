@@ -1399,6 +1399,57 @@
             rsdEurRate: 116.5  // Kurs RSD → EUR
         };
 
+        // ===== SUPPLIERS STATE =====
+        let suppliers = [];
+
+        function getSuppliersFromStorage() {
+            const data = localStorage.getItem('suppliers');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveSuppliersToStorage() {
+            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'smestaj': '🏨',
+                'ulaznica': '🎫',
+                'aktivnost': '🎯',
+                'obrok': '🍽️',
+                'vodic': '🧭',
+                'partner_paket': '🤝',
+                'ostalo': '📦'
+            };
+            return icons[category] || '📦';
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                'smestaj': 'Smeštaj',
+                'ulaznica': 'Ulaznice',
+                'aktivnost': 'Aktivnosti',
+                'obrok': 'Obroci',
+                'vodic': 'Vodiči',
+                'partner_paket': 'Partner paketi',
+                'ostalo': 'Ostalo'
+            };
+            return labels[category] || 'Ostalo';
+        }
+
+        function getPricingTypeLabel(type) {
+            const labels = {
+                'per_person': 'Po osobi',
+                'per_room': 'Po sobi',
+                'per_group': 'Po grupi',
+                'per_vehicle': 'Po vozilu',
+                'per_night': 'Po noćenju',
+                'per_day': 'Po danu',
+                'flat': 'Fiksno'
+            };
+            return labels[type] || type;
+        }
+        
         let draggedElement = null;
         let draggedIndex = null;
 
