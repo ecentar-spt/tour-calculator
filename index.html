@@ -1454,12 +1454,13 @@
         let draggedIndex = null;
 
         // Initialize
-        function init() {
+       function init() {
             loadSettings();
             initVehicleOptions();
             updateDays();
             loadHistory();
             loadTemplates();
+            suppliers = getSuppliersFromStorage();
             
             // Set up isDirty flag listeners - mark tour as modified when user changes anything
             setupDirtyTracking();
