@@ -1176,6 +1176,14 @@
                             <input type="number" class="form-control" id="partnerCommission" value="4" step="0.5">
                         </div>
                     </div>
+                    <div class="settings-section">
+                        <h3>💱 Kurs valuta</h3>
+                        <div class="form-group">
+                            <label>Kurs RSD → EUR</label>
+                            <input type="number" class="form-control" id="rsdEurRate" value="116.5" step="0.1" min="1">
+                            <small style="color:#666;">Za konverziju RSD cena u EUR pri unosu cenovnika</small>
+                        </div>
+                    </div>
                 </div>
 
                 <button class="btn btn-success" style="margin-top: 30px;" onclick="saveSettings()">
@@ -1299,16 +1307,7 @@
                         <input type="number" class="form-control" id="tourDistanceAdjustment" min="0" max="50">
                     </div>
                 </div>
-
-                <div class="settings-section">
-                    <h3>💱 Kurs valuta</h3>
-                    <div class="form-group">
-                        <label>Kurs RSD → EUR</label>
-                        <input type="number" class="form-control" id="rsdEurRate" step="0.1" min="1">
-                        <small style="color:#666;">Za konverziju RSD cena u EUR pri unosu cenovnika</small>
-                    </div>
-                </div>
-                
+            
                 <div class="settings-section">
                     <h3>👨‍✈️ Dnevnice vodiča</h3>
                     <div class="form-group">
