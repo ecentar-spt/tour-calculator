@@ -1402,9 +1402,13 @@
         // ===== SUPPLIERS STATE =====
         let suppliers = [];
 
-        function getSuppliersFromStorage() {
+       function getSuppliersFromStorage() {
             const data = localStorage.getItem('suppliers');
             return data ? JSON.parse(data) : [];
+        }
+
+        function saveSuppliersToStorage() {
+            localStorage.setItem('suppliers', JSON.stringify(suppliers));
         }
 
         function getCategoryIcon(category) {
