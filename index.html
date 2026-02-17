@@ -3262,6 +3262,402 @@ function showTemplateSelection() {
             XLSX.writeFile(wb, filename);
         }
 
+        // ===== SUPPLIERS CRUD FUNCTIONS =====
+
+        function renderSuppliers() {
+            const container = document.getElementById('suppliersList');
+            const filterCategory = document.getElementById('supplierFilterCategory').value;
+            const searchTerm = document.getElementById('supplierSearch').value.toLowerCase();
+
+            let filtered = suppliers.filter(s => {
+                const matchesCategory = !filterCategory || s.category === filterCategory || 
+                                       s.items.some(item => item.category === filterCategory);
+                const matchesSearch = !searchTerm || 
+                                     s.name.toLowerCase().includes(searchTerm) ||
+                                     s.country?.toLowerCase().includes(searchTerm) ||
+                                     s.items.some(item => item.service.toLowerCase().includes(searchTerm));
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Nema dobavljača koji odgovaraju kriterijumima pretrage.</p>
+                        <button class="btn btn-primary" onclick="openSupplierModal()">+ Dodaj prvog dobavljača</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(supplier => {
+                const categories = [...new Set(supplier.items.map(item => item.category))];
+                const categoryBadges = categories.map(cat => 
+                    `<span class="supplier-category-badge badge-${cat}">${getCategoryIcon(cat)} ${getCategoryLabel(cat)}</span>`
+                ).join(' ');
+
+                const itemsHTML = supplier.items.length > 0 ? `
+                    <table class="supplier-items-table">
+                        <thead>
+                            <tr>
+                                <th style="width:25%;">Usluga</th>
+                                <th style="width:12%;">Kategorija</th>
+                                <th style="width:12%;">Tip cene</th>
+                                <th style="width:35%;">Cene</th>
+                                <th style="width:10%;">Važi</th>
+                                <th style="width:6%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${supplier.items.map(item => `
+                                <tr>
+                                    <td>
+                                        <strong>${item.service}</strong>
+                                        ${item.notes ? `<br><small style="color:#666;">${item.notes}</small>` : ''}
+                                    </td>
+                                    <td><span class="supplier-category-badge badge-${item.category}" style="font-size:0.75em;">${getCategoryIcon(item.category)}</span></td>
+                                    <td style="font-size:0.85em;">${getPricingTypeLabel(item.pricingType)}</td>
+                                    <td>
+                                        <div class="price-tiers">
+                                            ${item.prices.map(p => `
+                                                <span class="price-tier">
+                                                    <span class="tier-label">${p.label}:</span>
+                                                    <span class="tier-value">${p.value} ${p.currency}</span>
+                                                </span>
+                                            `).join('')}
+                                        </div>
+                                    </td>
+                                    <td style="font-size:0.8em; color:#666;">
+                                        ${item.validFrom || item.validTo ? 
+                                            `${item.validFrom ? new Date(item.validFrom).toLocaleDateString('sr-RS') : '—'} 
+                                             – ${item.validTo ? new Date(item.validTo).toLocaleDateString('sr-RS') : '—'}` 
+                                            : '—'}
+                                    </td>
+                                    <td>
+                                        <div class="supplier-actions">
+                                            <button class="btn-icon" onclick="editItem('${supplier.id}', '${item.id}')" title="Izmeni">✏️</button>
+                                            <button class="btn-icon danger" onclick="deleteItem('${supplier.id}', '${item.id}')" title="Obriši">🗑️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                ` : '<p style="color:#999; text-align:center; padding:20px;">Nema stavki</p>';
+
+                return `
+                    <div class="supplier-card ${supplier.expanded ? 'expanded' : ''}" id="supplier-${supplier.id}">
+                        <div class="supplier-card-header" onclick="toggleSupplierCard('${supplier.id}')">
+                            <div class="supplier-card-header-left">
+                                <span style="font-size:1.3em;">${getCategoryIcon(supplier.category)}</span>
+                                <div>
+                                    <strong style="font-size:1.05em;">${supplier.name}</strong>
+                                    ${supplier.country ? `<span style="color:#666; font-size:0.85em; margin-left:8px;">• ${supplier.country}</span>` : ''}
+                                    ${categoryBadges ? `<div style="margin-top:4px;">${categoryBadges}</div>` : ''}
+                                </div>
+                            </div>
+                            <div class="supplier-card-header-right">
+                                <span style="color:#999; font-size:0.85em;">${supplier.items.length} stavki</span>
+                                <button class="btn-icon" onclick="event.stopPropagation(); editSupplier('${supplier.id}')" title="Izmeni dobavljača">✏️</button>
+                                <button class="btn-icon danger" onclick="event.stopPropagation(); deleteSupplier('${supplier.id}')" title="Obriši dobavljača">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="supplier-card-body">
+                            ${supplier.notes ? `<div class="alert alert-info" style="margin-bottom:15px;"><strong>Napomena:</strong> ${supplier.notes}</div>` : ''}
+                            ${itemsHTML}
+                            <button class="btn btn-secondary" style="margin-top:15px; font-size:0.9em;" onclick="openItemModal('${supplier.id}')">+ Dodaj stavku</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleSupplierCard(supplierId) {
+            const supplier = suppliers.find(s => s.id === supplierId);
+            if (supplier) {
+                supplier.expanded = !supplier.expanded;
+                renderSuppliers();
+            }
+        }
+
+        function openSupplierModal(supplierId = null) {
+            const modal = document.getElementById('supplierModal');
+            const title = document.getElementById('supplierModalTitle');
+            
+            if (supplierId) {
+                const supplier = suppliers.find(s => s.id === supplierId);
+                if (!supplier) return;
+                
+                title.textContent = 'Izmeni dobavljača';
+                document.getElementById('supplierId').value = supplier.id;
+                document.getElementById('supplierName').value = supplier.name;
+                document.getElementById('supplierCategory').value = supplier.category;
+                document.getElementById('supplierCountry').value = supplier.country || '';
+                document.getElementById('supplierContact').value = supplier.contact || '';
+                document.getElementById('supplierSourceFile').value = supplier.sourceFile || '';
+                document.getElementById('supplierNotes').value = supplier.notes || '';
+                document.getElementById('supplierTouristTax').value = supplier.touristTax || 0;
+                document.getElementById('supplierTouristTaxSeasonal').checked = supplier.touristTaxSeasonal || false;
+            } else {
+                title.textContent = 'Novi dobavljač';
+                document.getElementById('supplierId').value = '';
+                document.getElementById('supplierName').value = '';
+                document.getElementById('supplierCategory').value = 'smestaj';
+                document.getElementById('supplierCountry').value = '';
+                document.getElementById('supplierContact').value = '';
+                document.getElementById('supplierSourceFile').value = '';
+                document.getElementById('supplierNotes').value = '';
+                document.getElementById('supplierTourist').value = 0;
+                document.getElementById('supplierTouristTaxSeasonal').checked = false;
+            }
+            
+            toggleTouristTaxFields();
+            modal.style.display = 'block';
+        }
+
+        function toggleTouristTaxFields() {
+            const category = document.getElementById('supplierCategory').value;
+            const taxFields = document.getElementById('touristTaxFields');
+            taxFields.style.display = category === 'smestaj' ? 'block' : 'none';
+        }
+
+        function saveSupplier() {
+            const id = document.getElementById('supplierId').value;
+            const name = document.getElementById('supplierName').value.trim();
+            const category = document.getElementById('supplierCategory').value;
+            
+            if (!name) {
+                alert('Unesite naziv dobavljača');
+                return;
+            }
+            
+            const supplierData = {
+                name,
+                category,
+                country: document.getElementById('supplierCountry').value.trim(),
+                contact: document.getElementById('supplierContact').value.trim(),
+                sourceFile: document.getElementById('supplierSourceFile').value.trim(),
+                notes: document.getElementById('supplierNotes').value.trim(),
+                touristTax: category === 'smestaj' ? parseFloat(document.getElementById('supplierTouristTax').value) || 0 : 0,
+                touristTaxSeasonal: category === 'smestaj' ? document.getElementById('supplierTouristTaxSeasonal').checked : false,
+                updatedAt: Date.now()
+            };
+            
+            if (id) {
+                // Edit existing
+                const supplier = suppliers.find(s => s.id === id);
+                if (supplier) {
+                    Object.assign(supplier, supplierData);
+                }
+            } else {
+                // Create new
+                suppliers.push({
+                    id: String(Date.now()),
+                    ...supplierData,
+                    items: [],
+                    expanded: false
+                });
+            }
+            
+            saveSuppliersToStorage();
+            closeModal('supplierModal');
+            renderSuppliers();
+        }
+
+        function editSupplier(supplierId) {
+            openSupplierModal(supplierId);
+        }
+
+        function deleteSupplier(supplierId) {
+            const supplier = suppliers.find(s => s.id === supplierId);
+            if (!supplier) return;
+            
+            if (!confirm(`Da li ste sigurni da želite da obrišete dobavljača "${supplier.name}" i sve njegove stavke (${supplier.items.length})?`)) {
+                return;
+            }
+            
+            suppliers = suppliers.filter(s => s.id !== supplierId);
+            saveSuppliersToStorage();
+            renderSuppliers();
+        }
+
+        // ===== ITEM CRUD FUNCTIONS =====
+
+        function openItemModal(supplierId, itemId = null) {
+            const supplier = suppliers.find(s => s.id === supplierId);
+            if (!supplier) return;
+            
+            const modal = document.getElementById('itemModal');
+            const title = document.getElementById('itemModalTitle');
+            const supplierName = document.getElementById('itemModalSupplierName');
+            
+            supplierName.textContent = `${getCategoryIcon(supplier.category)} ${supplier.name}`;
+            document.getElementById('itemSupplierId').value = supplierId;
+            
+            if (itemId) {
+                const item = supplier.items.find(i => i.id === itemId);
+                if (!item) return;
+                
+                title.textContent = 'Izmeni stavku';
+                document.getElementById('itemId').value = item.id;
+                document.getElementById('itemService').value = item.service;
+                document.getElementById('itemCategory').value = item.category;
+                document.getElementById('itemPricingType').value = item.pricingType;
+                document.getElementById('itemCurrency').value = item.prices[0]?.currency || 'EUR';
+                document.getElementById('itemValidFrom').value = item.validFrom || '';
+                document.getElementById('itemValidTo').value = item.validTo || '';
+                document.getElementById('itemNotes').value = item.notes || '';
+                
+                // Render existing price tiers
+                renderPriceTiers(item.prices);
+            } else {
+                title.textContent = 'Nova stavka';
+                document.getElementById('itemId').value = '';
+                document.getElementById('itemService').value = '';
+                document.getElementById('itemCategory').value = supplier.category;
+                document.getElementById('itemPricingType').value = 'per_person';
+                document.getElementById('itemCurrency').value = 'EUR';
+                document.getElementById('itemValidFrom').value = '';
+                document.getElementById('itemValidTo').value = '';
+                document.getElementById('itemNotes').value = '';
+                
+                // Default: one empty tier
+                renderPriceTiers([{ label: '', value: 0, currency: 'EUR' }]);
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function renderPriceTiers(tiers = []) {
+            const container = document.getElementById('priceTiersContainer');
+            container.innerHTML = tiers.map((tier, idx) => `
+                <div class="price-tier-row">
+                    <input type="text" class="form-control" placeholder="npr. 1-3 osobe" 
+                           value="${tier.label}" data-tier-idx="${idx}" data-tier-field="label">
+                    <input type="number" class="form-control" placeholder="Cena" step="0.01" min="0"
+                           value="${tier.value}" data-tier-idx="${idx}" data-tier-field="value">
+                    <select class="form-control" data-tier-idx="${idx}" data-tier-field="currency">
+                        <option value="EUR" ${tier.currency === 'EUR' ? 'selected' : ''}>EUR</option>
+                        <option value="RSD" ${tier.currency === 'RSD' ? 'selected' : ''}>RSD</option>
+                    </select>
+                    <button type="button" class="btn-icon danger" onclick="removePriceTier(${idx})" ${tiers.length === 1 ? 'disabled style="opacity:0.3;"' : ''}>🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function addPriceTier() {
+            const container = document.getElementById('priceTiersContainer');
+            const currentTiers = Array.from(container.querySelectorAll('.price-tier-row'));
+            const currency = document.getElementById('itemCurrency').value;
+            
+            const tiers = currentTiers.map(row => ({
+                label: row.querySelector('[data-tier-field="label"]').value,
+                value: parseFloat(row.querySelector('[data-tier-field="value"]').value) || 0,
+                currency: row.querySelector('[data-tier-field="currency"]').value
+            }));
+            
+            tiers.push({ label: '', value: 0, currency });
+            renderPriceTiers(tiers);
+        }
+
+        function removePriceTier(idx) {
+            const container = document.getElementById('priceTiersContainer');
+            const currentTiers = Array.from(container.querySelectorAll('.price-tier-row'));
+            
+            if (currentTiers.length === 1) return; // Keep at least one
+            
+            const tiers = currentTiers.map(row => ({
+                label: row.querySelector('[data-tier-field="label"]').value,
+                value: parseFloat(row.querySelector('[data-tier-field="value"]').value) || 0,
+                currency: row.querySelector('[data-tier-field="currency"]').value
+            }));
+            
+            tiers.splice(idx, 1);
+            renderPriceTiers(tiers);
+        }
+
+        function saveItem() {
+            const supplierId = document.getElementById('itemSupplierId').value;
+            const itemId = document.getElementById('itemId').value;
+            const service = document.getElementById('itemService').value.trim();
+            
+            if (!service) {
+                alert('Unesite naziv usluge');
+                return;
+            }
+            
+            const supplier = suppliers.find(s => s.id === supplierId);
+            if (!supplier) return;
+            
+            // Collect price tiers
+            const container = document.getElementById('priceTiersContainer');
+            const tierRows = Array.from(container.querySelectorAll('.price-tier-row'));
+            const prices = tierRows.map(row => ({
+                label: row.querySelector('[data-tier-field="label"]').value.trim(),
+                value: parseFloat(row.querySelector('[data-tier-field="value"]').value) || 0,
+                currency: row.querySelector('[data-tier-field="currency"]').value
+            })).filter(p => p.label && p.value > 0);
+            
+            if (prices.length === 0) {
+                alert('Dodajte najmanje jednu cenovnu varijantu');
+                return;
+            }
+            
+            const itemData = {
+                service,
+                category: document.getElementById('itemCategory').value,
+                pricingType: document.getElementById('itemPricingType').value,
+                prices,
+                validFrom: document.getElementById('itemValidFrom').value,
+                validTo: document.getElementById('itemValidTo').value,
+                notes: document.getElementById('itemNotes').value.trim()
+            };
+            
+            if (itemId) {
+                // Edit existing
+                const item = supplier.items.find(i => i.id === itemId);
+                if (item) {
+                    Object.assign(item, itemData);
+                }
+            } else {
+                // Create new
+                supplier.items.push({
+                    id: String(Date.now()),
+                    ...itemData
+                });
+            }
+            
+            supplier.updatedAt = Date.now();
+            saveSuppliersToStorage();
+            closeModal('itemModal');
+            renderSuppliers();
+        }
+
+        function editItem(supplierId, itemId) {
+            openItemModal(supplierId, itemId);
+        }
+
+        function deleteItem(supplierId, itemId) {
+            const supplier = suppliers.find(s => s.id === supplierId);
+            if (!supplier) return;
+            
+            const item = supplier.items.find(i => i.id === itemId);
+            if (!item) return;
+            
+            if (!confirm(`Da li ste sigurni da želite da obrišete stavku "${item.service}"?`)) {
+                return;
+            }
+            
+            supplier.items = supplier.items.filter(i => i.id !== itemId);
+            supplier.updatedAt = Date.now();
+            saveSuppliersToStorage();
+            renderSuppliers();
+        }
+
+        function openImportModal() {
+            alert('Import funkcionalnost dolazi u sledećem update-u');
+        }
+        
         // ==========================================
         // GOOGLE SHEETS INTEGRATION
         // ==========================================
