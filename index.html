@@ -1070,74 +1070,30 @@
 
             <!-- Pricelists Section -->
             <div id="pricelists" class="section">
-                <h2 style="margin-bottom: 25px;">Cenovnici dobavljača</h2>
+                <h2 style="margin-bottom: 5px;">Cenovnici dobavljaca</h2>
+                <p style="color:#666; margin-bottom:20px; font-size:0.9em;">Upravljajte cenovnicima hotela, agencija, vodica i ostalih dobavljaca.</p>
 
-                <div class="pricelist-category">
-                    <h3>🏨 Albanija - Tirana</h3>
-                    <table class="pricelist-table">
-                        <thead>
-                            <tr>
-                                <th>Hotel</th>
-                                <th>Sezona</th>
-                                <th>Single</th>
-                                <th>Double</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Lot Boutique Hotel</td>
-                                <td>Pre 1. April 2026</td>
-                                <td>70 EUR</td>
-                                <td>75 EUR</td>
-                            </tr>
-                            <tr>
-                                <td>Lot Boutique Hotel</td>
-                                <td>Posle 1. April 2026</td>
-                                <td>85 EUR</td>
-                                <td>95 EUR</td>
-                            </tr>
-                            <tr>
-                                <td>Rogner Hotel</td>
-                                <td>Season 2 (19.01-14.12)</td>
-                                <td>128 EUR</td>
-                                <td>153 EUR</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Toolbar -->
+                <div class="suppliers-toolbar">
+                    <button class="btn btn-primary" onclick="openSupplierModal()">+ Novi dobavljac</button>
+                    <button class="btn btn-secondary" onclick="openImportModal()" disabled style="opacity:0.5;" title="Import dolazi u sledecem update-u">Uvezi cenovnik</button>
+                    <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+                        <select id="supplierFilterCategory" class="form-control" style="width:160px;" onchange="renderSuppliers()">
+                            <option value="">Sve kategorije</option>
+                            <option value="smestaj">Smestaj</option>
+                            <option value="ulaznica">Ulaznice</option>
+                            <option value="aktivnost">Aktivnosti</option>
+                            <option value="obrok">Obroci</option>
+                            <option value="vodic">Vodici</option>
+                            <option value="partner_paket">Partner paketi</option>
+                            <option value="ostalo">Ostalo</option>
+                        </select>
+                        <input type="text" id="supplierSearch" class="form-control" placeholder="Pretraga..." style="width:200px;" oninput="renderSuppliers()">
+                    </div>
                 </div>
 
-                <div class="pricelist-category">
-                    <h3>🏛️ BiH - Sarajevo (Funky Tours)</h3>
-                    <table class="pricelist-table">
-                        <thead>
-                            <tr>
-                                <th>Usluga</th>
-                                <th>1 osoba</th>
-                                <th>2-3 osobe</th>
-                                <th>4-6 osoba</th>
-                                <th>6-8 osoba</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Paket (smeštaj + ture)</td>
-                                <td>845 EUR</td>
-                                <td>455 EUR pp</td>
-                                <td>405 EUR pp</td>
-                                <td>355 EUR pp</td>
-                            </tr>
-                            <tr>
-                                <td>Sarajevo walking tour (1-3)</td>
-                                <td colspan="2">110 EUR total</td>
-                                <td colspan="2">-</td>
-                            </tr>
-                            <tr>
-                                <td>Sarajevo walking tour (4-8)</td>
-                                <td colspan="4">140 EUR total</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <!-- Suppliers list -->
+                <div id="suppliersList"></div>
             </div>
 
             <!-- Settings Section -->
