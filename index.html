@@ -2892,7 +2892,16 @@ function showTemplateSelection() {
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            // Podrška za oba tipa modala (active class ili display style)
+            if (modal.classList.contains('active')) {
+                modal.classList.remove('active');
+            }
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+            }
         }
 
         function startFromScratch() {
