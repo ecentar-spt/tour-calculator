@@ -4330,7 +4330,153 @@ for (let i = 1; i < existingData.length; i++) {
             }
         }
     </script>
+<!-- ===== SUPPLIER MODAL ===== -->
+    <div id="supplierModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:600px;">
+            <span class="close" onclick="closeModal('supplierModal')">&times;</span>
+            <h3 id="supplierModalTitle" style="margin-bottom:20px;">Novi dobavljac</h3>
+            <input type="hidden" id="supplierId">
+            
+            <div class="form-group">
+                <label>Naziv dobavljaca *</label>
+                <input type="text" id="supplierName" class="form-control" placeholder="npr. Funky Tours Sarajevo">
+            </div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <div class="form-group">
+                    <label>Kategorija *</label>
+                    <select id="supplierCategory" class="form-control" onchange="toggleTouristTaxFields()">
+                        <option value="smestaj">Smestaj</option>
+                        <option value="ulaznica">Ulaznice</option>
+                        <option value="aktivnost">Aktivnosti</option>
+                        <option value="obrok">Obroci</option>
+                        <option value="vodic">Vodici</option>
+                        <option value="partner_paket">Partner paketi</option>
+                        <option value="ostalo">Ostalo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Zemlja/Region</label>
+                    <input type="text" id="supplierCountry" class="form-control" placeholder="npr. BiH, Srbija">
+                </div>
+            </div>
 
+            <div id="touristTaxFields" style="display:none;">
+                <div style="display:grid; grid-template-columns:1fr auto; gap:15px; align-items:end;">
+                    <div class="form-group">
+                        <label>Turisticka taksa (EUR po osobi/noci)</label>
+                        <input type="number" id="supplierTouristTax" class="form-control" placeholder="0" step="0.1" min="0">
+                        <small style="color:#666;">0 = uracunata u cenu sobe</small>
+                    </div>
+                    <div class="form-group">
+                        <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                            <input type="checkbox" id="supplierTouristTaxSeasonal"> Sezonska taksa
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Kontakt</label>
+                <input type="text" id="supplierContact" class="form-control" placeholder="Telefon, email, ime kontakt osobe">
+            </div>
+
+            <div class="form-group">
+                <label>Link do originalnog fajla</label>
+                <input type="text" id="supplierSourceFile" class="form-control" placeholder="Dropbox link ili URL">
+            </div>
+            
+            <div class="form-group">
+                <label>Napomena</label>
+                <textarea id="supplierNotes" class="form-control" rows="2" placeholder="Uslovi saradnje, gratis stavke, itd."></textarea>
+            </div>
+            
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+                <button class="btn btn-secondary" onclick="closeModal('supplierModal')">Otkazi</button>
+                <button class="btn btn-primary" onclick="saveSupplier()">Sacuvaj</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ITEM MODAL ===== -->
+    <div id="itemModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:680px;">
+            <span class="close" onclick="closeModal('itemModal')">&times;</span>
+            <h3 id="itemModalTitle" style="margin-bottom:5px;">Nova stavka</h3>
+            <p id="itemModalSupplierName" style="color:#666; font-size:0.9em; margin-bottom:20px;"></p>
+            
+            <input type="hidden" id="itemSupplierId">
+            <input type="hidden" id="itemId">
+            
+            <div class="form-group">
+                <label>Naziv usluge *</label>
+                <input type="text" id="itemService" class="form-control" placeholder="npr. Sarajevo Walking Tour, Double Room, Degustacija">
+            </div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px;">
+                <div class="form-group">
+                    <label>Kategorija *</label>
+                    <select id="itemCategory" class="form-control">
+                        <option value="smestaj">Smestaj</option>
+                        <option value="ulaznica">Ulaznice</option>
+                        <option value="aktivnost">Aktivnosti</option>
+                        <option value="obrok">Obroci</option>
+                        <option value="vodic">Vodici</option>
+                        <option value="partner_paket">Partner paketi</option>
+                        <option value="ostalo">Ostalo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tip cene</label>
+                    <select id="itemPricingType" class="form-control">
+                        <option value="per_person">Po osobi</option>
+                        <option value="per_room">Po sobi</option>
+                        <option value="per_group">Po grupi</option>
+                        <option value="per_vehicle">Po vozilu</option>
+                        <option value="per_night">Po nocenju</option>
+                        <option value="per_day">Po danu</option>
+                        <option value="flat">Fiksna cena</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Valuta</label>
+                    <select id="itemCurrency" class="form-control">
+                        <option value="EUR">EUR</option>
+                        <option value="RSD">RSD</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Price tiers -->
+            <div class="form-group">
+                <label>Cenovne varijante</label>
+                <div id="priceTiersContainer"></div>
+                <button type="button" class="btn btn-secondary" style="margin-top:8px; font-size:0.85em; padding:6px 14px;" onclick="addPriceTier()">+ Dodaj varijantu</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <div class="form-group">
+                    <label>Vazi od</label>
+                    <input type="date" id="itemValidFrom" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Vazi do</label>
+                    <input type="date" id="itemValidTo" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Napomena</label>
+                <input type="text" id="itemNotes" class="form-control" placeholder="Dodatne napomene za ovu uslugu">
+            </div>
+            
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+                <button class="btn btn-secondary" onclick="closeModal('itemModal')">Otkazi</button>
+                <button class="btn btn-primary" onclick="saveItem()">Sacuvaj stavku</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Login Modal -->
     <div id="loginModal" class="login-modal">
         <div class="login-modal-content">
