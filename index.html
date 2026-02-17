@@ -2870,6 +2870,11 @@ function showTemplateSelection() {
         function showSection(sectionId) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
+            
+            // Render suppliers when opening pricelists section
+            if (sectionId === 'pricelists') {
+                renderSuppliers();
+            }
         }
 
         function goToItinerary() {
