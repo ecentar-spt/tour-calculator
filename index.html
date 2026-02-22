@@ -2203,7 +2203,7 @@ function validatePassengers() {
             const commission = effectiveSettings.trekkSoftCommission / 100;
             const partnerComm = effectiveSettings.partnerCommission / 100;
             
-            const sellingPrice = totalCosts / (1 - margin - commission - partnerComm);
+            const sellingPrice = totalCosts / ((1 - margin) * (1 - commission) * (1 - partnerComm));
             const pricePerPerson = sellingPrice / currentTour.numPassengers;
             const profit = sellingPrice - totalCosts;
             // Update summary
