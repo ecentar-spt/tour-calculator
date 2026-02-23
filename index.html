@@ -3534,7 +3534,7 @@ function showTemplateSelection() {
             document.getElementById('importPreviewTable').innerHTML = tableHTML;
             document.getElementById('importRowCount').textContent = `Ukupno redova: ${rows.length - 1}`;
 
-            document.getElementById('supplierImportModal').classList.add('active');
+            document.getElementById('supplierImportModal').style.display = 'flex';
         }
 
         function executeSupplierImport() {
