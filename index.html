@@ -3509,15 +3509,15 @@ function showTemplateSelection() {
             const nameCols = document.getElementById('importNameCols');
             const priceCols = document.getElementById('importPriceCols');
 
-            nameCols.innerHTML = headers.map((h, i) => `
+           nameCols.innerHTML = headers.map((h, i) => `
                 <label style="display:flex; align-items:center; gap:6px; font-size:0.9em;">
-                    <input type="checkbox" class="import-name-col" value="${i}"> ${h}
+                    <input type="checkbox" class="import-name-col" value="${i}" onchange="updateImportCols()"> ${h}
                 </label>
             `).join('');
 
             priceCols.innerHTML = headers.map((h, i) => `
                 <label style="display:flex; align-items:center; gap:6px; font-size:0.9em;">
-                    <input type="checkbox" class="import-price-col" value="${i}"> ${h}
+                    <input type="checkbox" class="import-price-col" value="${i}" onchange="updateImportCols()"> ${h}
                 </label>
             `).join('');
 
