@@ -3596,11 +3596,11 @@ function showTemplateSelection() {
                 if (nameParts.length === 0) return;
 
                 const itemName = nameParts.join(' - ');
-                const prices = priceColsChecked.map(i => ({
-                    label: String(headers[i] || '').trim(),
-                    value: parseFloat(String(row[i] || '0').replace(',', '.')) || 0,
-                    currency: 'EUR'
-                }));
+               const prices = priceColsChecked.map(i => ({
+            label: String(headers[Number(i)] ?? '').trim(),
+            value: parseFloat(String(row[Number(i)] ?? '0').replace(',', '.')) || 0,
+            currency: 'EUR'
+           }));
 
                 items.push({
                     id: 'item_' + Math.random().toString(36).substr(2, 8),
