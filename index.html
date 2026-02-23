@@ -2922,9 +2922,9 @@ function showTemplateSelection() {
             if (modal.classList.contains('active')) {
                 modal.classList.remove('active');
             }
-            if (modal.style.display === 'block') {
-                modal.style.display = 'none';
-            }
+            if (modal.style.display === 'block' || modal.style.display === 'flex') {
+    modal.style.display = 'none';
+}
         }
 
         function startFromScratch() {
