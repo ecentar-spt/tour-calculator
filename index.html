@@ -3537,7 +3537,13 @@ function showTemplateSelection() {
             });
 
             // Preview
+           updateImportCols();
             updateImportPreview();
+        }
+
+        function updateImportCols() {
+            importNameCols = [...document.querySelectorAll('.import-name-col:checked')].map(cb => parseInt(cb.value));
+            importPriceCols = [...document.querySelectorAll('.import-price-col:checked')].map(cb => parseInt(cb.value));
         }
 
         function updateImportPreview() {
