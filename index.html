@@ -5227,69 +5227,65 @@ for (let i = 1; i < existingData.length; i++) {
             }
         }
     </script>
-<!-- ===== SUPPLIER MODAL ===== -->
-    <!-- Supplier Import Preview Modal -->
-    <div id="supplierImportModal" class="modal" style="display:none;">
-        <div class="modal-content" style="max-width:800px; max-height:85vh; overflow-y:auto;">
-            <span class="close" onclick="closeModal('supplierImportModal')">&times;</span>
-            <h3 style="margin-bottom:16px;">📥 Uvoz cenovnika</h3>
+<!-- Supplier Import Preview Modal -->
+<div id="supplierImportModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:700px; max-height:85vh; overflow-y:auto;">
+        <span class="close" onclick="closeModal('supplierImportModal')">&times;</span>
+        <h3 style="margin-bottom:16px;">📥 Uvoz cenovnika</h3>
 
-            <!-- Step 1: Mapping -->
-            <div id="importStep1">
-                <p style="margin-bottom:12px; color:#666;">Sistem je prepoznao sledeće kolone. Mapirajte ih na polja dobavljača:</p>
-                
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
-                    <div>
-                        <label style="font-weight:600; display:block; margin-bottom:4px;">Ime dobavljača</label>
-                        <select id="mapName" class="form-control"></select>
-                    </div>
-                    <div>
-                        <label style="font-weight:600; display:block; margin-bottom:4px;">Kategorija (opciono)</label>
-                        <select id="mapCategory" class="form-control">
-                            <option value="">-- Postavi ručno --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-weight:600; display:block; margin-bottom:4px;">Naziv usluge/stavke</label>
-                        <select id="mapItemName" class="form-control"></select>
-                    </div>
-                    <div>
-                        <label style="font-weight:600; display:block; margin-bottom:4px;">Cena (EUR)</label>
-                        <select id="mapPrice" class="form-control"></select>
-                    </div>
-                    <div>
-                        <label style="font-weight:600; display:block; margin-bottom:4px;">Opis (opciono)</label>
-                        <select id="mapDesc" class="form-control"><option value="">-- Preskoči --</option></select>
-                    </div>
-                    <div>
-                        <label style="font-weight:600; display:block; margin-bottom:4px;">Kategorija dobavljača (ako nije u koloni)</label>
-                        <select id="manualCategory" class="form-control">
-                            <option value="smestaj">Smeštaj</option>
-                            <option value="ulaznica">Ulaznice</option>
-                            <option value="aktivnost">Aktivnosti</option>
-                            <option value="obrok">Obroci</option>
-                            <option value="vodic">Vodiči</option>
-                            <option value="partner_paket">Partner paketi</option>
-                            <option value="ostalo">Ostalo</option>
-                        </select>
-                    </div>
-                </div>
+        <!-- Korak 0: Odabir sheeta (prikazuje se samo ako ima više sheetova) -->
+        <div id="importStepSheet" style="display:none; margin-bottom:16px;">
+            <label style="font-weight:600; display:block; margin-bottom:6px;">Odaberi sheet:</label>
+            <select id="importSheetSelect" class="form-control" style="width:300px;" onchange="importLoadSheet()"></select>
+            <hr style="margin-top:16px;">
+        </div>
 
-                <div style="background:#f8f9fa; padding:12px; border-radius:6px; margin-bottom:16px;">
-                    <strong>Preview (prve 3 vrste):</strong>
-                    <div id="importPreviewTable" style="margin-top:8px; overflow-x:auto;"></div>
-                </div>
+        <!-- Korak 1: Ime dobavljača -->
+        <div style="margin-bottom:16px;">
+            <label style="font-weight:600; display:block; margin-bottom:6px;">Ime dobavljača:</label>
+            <input type="text" id="importSupplierName" class="form-control" style="width:300px;">
+        </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span id="importRowCount" style="color:#666;"></span>
-                    <div style="display:flex; gap:8px;">
-                        <button class="btn btn-secondary" onclick="closeModal('supplierImportModal')">Otkaži</button>
-                        <button class="btn btn-primary" onclick="executeSupplierImport()">✅ Uvezi</button>
-                    </div>
-                </div>
+        <!-- Korak 2: Mapping -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px;">
+            <div>
+                <label style="font-weight:600; display:block; margin-bottom:6px;">Kolone = naziv stavke:</label>
+                <div id="importNameCols" style="display:flex; flex-direction:column; gap:4px;"></div>
+            </div>
+            <div>
+                <label style="font-weight:600; display:block; margin-bottom:6px;">Kolone = cene (tier-ovi):</label>
+                <div id="importPriceCols" style="display:flex; flex-direction:column; gap:4px;"></div>
+            </div>
+            <div>
+                <label style="font-weight:600; display:block; margin-bottom:6px;">Kategorija:</label>
+                <select id="importManualCategory" class="form-control">
+                    <option value="smestaj">Smeštaj</option>
+                    <option value="ulaznica">Ulaznice</option>
+                    <option value="aktivnost">Aktivnosti</option>
+                    <option value="obrok">Obroci</option>
+                    <option value="vodic">Vodiči</option>
+                    <option value="partner_paket">Partner paketi</option>
+                    <option value="ostalo" selected>Ostalo</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Korak 3: Preview -->
+        <div style="background:#f8f9fa; padding:12px; border-radius:6px; margin-bottom:16px;">
+            <strong>Preview (prve 3 vrste):</strong>
+            <div id="importPreviewTable" style="margin-top:8px; overflow-x:auto;"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span id="importRowCount" style="color:#666;"></span>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-secondary" onclick="closeModal('supplierImportModal')">Otkaži</button>
+                <button class="btn btn-primary" onclick="executeSupplierImport()">✅ Uvezi</button>
             </div>
         </div>
     </div>
+</div>
+   </div>
 
     <div id="supplierModal" class="modal" style="display:none;">
         <div class="modal-content" style="max-width:600px;">
