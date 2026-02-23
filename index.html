@@ -3601,9 +3601,10 @@ function showTemplateSelection() {
             currency: 'EUR'
            }));
 
-                items.push({
-                    id: 'item_' + Math.random().toString(36).substr(2, 8),
-                    name: itemName,
+           items.push({
+              id: 'item_' + Math.random().toString(36).substr(2, 8),
+              name: itemName,
+              service: itemName,
                     pricingType: 'per_person',
                     prices: prices,
                     description: ''
