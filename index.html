@@ -3574,8 +3574,8 @@ function showTemplateSelection() {
                 return;
             }
 
-            const nameColsChecked = [...document.querySelectorAll('.import-name-col:checked')].map(cb => parseInt(cb.value));
-            const priceColsChecked = [...document.querySelectorAll('.import-price-col:checked')].map(cb => parseInt(cb.value));
+           const nameColsChecked = importNameCols;
+           const priceColsChecked = importPriceCols;
 
             if (nameColsChecked.length === 0) {
                 alert('Označite najmanje jednu kolonu za naziv stavke!');
