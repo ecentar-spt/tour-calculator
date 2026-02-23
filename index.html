@@ -3568,8 +3568,7 @@ function showTemplateSelection() {
 
         function executeSupplierImport() {
             const supplierName = document.getElementById('importSupplierName').value.trim();
-            console.log('first row:', importRawData[1], 'col0:', importRawData[1][0], 'col1:', importRawData[1][1]);
-            if (!supplierName) {
+                       if (!supplierName) {
                 alert('Unesite ime dobavljača!');
                 return;
             }
@@ -3589,9 +3588,6 @@ function showTemplateSelection() {
             const category = document.getElementById('importManualCategory').value;
             const headers = importRawData[0];
             const rows = importRawData.slice(1);
-            console.log('SNAPSHOT nameColsChecked:', nameColsChecked, 'priceColsChecked:', priceColsChecked);
-            console.log('SNAPSHOT firstRow:', rows[0], 'len:', rows[0]?.length);
-            console.log('SNAPSHOT firstRow picks:', nameColsChecked.map(i => rows[0]?.[Number(i)]));
             const items = [];
 
             rows.forEach(row => {
