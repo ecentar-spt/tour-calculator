@@ -3421,20 +3421,22 @@ function showTemplateSelection() {
         // IMPORT SUPPLIERS FROM EXCEL/CSV
         // ==========================================
 
-        let importRawData = []; // Holds parsed rows from file
+        let importRawData = [];
+        let importWorkbook = null;
 
         function importSuppliersFromFile(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const ext = file.name.split('.').pop().toLowerCase();
+            const supplierName = file.name.replace(/\.[^/.]+$/, '');
 
             if (ext === 'csv') {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const text = e.target.result;
-                    const rows = parseCSV(text);
-                    showImportPreview(rows);
+                    importWorkbook = null;
+                    const rows = parseCSV(e.target.result);
+                    openImportModal(supplierName, null, rows);
                 };
                 reader.readAsText(file, 'UTF-8');
             } else if (ext === 'xlsx' || ext === 'xls') {
@@ -3442,11 +3444,17 @@ function showTemplateSelection() {
                 reader.onload = function(e) {
                     try {
                         const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
-                        const sheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[sheetName];
-                        const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1, defval: ''});
-                        showImportPreview(rows);
+                        importWorkbook = XLSX.read(data, {type: 'array'});
+                        const sheetNames = importWorkbook.SheetNames;
+
+                        if (sheetNames.length > 1) {
+                            // Više sheetova — prikaži korak 0
+                            openImportModal(supplierName, sheetNames, null);
+                        } else {
+                            // Jedan sheet — direktno učitaj
+                            const rows = XLSX.utils.sheet_to_json(importWorkbook.Sheets[sheetNames[0]], {header: 1, defval: ''});
+                            openImportModal(supplierName, null, rows);
+                        }
                     } catch (err) {
                         alert('Greška pri čitanju Excel fajla: ' + err.message);
                     }
@@ -3454,30 +3462,39 @@ function showTemplateSelection() {
                 reader.readAsArrayBuffer(file);
             }
 
-            // Reset file input
             event.target.value = '';
         }
 
-        function parseCSV(text) {
-            const lines = text.split(/\r?\n/).filter(l => l.trim());
-            return lines.map(line => {
-                // Handle quoted fields
-                const fields = [];
-                let current = '';
-                let inQuotes = false;
-                for (let i = 0; i < line.length; i++) {
-                    const ch = line[i];
-                    const sep = line.includes(';') ? ';' : ',';
-                    if (ch === '"') { inQuotes = !inQuotes; }
-                    else if ((ch === sep || ch === '\t') && !inQuotes) { fields.push(current); current = ''; }
-                    else { current += ch; }
-                }
-                fields.push(current);
-                return fields;
-            });
+        function openImportModal(supplierName, sheetNames, rows) {
+            // Postavi ime dobavljača
+            document.getElementById('importSupplierName').value = supplierName;
+
+            // Korak 0 — sheet selekcija
+            const stepSheet = document.getElementById('importStepSheet');
+            const sheetSelect = document.getElementById('importSheetSelect');
+            if (sheetNames && sheetNames.length > 1) {
+                stepSheet.style.display = 'block';
+                sheetSelect.innerHTML = sheetNames.map(n => `<option value="${n}">${n}</option>`).join('');
+                // Učitaj prvi sheet
+                const firstRows = XLSX.utils.sheet_to_json(importWorkbook.Sheets[sheetNames[0]], {header: 1, defval: ''});
+                buildImportMapping(firstRows);
+            } else {
+                stepSheet.style.display = 'none';
+                buildImportMapping(rows);
+            }
+
+            document.getElementById('supplierImportModal').style.display = 'block';
         }
 
-        function showImportPreview(rows) {
+        function importLoadSheet() {
+            const sheetName = document.getElementById('importSheetSelect').value;
+            const rows = XLSX.utils.sheet_to_json(importWorkbook.Sheets[sheetName], {header: 1, defval: ''});
+            // Ažuriraj ime dobavljača prema nazivu sheeta
+            document.getElementById('importSupplierName').value = sheetName;
+            buildImportMapping(rows);
+        }
+
+        function buildImportMapping(rows) {
             if (!rows || rows.length < 2) {
                 alert('Fajl je prazan ili nema dovoljno redova!');
                 return;
@@ -3486,155 +3503,137 @@ function showTemplateSelection() {
             importRawData = rows;
             const headers = rows[0].map(h => String(h).trim());
 
-            // Populate column selectors
-            const selectors = ['mapName', 'mapItemName', 'mapPrice', 'mapDesc', 'mapCategory'];
-            selectors.forEach(selId => {
-                const sel = document.getElementById(selId);
-                sel.innerHTML = '<option value="">-- Preskoči --</option>';
+            // Popuni checkboxe za naziv stavke
+            const nameCols = document.getElementById('importNameCols');
+            const priceCols = document.getElementById('importPriceCols');
+
+            nameCols.innerHTML = headers.map((h, i) => `
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.9em;">
+                    <input type="checkbox" class="import-name-col" value="${i}"> ${h}
+                </label>
+            `).join('');
+
+            priceCols.innerHTML = headers.map((h, i) => `
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.9em;">
+                    <input type="checkbox" class="import-price-col" value="${i}"> ${h}
+                </label>
+            `).join('');
+
+            // Auto-detect: numeričke kolone kao cene, tekstualne kao naziv
+            rows.slice(1, 4).forEach(row => {
                 headers.forEach((h, i) => {
-                    const opt = document.createElement('option');
-                    opt.value = i;
-                    opt.textContent = `[${i+1}] ${h}`;
-                    sel.appendChild(opt);
+                    const val = String(row[i] || '').trim();
+                    const isNum = val !== '' && !isNaN(parseFloat(val.replace(',', '.')));
+                    if (isNum) {
+                        const cb = priceCols.querySelectorAll('input')[i];
+                        if (cb) cb.checked = true;
+                    } else if (val !== '') {
+                        const cb = nameCols.querySelectorAll('input')[i];
+                        if (cb) cb.checked = true;
+                    }
                 });
             });
 
-            // Auto-detect columns by common names
-            const autoMap = {
-                mapName: ['naziv', 'name', 'dobavljac', 'ime', 'hotel', 'supplier'],
-                mapItemName: ['usluga', 'stavka', 'opis stavke', 'service', 'item', 'opis usluge'],
-                mapPrice: ['cena', 'price', 'iznos', 'cost', 'eur', 'cijena'],
-                mapDesc: ['opis', 'napomena', 'description', 'note', 'komentar'],
-                mapCategory: ['kategorija', 'category', 'tip', 'type']
-            };
+            // Preview
+            updateImportPreview();
+        }
 
-            Object.entries(autoMap).forEach(([selId, keywords]) => {
-                const sel = document.getElementById(selId);
-                for (let i = 0; i < headers.length; i++) {
-                    const h = headers[i].toLowerCase();
-                    if (keywords.some(k => h.includes(k))) {
-                        sel.value = i;
-                        break;
-                    }
-                }
-            });
+        function updateImportPreview() {
+            if (!importRawData.length) return;
+            const headers = importRawData[0];
+            const previewRows = importRawData.slice(0, 4);
 
-            // Show preview table
-            const previewRows = rows.slice(0, 4); // header + 3 rows
-            let tableHTML = '<table style="width:100%; border-collapse:collapse; font-size:12px;">';
+            let html = '<table style="width:100%; border-collapse:collapse; font-size:12px;">';
             previewRows.forEach((row, ri) => {
-                tableHTML += `<tr style="background:${ri === 0 ? '#e9ecef' : 'white'}">`;
+                html += `<tr style="background:${ri === 0 ? '#e9ecef' : 'white'}">`;
                 row.forEach(cell => {
                     const tag = ri === 0 ? 'th' : 'td';
-                    tableHTML += `<${tag} style="border:1px solid #dee2e6; padding:4px 8px;">${cell}</${tag}>`;
+                    html += `<${tag} style="border:1px solid #dee2e6; padding:4px 8px;">${cell}</${tag}>`;
                 });
-                tableHTML += '</tr>';
+                html += '</tr>';
             });
-            tableHTML += '</table>';
-            document.getElementById('importPreviewTable').innerHTML = tableHTML;
-            document.getElementById('importRowCount').textContent = `Ukupno redova: ${rows.length - 1}`;
+            html += '</table>';
 
-            document.getElementById('supplierImportModal').style.display = 'flex';
+            document.getElementById('importPreviewTable').innerHTML = html;
+            document.getElementById('importRowCount').textContent = `Ukupno redova: ${importRawData.length - 1}`;
         }
 
         function executeSupplierImport() {
-            const nameCol = document.getElementById('mapName').value;
-            const itemNameCol = document.getElementById('mapItemName').value;
-            const priceCol = document.getElementById('mapPrice').value;
-            const descCol = document.getElementById('mapDesc').value;
-            const catCol = document.getElementById('mapCategory').value;
-            const manualCat = document.getElementById('manualCategory').value;
-
-            if (nameCol === '') {
-                alert('Morate mapirati kolonu za ime dobavljača!');
-                return;
-            }
-            if (priceCol === '') {
-                alert('Morate mapirati kolonu za cenu!');
+            const supplierName = document.getElementById('importSupplierName').value.trim();
+            if (!supplierName) {
+                alert('Unesite ime dobavljača!');
                 return;
             }
 
-            const rows = importRawData.slice(1); // skip header
-            const supplierMap = new Map(); // group by supplier name
+            const nameColsChecked = [...document.querySelectorAll('.import-name-col:checked')].map(cb => parseInt(cb.value));
+            const priceColsChecked = [...document.querySelectorAll('.import-price-col:checked')].map(cb => parseInt(cb.value));
+
+            if (nameColsChecked.length === 0) {
+                alert('Označite najmanje jednu kolonu za naziv stavke!');
+                return;
+            }
+            if (priceColsChecked.length === 0) {
+                alert('Označite najmanje jednu kolonu za cenu!');
+                return;
+            }
+
+            const category = document.getElementById('importManualCategory').value;
+            const headers = importRawData[0];
+            const rows = importRawData.slice(1);
+            const items = [];
 
             rows.forEach(row => {
-                const name = String(row[parseInt(nameCol)] || '').trim();
-                if (!name) return;
+                const nameParts = nameColsChecked.map(i => String(row[i] || '').trim()).filter(v => v);
+                if (nameParts.length === 0) return;
 
-                const itemName = itemNameCol !== '' ? String(row[parseInt(itemNameCol)] || '').trim() : '';
-                const priceRaw = priceCol !== '' ? String(row[parseInt(priceCol)] || '').trim() : '';
-                const desc = descCol !== '' ? String(row[parseInt(descCol)] || '').trim() : '';
-                const catRaw = catCol !== '' ? String(row[parseInt(catCol)] || '').trim() : '';
+                const itemName = nameParts.join(' - ');
+                const prices = priceColsChecked.map(i => ({
+                    label: String(headers[i] || '').trim(),
+                    value: parseFloat(String(row[i] || '0').replace(',', '.')) || 0,
+                    currency: 'EUR'
+                }));
 
-                const price = parseFloat(priceRaw.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
-
-                // Normalize category
-                let category = manualCat;
-                if (catRaw) {
-                    const catLower = catRaw.toLowerCase();
-                    if (catLower.includes('smeštaj') || catLower.includes('hotel') || catLower.includes('accomm')) category = 'smestaj';
-                    else if (catLower.includes('ulazni') || catLower.includes('ticket')) category = 'ulaznica';
-                    else if (catLower.includes('aktivn') || catLower.includes('activity')) category = 'aktivnost';
-                    else if (catLower.includes('obrok') || catLower.includes('restoran') || catLower.includes('food')) category = 'obrok';
-                    else if (catLower.includes('vodič') || catLower.includes('guide')) category = 'vodic';
-                    else if (catLower.includes('partner')) category = 'partner_paket';
-                    else category = manualCat;
-                }
-
-                if (!supplierMap.has(name)) {
-                    supplierMap.set(name, {
-                        id: 'sup_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                        name: name,
-                        category: category,
-                        items: [],
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    });
-                }
-
-                if (itemName || price) {
-                    supplierMap.get(name).items.push({
-                        id: 'item_' + Math.random().toString(36).substr(2, 8),
-                        name: itemName || name,
-                        price: price,
-                        description: desc,
-                        unit: 'po osobi'
-                    });
-                }
+                items.push({
+                    id: 'item_' + Math.random().toString(36).substr(2, 8),
+                    name: itemName,
+                    pricingType: 'per_person',
+                    prices: prices,
+                    description: ''
+                });
             });
 
-            const imported = Array.from(supplierMap.values());
-            if (imported.length === 0) {
-                alert('Nisu pronađeni dobavljači za uvoz. Proverite mapiranje kolona.');
+            if (items.length === 0) {
+                alert('Nisu pronađene stavke za uvoz!');
                 return;
             }
 
-            // Merge with existing
+            // Merge sa postojećim
             let existing = getSuppliersFromStorage();
-            let added = 0, updated = 0;
+            const existingIdx = existing.findIndex(e => e.name.toLowerCase() === supplierName.toLowerCase());
 
-            imported.forEach(newSup => {
-                const existingIdx = existing.findIndex(e => e.name.toLowerCase() === newSup.name.toLowerCase());
-                if (existingIdx >= 0) {
-                    // Merge items
-                    newSup.items.forEach(newItem => {
-                        const dup = existing[existingIdx].items.find(i => i.name.toLowerCase() === newItem.name.toLowerCase());
-                        if (!dup) existing[existingIdx].items.push(newItem);
-                    });
-                    existing[existingIdx].updatedAt = new Date().toISOString();
-                    updated++;
-                } else {
-                    existing.push(newSup);
-                    added++;
-                }
-            });
+            if (existingIdx >= 0) {
+                items.forEach(newItem => {
+                    const dup = existing[existingIdx].items.find(i => i.name.toLowerCase() === newItem.name.toLowerCase());
+                    if (!dup) existing[existingIdx].items.push(newItem);
+                });
+                existing[existingIdx].updatedAt = new Date().toISOString();
+            } else {
+                existing.push({
+                    id: 'sup_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                    name: supplierName,
+                    category: category,
+                    items: items,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                });
+            }
 
             localStorage.setItem('suppliers', JSON.stringify(existing));
             suppliers = existing;
             renderSuppliers();
 
             closeModal('supplierImportModal');
-            alert(`✅ Uvoz završen!\n• Novi dobavljači: ${added}\n• Ažurirani: ${updated}\n• Ukupno stavki uvezeno: ${imported.reduce((s, sup) => s + sup.items.length, 0)}`);
+            alert(`✅ Uvoz završen!\n• Dobavljač: ${supplierName}\n• Uvezeno stavki: ${items.length}`);
         }
 
         function openSupplierModal(supplierId = null) {
