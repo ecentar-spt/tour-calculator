@@ -3576,7 +3576,10 @@ function showTemplateSelection() {
 
            const nameColsChecked = [...(importNameCols || [])];
            const priceColsChecked = [...(importPriceCols || [])];
-
+           console.log('SNAPSHOT nameColsChecked:', nameColsChecked, 'priceColsChecked:', priceColsChecked);
+           console.log('SNAPSHOT firstRow:', rows[0], 'len:', rows[0]?.length);
+           console.log('SNAPSHOT firstRow picks:', nameColsChecked.map(i => rows[0]?.[Number(i)]));
+            
             if (nameColsChecked.length === 0) {
                 alert('Označite najmanje jednu kolonu za naziv stavke!');
                 return;
