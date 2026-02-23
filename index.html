@@ -1092,7 +1092,7 @@
                 <!-- Toolbar -->
                 <div class="suppliers-toolbar">
                     <button class="btn btn-primary" onclick="openSupplierModal()">+ Novi dobavljač</button>
-                    <label for="supplierImportFile" class="btn btn-secondary" style="cursor:pointer; margin:0;">📥 Uvezi cenovnik (Excel/CSV)</label>
+                   <button class="btn btn-secondary" onclick="document.getElementById('supplierImportFile').click()">📥 Uvezi cenovnik (Excel/CSV)</button>
                     <input type="file" id="supplierImportFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="importSuppliersFromFile(event)">
                     <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
                         <select id="supplierFilterCategory" class="form-control" style="width:160px;" onchange="renderSuppliers()">
