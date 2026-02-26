@@ -3594,10 +3594,12 @@ async function analyzeWithClaude(text, suggestedName) {
     
     try {
         const response = await fetch('https://script.google.com/macros/s/AKfycbxP5EOb5f_GyJS7EkUGU0u9stsdPjPjuN8HIz8Gg91kLU2mfyWLWTk2aYyCWI429lmE/exec', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                text: `Analiziraj ovaj cenovnik turističkog dobavljača i vrati SAMO JSON bez ikakvog dodatnog teksta.
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({
+        text: `Analiziraj ovaj cenovnik...${text.slice(0, 8000)}`
+    })
+});
 
 Kategorije: smestaj, ulaznica, aktivnost, obrok, vodic, partner_paket, ostalo
 Tipovi cena: per_person, per_group, per_room, fixed
