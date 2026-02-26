@@ -5255,6 +5255,23 @@ for (let i = 1; i < existingData.length; i++) {
         </div>
     </div>
 </div>
+    <!-- Supplier Paste Modal -->
+<div id="supplierPasteModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:600px;">
+        <span class="close" onclick="closeModal('supplierPasteModal')">&times;</span>
+        <h3 style="margin-bottom:20px;">📋 Nalepite tekst cenovnika</h3>
+        
+        <div style="margin-bottom:15px;">
+            <label style="font-weight:600; margin-bottom:6px; display:block;">Tekst cenovnika</label>
+            <textarea id="supplierPasteText" style="width:100%; height:250px; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.9em; resize:vertical;" placeholder="Nalepite ovde sadržaj emaila, Word dokumenta ili PDF-a..."></textarea>
+        </div>
+        
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button class="btn btn-secondary" onclick="closeModal('supplierPasteModal')">Otkaži</button>
+            <button class="btn btn-primary" onclick="processPasteImport()">🤖 Analiziraj sa Claude AI</button>
+        </div>
+    </div>
+</div>
 <!-- Supplier Import Preview Modal -->
 <div id="supplierImportModal" class="modal" style="display:none;">
     <div class="modal-content" style="max-width:700px; max-height:85vh; overflow-y:auto;">
