@@ -3426,6 +3426,104 @@ function showTemplateSelection() {
         let importWorkbook = null;
         let importNameCols = [];
         let importPriceCols = [];
+        let claudeResultData = null;
+
+function openClaudeResultModal(parsed, suggestedName) {
+    claudeResultData = parsed;
+    
+    // Popuni ime
+    const nameField = document.getElementById('claudeResultName');
+    nameField.value = parsed.supplierName || suggestedName || '';
+    
+    // Popuni kategoriju
+    const catField = document.getElementById('claudeResultCategory');
+    if (parsed.category) catField.value = parsed.category;
+    
+    // Prikazi stavke
+    const itemsDiv = document.getElementById('claudeResultItems');
+    const count = document.getElementById('claudeResultCount');
+    count.textContent = `${parsed.items.length} stavki`;
+    
+    if (parsed.items.length === 0) {
+        itemsDiv.innerHTML = '<p style="padding:20px; text-align:center; color:#999;">Nisu pronađene stavke</p>';
+    } else {
+        itemsDiv.innerHTML = parsed.items.map((item, idx) => `
+            <div style="padding:12px 15px; border-bottom:1px solid #eee; ${idx === parsed.items.length-1 ? 'border-bottom:none;' : ''}">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="flex:1;">
+                        <strong>${item.service}</strong>
+                        ${item.notes ? `<span style="color:#666; font-size:0.85em; margin-left:8px;">${item.notes}</span>` : ''}
+                        <div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:6px;">
+                            ${item.prices.map(p => `
+                                <span style="background:#e8f4f8; padding:2px 8px; border-radius:4px; font-size:0.85em;">
+                                    ${p.label}: <strong>${p.value} ${p.currency}</strong>
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <button onclick="removeClaudeItem(${idx})" style="background:none; border:none; color:#dc3545; cursor:pointer; font-size:1.1em; padding:0 0 0 10px;">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    document.getElementById('supplierClaudeResultModal').style.display = 'flex';
+}
+
+function removeClaudeItem(idx) {
+    claudeResultData.items.splice(idx, 1);
+    openClaudeResultModal(claudeResultData, document.getElementById('claudeResultName').value);
+}
+
+function executeClaudeImport() {
+    const supplierName = document.getElementById('claudeResultName').value.trim();
+    if (!supplierName) {
+        alert('Unesite ime dobavljača!');
+        return;
+    }
+    
+    const category = document.getElementById('claudeResultCategory').value;
+    const items = claudeResultData.items.map(item => ({
+        id: 'item_' + Math.random().toString(36).substr(2, 8),
+        service: item.service,
+        name: item.service,
+        pricingType: item.pricingType || 'per_person',
+        prices: item.prices,
+        notes: item.notes || '',
+        description: ''
+    }));
+    
+    if (items.length === 0) {
+        alert('Nisu pronađene stavke za uvoz!');
+        return;
+    }
+    
+    let existing = getSuppliersFromStorage();
+    const existingIdx = existing.findIndex(e => e.name.toLowerCase() === supplierName.toLowerCase());
+    
+    if (existingIdx >= 0) {
+        items.forEach(newItem => {
+            const dup = existing[existingIdx].items.find(i => i.name.toLowerCase() === newItem.name.toLowerCase());
+            if (!dup) existing[existingIdx].items.push(newItem);
+        });
+        existing[existingIdx].updatedAt = new Date().toISOString();
+    } else {
+        existing.push({
+            id: 'sup_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            name: supplierName,
+            category: category,
+            items: items,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+    }
+    
+    localStorage.setItem('suppliers', JSON.stringify(existing));
+    suppliers = existing;
+    renderSuppliers();
+    closeModal('supplierClaudeResultModal');
+    alert(`✅ Uvoz završen!\n• Dobavljač: ${supplierName}\n• Uvezeno stavki: ${items.length}`);
+}
 function openImportChoiceModal() {
     document.getElementById('supplierImportChoiceModal').style.display = 'flex';
 }
