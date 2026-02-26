@@ -3645,7 +3645,7 @@ ${text.slice(0, 8000)}`;
         openClaudeResultModal(parsed, suggestedName);
         
     } catch(err) {
-        document.body.removeChild(loadingDiv);
+        if (document.body.contains(loadingDiv)) document.body.removeChild(loadingDiv);
         alert('Greška pri analizi: ' + err.message);
     }
 }
