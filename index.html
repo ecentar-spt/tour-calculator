@@ -3639,6 +3639,7 @@ ${text.slice(0, 8000)}`;
         if (data.error) throw new Error(data.error.message);
         
         const result = data.response.result;
+        console.log('Claude result:', JSON.stringify(result));
         const parsed = typeof result === 'string' ? JSON.parse(result) : result;
         
         if (document.body.contains(loadingDiv)) document.body.removeChild(loadingDiv);
