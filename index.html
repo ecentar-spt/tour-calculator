@@ -3616,7 +3616,7 @@ JSON format:
 Cenovnik:
 ${text.slice(0, 8000)}`;
 
-        const token = await getAccessToken();
+       const token = gapi.client.getToken().access_token;
         
         const response = await fetch(
             'https://script.googleapis.com/v1/scripts/1rJVlQu44VnwYqci3pq6eFzzVQj_C4_QIuZ35I-IX6_2ZtgWoc_ZBFQ3R:run',
