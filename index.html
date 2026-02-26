@@ -3641,7 +3641,7 @@ ${text.slice(0, 8000)}`;
         const result = data.response.result;
         const parsed = typeof result === 'string' ? JSON.parse(result) : result;
         
-        document.body.removeChild(loadingDiv);
+        if (document.body.contains(loadingDiv)) document.body.removeChild(loadingDiv);
         openClaudeResultModal(parsed, suggestedName);
         
     } catch(err) {
