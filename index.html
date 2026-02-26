@@ -3591,15 +3591,11 @@ async function analyzeWithClaude(text, suggestedName) {
     document.body.appendChild(loadingDiv);
     
     try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbxIFm4yC6wddb5r03vnq1NsmJ3xNdNitoE8NKMK5gUL0JlCijqJ2MOPNNnWFNI-FmlX/exec', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'claude-sonnet-4-6',
-                max_tokens: 4000,
-                messages: [{
-                    role: 'user',
-                    content: `Analiziraj ovaj cenovnik turističkog dobavljača i vrati SAMO JSON bez ikakvog dodatnog teksta.
+                text: `Analiziraj ovaj cenovnik turističkog dobavljača i vrati SAMO JSON bez ikakvog dodatnog teksta.
 
 Kategorije: smestaj, ulaznica, aktivnost, obrok, vodic, partner_paket, ostalo
 Tipovi cena: per_person, per_group, per_room, fixed
@@ -3622,7 +3618,6 @@ JSON format:
 
 Cenovnik:
 ${text.slice(0, 8000)}`
-                }]
             })
         });
         
