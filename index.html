@@ -5233,6 +5233,28 @@ for (let i = 1; i < existingData.length; i++) {
             }
         }
     </script>
+    <!-- Supplier Import Choice Modal -->
+<div id="supplierImportChoiceModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:480px;">
+        <span class="close" onclick="closeModal('supplierImportChoiceModal')">&times;</span>
+        <h3 style="margin-bottom:20px;">📥 Uvezi cenovnik</h3>
+        
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <button class="btn btn-primary" style="padding:16px; font-size:1em; text-align:left;" onclick="closeModal('supplierImportChoiceModal'); document.getElementById('supplierImportFile').click();">
+                📊 Excel / CSV
+                <div style="font-size:0.8em; font-weight:normal; margin-top:4px; opacity:0.85;">Strukturisani fajlovi sa kolonama i cenama</div>
+            </button>
+            <button class="btn btn-secondary" style="padding:16px; font-size:1em; text-align:left;" onclick="closeModal('supplierImportChoiceModal'); document.getElementById('supplierImportFilePDF').click();">
+                📄 PDF / Word
+                <div style="font-size:0.8em; font-weight:normal; margin-top:4px; opacity:0.85;">Fajlovi sa slobodnim formatom teksta</div>
+            </button>
+            <button class="btn btn-secondary" style="padding:16px; font-size:1em; text-align:left;" onclick="closeModal('supplierImportChoiceModal'); openPasteModal();">
+                📋 Nalepite tekst
+                <div style="font-size:0.8em; font-weight:normal; margin-top:4px; opacity:0.85;">Kopirajte sadržaj iz emaila, chata ili dokumenta</div>
+            </button>
+        </div>
+    </div>
+</div>
 <!-- Supplier Import Preview Modal -->
 <div id="supplierImportModal" class="modal" style="display:none;">
     <div class="modal-content" style="max-width:700px; max-height:85vh; overflow-y:auto;">
