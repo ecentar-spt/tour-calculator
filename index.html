@@ -5369,6 +5369,46 @@ for (let i = 1; i < existingData.length; i++) {
         </div>
     </div>
 </div>
+    <!-- Claude Result Modal -->
+<div id="supplierClaudeResultModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:700px; max-height:85vh; overflow-y:auto;">
+        <span class="close" onclick="closeModal('supplierClaudeResultModal')">&times;</span>
+        <h3 style="margin-bottom:20px;">🤖 Rezultat Claude analize</h3>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
+            <div>
+                <label style="font-weight:600; margin-bottom:6px; display:block;">Ime dobavljača</label>
+                <input type="text" id="claudeResultName" class="form-control" placeholder="Unesite ime dobavljača">
+            </div>
+            <div>
+                <label style="font-weight:600; margin-bottom:6px; display:block;">Kategorija</label>
+                <select id="claudeResultCategory" class="form-control">
+                    <option value="smestaj">🏨 Smeštaj</option>
+                    <option value="ulaznica">🎫 Ulaznice</option>
+                    <option value="aktivnost">🎯 Aktivnosti</option>
+                    <option value="obrok">🍽️ Obroci</option>
+                    <option value="vodic">🧭 Vodiči</option>
+                    <option value="partner_paket">🤝 Partner paketi</option>
+                    <option value="ostalo">📦 Ostalo</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <label style="font-weight:600;">Prepoznate stavke</label>
+                <span id="claudeResultCount" style="color:#666; font-size:0.9em;"></span>
+            </div>
+            <div id="claudeResultItems" style="border:1px solid #ddd; border-radius:6px; overflow:hidden;">
+            </div>
+        </div>
+        
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button class="btn btn-secondary" onclick="closeModal('supplierClaudeResultModal')">Otkaži</button>
+            <button class="btn btn-primary" onclick="executeClaudeImport()">✅ Uvezi</button>
+        </div>
+    </div>
+</div>
     <!-- Supplier Paste Modal -->
 <div id="supplierPasteModal" class="modal" style="display:none;">
     <div class="modal-content" style="max-width:600px;">
