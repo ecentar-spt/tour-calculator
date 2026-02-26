@@ -3597,9 +3597,7 @@ async function analyzeWithClaude(text, suggestedName) {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({
-        text: `Analiziraj ovaj cenovnik...${text.slice(0, 8000)}`
-    })
-});
+        text: `Analiziraj ovaj cenovnik turističkog dobavljača i vrati SAMO JSON bez ikakvog dodatnog teksta.
 
 Kategorije: smestaj, ulaznica, aktivnost, obrok, vodic, partner_paket, ostalo
 Tipovi cena: per_person, per_group, per_room, fixed
@@ -3622,8 +3620,8 @@ JSON format:
 
 Cenovnik:
 ${text.slice(0, 8000)}`
-            })
-        });
+    })
+});
         
         const data = await response.json();
         const jsonText = data.content[0].text.trim();
