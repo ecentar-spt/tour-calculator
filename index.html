@@ -5258,7 +5258,9 @@ for (let i = 1; i < existingData.length; i++) {
                         console.log(`🆕 New supplier: ${localSupplier.name}`);
                     } else {
                         const localTime = new Date(localSupplier.updatedAt || 0).getTime();
-                        const cloudTime = new Date(cloudSupplier.updated_at || 0).getTime();
+                        const cloudTime = isNaN(Number(cloudSupplier.updated_at)) 
+                            ? new Date(cloudSupplier.updated_at || 0).getTime() 
+                            : Number(cloudSupplier.updated_at);
                         console.log(`⏱️ ${localSupplier.name}: localTime=${localTime}, cloudTime=${cloudTime}, local>=cloud: ${localTime >= cloudTime}`);
 
                         if (localTime >= cloudTime) {
