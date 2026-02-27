@@ -4066,6 +4066,12 @@ ${text.slice(0, 8000)}`;
             let existing = getSuppliersFromStorage();
             const existingIdx = existing.findIndex(e => e.name.toLowerCase() === supplierName.toLowerCase());
 
+            if (updateSupplierTargetId) {
+                closeModal('supplierExcelImportModal');
+                openUpdatePreviewModal(items, updateSupplierTargetId);
+                return;
+            }
+            
             if (existingIdx >= 0) {
                 items.forEach(newItem => {
                     const dup = existing[existingIdx].items.find(i => i.name.toLowerCase() === newItem.name.toLowerCase());
