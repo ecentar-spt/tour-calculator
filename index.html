@@ -5897,6 +5897,20 @@ for (let i = 1; i < existingData.length; i++) {
     </div>
 
     <!-- ===== ITEM MODAL ===== -->
+    <div id="updatePreviewModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:580px;">
+        <div class="modal-header">
+            <h3 id="updatePreviewTitle">Pregled promena</h3>
+            <span class="close" onclick="closeModal('updatePreviewModal')">&times;</span>
+        </div>
+        <div class="modal-body" id="updatePreviewContent" style="max-height:60vh; overflow-y:auto;">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('updatePreviewModal')">Otkaži</button>
+            <button class="btn btn-primary" onclick="executeUpdateImport()">✅ Primeni izmene</button>
+        </div>
+    </div>
+</div>
     <div id="bulkEditModal" class="modal" style="display:none;">
         <div class="modal-content" style="max-width:480px;">
             <div class="modal-header">
