@@ -3489,6 +3489,7 @@ function executeClaudeImport() {
         id: 'item_' + Math.random().toString(36).substr(2, 8),
         service: item.service,
         name: item.service,
+        category: item.category || category,
         pricingType: item.pricingType || 'per_person',
         prices: item.prices,
         notes: item.notes || '',
