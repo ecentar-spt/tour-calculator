@@ -5290,8 +5290,9 @@ for (let i = 1; i < existingData.length; i++) {
 
                 for (const [supplierId, entry] of mergedSuppliersMap) {
                     const s = entry.supplier;
-                    const updatedAt = s.updatedAt || now;
-                    const updatedBy = s.updatedBy || userEmail;
+                   const cloudEntry = cloudSuppliersMap.get(supplierId);
+                   const updatedAt = s.updatedAt || now;
+                   const updatedBy = s.updatedBy || (cloudEntry ? cloudEntry.updated_by : userEmail);
                     rows.push([
                         supplierId,
                         s.name || '',
