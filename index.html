@@ -3424,6 +3424,7 @@ function showTemplateSelection() {
                             </div>
                             <div class="supplier-card-header-right">
                                 <span style="color:#999; font-size:0.85em;">${supplier.items.length} stavki</span>
+                                <button class="btn-icon" onclick="event.stopPropagation(); openUpdateSupplierImport('${supplier.id}')" title="Uvezi novi cenovnik">📥</button>
                                 <button class="btn-icon" onclick="event.stopPropagation(); editSupplier('${supplier.id}')" title="Izmeni dobavljača">✏️</button>
                                 <button class="btn-icon danger" onclick="event.stopPropagation(); deleteSupplier('${supplier.id}')" title="Obriši dobavljača">🗑️</button>
                             </div>
