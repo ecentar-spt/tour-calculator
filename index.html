@@ -3106,6 +3106,10 @@ function showTemplateSelection() {
                     currentDay.guideAccommodationName = previousDay.guideAccommodationName || '';
                 } else if (fieldName === 'passengerAccommodation') {
                     currentDay.passengerAccommodationName = previousDay.passengerAccommodationName || '';
+                } else if (fieldName === 'guideMeals') {
+                    currentDay.guideMealsLocation = previousDay.guideMealsLocation || '';
+                } else if (fieldName === 'passengerMeals') {
+                    currentDay.passengerMealsLocation = previousDay.passengerMealsLocation || '';
                 }
                 
                 renderDays();
