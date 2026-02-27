@@ -5248,7 +5248,6 @@ for (let i = 1; i < existingData.length; i++) {
                 for (const localSupplier of localSuppliers) {
                     const supplierId = String(localSupplier.id || localSupplier.name);
                     const cloudSupplier = cloudSuppliersMap.get(supplierId);
-                    console.log(`🔍 Supplier ${localSupplier.name}: local=${localSupplier.updatedAt}, cloud=${cloudSupplier?.updated_at}`);
 
                     if (!cloudSupplier) {
                         mergedSuppliersMap.set(supplierId, {
