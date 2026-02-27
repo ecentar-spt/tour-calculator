@@ -3617,6 +3617,12 @@ function executeClaudeImport() {
     alert(`✅ Uvoz završen!\n• Dobavljač: ${supplierName}\n• Uvezeno stavki: ${items.length}`);
 }
 function openImportChoiceModal() {
+    updateSupplierTargetId = null;
+    document.getElementById('supplierImportChoiceModal').style.display = 'flex';
+}
+
+function openUpdateSupplierImport(supplierId) {
+    updateSupplierTargetId = supplierId;
     document.getElementById('supplierImportChoiceModal').style.display = 'flex';
 }
 
