@@ -3616,6 +3616,123 @@ function executeClaudeImport() {
     closeModal('supplierClaudeResultModal');
     alert(`✅ Uvoz završen!\n• Dobavljač: ${supplierName}\n• Uvezeno stavki: ${items.length}`);
 }
+        function buildUpdatePreview(newItems, supplierId) {
+    const supplier = suppliers.find(s => s.id === supplierId);
+    const existing = supplier.items;
+
+    const added = [];
+    const changed = [];
+    const unchanged = [];
+    const missing = [];
+
+    // Proveri nove stavke
+    newItems.forEach(newItem => {
+        const match = existing.find(e => e.service.toLowerCase() === newItem.service.toLowerCase());
+        if (!match) {
+            added.push(newItem);
+        } else {
+            const pricesChanged = JSON.stringify(match.prices) !== JSON.stringify(newItem.prices);
+            if (pricesChanged) {
+                changed.push({ old: match, new: newItem });
+            } else {
+                unchanged.push(newItem);
+            }
+        }
+    });
+
+    // Proveri stavke kojih nema u novom cenovniku
+    existing.forEach(ex => {
+        const match = newItems.find(n => n.service.toLowerCase() === ex.service.toLowerCase());
+        if (!match) missing.push(ex);
+    });
+
+    return { added, changed, unchanged, missing };
+}
+
+function openUpdatePreviewModal(newItems, supplierId) {
+    const preview = buildUpdatePreview(newItems, supplierId);
+    const supplier = suppliers.find(s => s.id === supplierId);
+
+    let html = '';
+
+    if (preview.added.length > 0) {
+        html += `<div style="margin-bottom:15px;"><strong style="color:#28a745;">🟢 Nove stavke (${preview.added.length})</strong><ul style="margin:8px 0 0 20px;">`;
+        preview.added.forEach(i => { html += `<li>${i.service}</li>`; });
+        html += '</ul></div>';
+    }
+
+    if (preview.changed.length > 0) {
+        html += `<div style="margin-bottom:15px;"><strong style="color:#fd7e14;">🟡 Izmenjene cene (${preview.changed.length})</strong><ul style="margin:8px 0 0 20px;">`;
+        preview.changed.forEach(i => { html += `<li>${i.new.service}</li>`; });
+        html += '</ul></div>';
+    }
+
+    if (preview.unchanged.length > 0) {
+        html += `<div style="margin-bottom:15px;"><strong style="color:#6c757d;">⚪ Nepromenjene (${preview.unchanged.length})</strong></div>`;
+    }
+
+    if (preview.missing.length > 0) {
+        html += `<div style="margin-bottom:15px;"><strong style="color:#dc3545;">🔴 Nema u novom cenovniku (${preview.missing.length})</strong>`;
+        html += `<ul style="margin:8px 0 0 20px;">`;
+        preview.missing.forEach(i => {
+            html += `<li style="margin-bottom:6px;">${i.service} 
+                <select data-missing-id="${i.id}" style="margin-left:8px; font-size:0.85em; padding:2px 4px;">
+                    <option value="keep">Zadrži</option>
+                    <option value="inactive">Označi neaktivnom</option>
+                    <option value="delete">Obriši</option>
+                </select>
+            </li>`;
+        });
+        html += '</ul></div>';
+    }
+
+    document.getElementById('updatePreviewContent').innerHTML = html;
+    document.getElementById('updatePreviewTitle').textContent = `Ažuriranje: ${supplier.name}`;
+    
+    // Čuvamo podatke za primenu
+    window._updatePreviewData = { newItems, supplierId, preview };
+    
+    document.getElementById('updatePreviewModal').style.display = 'flex';
+}
+
+function executeUpdateImport() {
+    const { newItems, supplierId, preview } = window._updatePreviewData;
+    const supplier = suppliers.find(s => s.id === supplierId);
+
+    // Dodaj nove stavke
+    preview.added.forEach(item => {
+        supplier.items.push({...item, id: String(Date.now()) + Math.random().toString(36).substr(2,4)});
+    });
+
+    // Zameni izmenjene cene
+    preview.changed.forEach(pair => {
+        const idx = supplier.items.findIndex(i => i.id === pair.old.id);
+        if (idx >= 0) {
+            supplier.items[idx].prices = pair.new.prices;
+            supplier.items[idx].pricingType = pair.new.pricingType;
+        }
+    });
+
+    // Primeni odluke za missing stavke
+    const selects = document.querySelectorAll('[data-missing-id]');
+    selects.forEach(sel => {
+        const itemId = sel.dataset.missingId;
+        const action = sel.value;
+        if (action === 'delete') {
+            supplier.items = supplier.items.filter(i => i.id !== itemId);
+        } else if (action === 'inactive') {
+            const item = supplier.items.find(i => i.id === itemId);
+            if (item) item.inactive = true;
+        }
+    });
+
+    supplier.updatedAt = new Date().toISOString();
+    supplier.updatedBy = googleUser ? googleUser.email : 'unknown';
+    saveSuppliersToStorage();
+    closeModal('updatePreviewModal');
+    renderSuppliers();
+    alert(`✅ Cenovnik ažuriran!`);
+}
 function openImportChoiceModal() {
     updateSupplierTargetId = null;
     document.getElementById('supplierImportChoiceModal').style.display = 'flex';
