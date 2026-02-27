@@ -5259,6 +5259,7 @@ for (let i = 1; i < existingData.length; i++) {
                     } else {
                         const localTime = new Date(localSupplier.updatedAt || 0).getTime();
                         const cloudTime = new Date(cloudSupplier.updated_at || 0).getTime();
+                        console.log(`⏱️ ${localSupplier.name}: localTime=${localTime}, cloudTime=${cloudTime}, local>=cloud: ${localTime >= cloudTime}`);
 
                         if (localTime >= cloudTime) {
                             mergedSuppliersMap.set(supplierId, {
