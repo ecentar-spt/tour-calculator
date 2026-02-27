@@ -3511,7 +3511,7 @@ function executeClaudeImport() {
         existing[existingIdx].updatedAt = new Date().toISOString();
     } else {
         existing.push({
-            id: 'sup_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            id: String(Date.now()),
             name: supplierName,
             category: category,
             items: items,
@@ -3854,7 +3854,7 @@ ${text.slice(0, 8000)}`;
                 existing[existingIdx].updatedAt = new Date().toISOString();
             } else {
                 existing.push({
-                    id: 'sup_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                    id: String(Date.now()),
                     name: supplierName,
                     category: category,
                     items: items,
@@ -3942,7 +3942,7 @@ ${text.slice(0, 8000)}`;
                 notes: document.getElementById('supplierNotes').value.trim(),
                 touristTax: category === 'smestaj' ? parseFloat(document.getElementById('supplierTouristTax').value) || 0 : 0,
                 touristTaxSeasonal: category === 'smestaj' ? document.getElementById('supplierTouristTaxSeasonal').checked : false,
-                updatedAt: Date.now(),
+                updatedAt: new Date().toISOString(),
                 updatedBy: googleUser ? googleUser.email : 'unknown'
             };
             
@@ -4137,7 +4137,7 @@ ${text.slice(0, 8000)}`;
                 });
             }
             
-            supplier.updatedAt = Date.now();
+            supplier.updatedAt = new Date().toISOString();
             supplier.updatedBy = googleUser ? googleUser.email : 'unknown';
             saveSuppliersToStorage();
             closeModal('itemModal');
@@ -4160,7 +4160,7 @@ ${text.slice(0, 8000)}`;
             }
             
             supplier.items = supplier.items.filter(i => i.id !== itemId);
-            supplier.updatedAt = Date.now();
+            supplier.updatedAt = new Date().toISOString();
             supplier.updatedBy = googleUser ? googleUser.email : 'unknown';
             saveSuppliersToStorage();
             renderSuppliers();
