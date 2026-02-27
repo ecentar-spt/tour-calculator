@@ -3942,7 +3942,8 @@ ${text.slice(0, 8000)}`;
                 notes: document.getElementById('supplierNotes').value.trim(),
                 touristTax: category === 'smestaj' ? parseFloat(document.getElementById('supplierTouristTax').value) || 0 : 0,
                 touristTaxSeasonal: category === 'smestaj' ? document.getElementById('supplierTouristTaxSeasonal').checked : false,
-                updatedAt: Date.now()
+                updatedAt: Date.now(),
+                updatedBy: googleUser ? googleUser.email : 'unknown'
             };
             
             if (id) {
@@ -4137,6 +4138,7 @@ ${text.slice(0, 8000)}`;
             }
             
             supplier.updatedAt = Date.now();
+            supplier.updatedBy = googleUser ? googleUser.email : 'unknown';
             saveSuppliersToStorage();
             closeModal('itemModal');
             renderSuppliers();
@@ -4159,6 +4161,7 @@ ${text.slice(0, 8000)}`;
             
             supplier.items = supplier.items.filter(i => i.id !== itemId);
             supplier.updatedAt = Date.now();
+            supplier.updatedBy = googleUser ? googleUser.email : 'unknown';
             saveSuppliersToStorage();
             renderSuppliers();
         }
