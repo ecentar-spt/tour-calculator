@@ -5260,7 +5260,6 @@ for (let i = 1; i < existingData.length; i++) {
                         const cloudTime = isNaN(Number(cloudSupplier.updated_at)) 
                             ? new Date(cloudSupplier.updated_at || 0).getTime() 
                             : Number(cloudSupplier.updated_at);
-                        console.log(`⏱️ ${localSupplier.name}: localTime=${localTime}, cloudTime=${cloudTime}, local>=cloud: ${localTime >= cloudTime}`);
 
                         if (localTime >= cloudTime) {
                             mergedSuppliersMap.set(supplierId, {
