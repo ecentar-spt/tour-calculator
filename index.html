@@ -3637,7 +3637,11 @@ function executeClaudeImport() {
         if (!match) {
             added.push(newItem);
         } else {
-            const pricesChanged = JSON.stringify(match.prices) !== JSON.stringify(newItem.prices);
+            const pricesChanged = match.prices.length !== newItem.prices.length ||
+    match.prices.some((p, i) => {
+        const n = newItem.prices[i];
+        return !n || parseFloat(p.value) !== parseFloat(n.value) || p.currency !== n.currency;
+    });
             if (pricesChanged) {
                 changed.push({ old: match, new: newItem });
             } else {
