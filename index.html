@@ -2030,7 +2030,9 @@ function validatePassengers() {
                                    placeholder="Hotel / Mesto">
                         </div>
                         <div class="param-item">
-                            <label>Obrok osoblja (EUR)</label>
+                            <label>Obrok osoblja (EUR)
+                                ${index > 0 ? '<span onclick="cloneValue(\'guideMeals\', ' + index + ')" style="cursor: pointer; color: var(--primary); margin-left: 5px;" title="Kopiraj iz prethodnog dana">↑</span>' : ''}
+                            </label>
                             <input type="number" value="${day.guideMeals}" 
                                    onchange="currentTour.days[${index}].guideMeals = parseFloat(this.value) || 0; updateCalc();">
                             <input type="text" class="hotel-name" value="${day.guideMealsLocation || ''}" 
