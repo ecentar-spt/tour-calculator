@@ -3578,7 +3578,7 @@ function executeClaudeImport() {
         name: item.service,
         category: item.category || category,
         pricingType: item.pricingType || 'per_person',
-        prices: item.prices,
+        prices: item.prices.map(p => p.currency === 'RSD' ? {...p, value: Math.round(p.value / settings.rsdEurRate * 100) / 100, currency: 'EUR'} : p),
         notes: item.notes || '',
         description: ''
     }));
