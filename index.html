@@ -2354,6 +2354,7 @@ function normalizeTolls(day) {
                             <label>
                                 Smeštaj putnika pp (EUR)
                                 ${index > 0 ? '<span onclick="cloneValue(\'passengerAccommodation\', ' + index + ')" style="cursor: pointer; color: var(--primary); margin-left: 5px;" title="Kopiraj iz prethodnog dana">↑</span>' : ''}
+                                <span onclick="openSupplierPicker(${index}, 'passengerAccommodation')" style="cursor:pointer; color:var(--primary); margin-left:5px;" title="Odaberi iz cenovnika">🔍</span>
                             </label>
                             <input type="number" value="${day.passengerAccommodation}" 
                                    onchange="currentTour.days[${index}].passengerAccommodation = parseFloat(this.value) || 0; updateCalc();">
