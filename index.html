@@ -2140,6 +2140,43 @@ function normalizeTolls(day) {
                                placeholder="Npr: Beograd - Sarajevo, via Mokra Gora">
                     </div>
 
+                    <div class="stops-description-block">
+                        <div>
+                            <label style="font-weight:600; margin-bottom:6px; display:block;">Stopovi</label>
+                            <table class="stops-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:70px">Vreme</th>
+                                        <th>Mesto</th>
+                                        <th>Opis</th>
+                                        <th style="width:28px"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${(day.stops || []).map(stop => `
+                                    <tr>
+                                        <td><input type="text" value="${stop.time}" placeholder="09:00"
+                                                   onchange="updateStop(${index}, '${stop.id}', 'time', this.value)"></td>
+                                        <td><input type="text" value="${stop.place}" placeholder="Npr. Novi Sad"
+                                                   onchange="updateStop(${index}, '${stop.id}', 'place', this.value)"></td>
+                                        <td><input type="text" value="${stop.description}" placeholder="Kratak opis"
+                                                   onchange="updateStop(${index}, '${stop.id}', 'description', this.value)"></td>
+                                        <td><button class="btn btn-danger" style="padding: 2px 6px;"
+                                                    onclick="removeStop(${index}, '${stop.id}')">✕</button></td>
+                                    </tr>`).join('')}
+                                </tbody>
+                            </table>
+                            <button class="btn btn-secondary" style="margin-top:6px; padding: 2px 8px; font-size: 0.75em;"
+                                    onclick="addStop(${index})">+ Dodaj stop</button>
+                        </div>
+                        <div>
+                            <label style="font-weight:600; margin-bottom:6px; display:block;">Opis dana</label>
+                            <textarea class="day-description-textarea"
+                                      placeholder="Detaljan opis dana za ponudu..."
+                                      onchange="updateDayDescription(${index}, this.value)">${day.dayDescription || ''}</textarea>
+                        </div>
+                    </div>
+
                     <div class="day-params">
                         <div class="param-item">
                             <label>Pređeni put (km)</label>
