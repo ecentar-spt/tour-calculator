@@ -2006,7 +2006,7 @@ function validatePassengers() {
                         ${getCategoryIcon(s.category)} ${s.name}
                     </div>
                     <div>
-                        ${(s.items || []).filter(i => !search || i.service.toLowerCase().includes(search)).map(item => `
+                        ${(s.items || []).filter(i => categories.includes(i.category) && (!search || i.service.toLowerCase().includes(search))).map(item => `
                         <div style="padding:8px 12px; border-top:1px solid #eee;">
                             <div style="font-weight:500; margin-bottom:4px;">${item.service}</div>
                             <div style="display:flex; flex-wrap:wrap; gap:6px;">
