@@ -2234,7 +2234,8 @@ function normalizeTolls(day) {
             }
 
             container.innerHTML = currentTour.days.map((day, index) => `
-               <div class="day-card"
+               <div class="day-card" draggable="true"
+                     ondragstart="handleDragStart(event, ${index})"
                      ondragover="handleDragOver(event)"
                      ondrop="handleDrop(event, ${index})"
                      ondragend="handleDragEnd(event)">
