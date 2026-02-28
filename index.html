@@ -1956,6 +1956,106 @@ function validatePassengers() {
             input.value = val;
             updateStop(dayIndex, stopId, 'time', val);
         }
+        // ── Supplier Picker ──────────────────────────────────────────
+        let pickerContext = null; // { dayIndex, field }
+
+        function openSupplierPicker(dayIndex, field) {
+            pickerContext = { dayIndex, field };
+            const titles = {
+                'guideAccommodation': 'Smeštaj osoblja',
+                'passengerAccommodation': 'Smeštaj putnika',
+                'guideMeals': 'Obrok osoblja',
+                'passengerMeals': 'Obrok putnika',
+                'ticket': 'Ulaznice / Aktivnosti'
+            };
+            document.getElementById('supplierPickerTitle').textContent = 'Odaberi: ' + (titles[field] || '');
+            document.getElementById('supplierPickerSearch').value = '';
+            document.getElementById('supplierPickerModal').style.display = 'block';
+            renderSupplierPicker();
+        }
+
+        function closeSupplierPicker() {
+            document.getElementById('supplierPickerModal').style.display = 'none';
+            pickerContext = null;
+        }
+
+        function getPickerCategories(field) {
+            if (field === 'guideAccommodation' || field === 'passengerAccommodation') return ['smestaj'];
+            if (field === 'guideMeals' || field === 'passengerMeals') return ['obrok'];
+            if (field === 'ticket') return ['ulaznica', 'aktivnost'];
+            return [];
+        }
+
+        function renderSupplierPicker() {
+            if (!pickerContext) return;
+            const search = document.getElementById('supplierPickerSearch').value.toLowerCase();
+            const categories = getPickerCategories(pickerContext.field);
+            const filtered = suppliers.filter(s =>
+                categories.includes(s.category) &&
+                (s.name.toLowerCase().includes(search) ||
+                 (s.items || []).some(i => i.service.toLowerCase().includes(search)))
+            );
+            const container = document.getElementById('supplierPickerList');
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="color:#999; text-align:center;">Nema rezultata</p>';
+                return;
+            }
+            container.innerHTML = filtered.map(s => `
+                <div style="border:1px solid #e0e0e0; border-radius:6px; margin-bottom:10px; overflow:hidden;">
+                    <div style="background:#f5f5f5; padding:8px 12px; font-weight:600;">
+                        ${getCategoryIcon(s.category)} ${s.name}
+                    </div>
+                    <div>
+                        ${(s.items || []).filter(i => !search || i.service.toLowerCase().includes(search)).map(item => `
+                        <div style="padding:8px 12px; border-top:1px solid #eee;">
+                            <div style="font-weight:500; margin-bottom:4px;">${item.service}</div>
+                            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                ${(item.prices || []).map(p => `
+                                <button class="btn btn-secondary" style="font-size:0.8em; padding:3px 10px;"
+                                        onclick="applySupplierItem('${s.name}', '${item.service}', ${p.value}, '${p.label}')">
+                                    ${p.label}: ${p.value} ${p.currency}
+                                </button>`).join('')}
+                            </div>
+                        </div>`).join('')}
+                    </div>
+                </div>`).join('');
+        }
+
+        function applySupplierItem(supplierName, serviceName, price, tierLabel) {
+            if (!pickerContext) return;
+            const { dayIndex, field } = pickerContext;
+            const day = currentTour.days[dayIndex];
+            const label = supplierName + (serviceName ? ' — ' + serviceName : '');
+
+            if (field === 'ticket') {
+                // Dodaj kao novu stavku u listu ulaznica
+                currentTour.days[dayIndex] = normalizeTickets(day);
+                currentTour.days[dayIndex].ticketItems.push({
+                    id: String(Date.now() + Math.random()),
+                    name: label,
+                    price: price
+                });
+                currentTour.days[dayIndex].tickets = currentTour.days[dayIndex].ticketItems.reduce((s, t) => s + t.price, 0);
+            } else if (field === 'guideAccommodation') {
+                day.guideAccommodation = price;
+                day.guideAccommodationName = label;
+            } else if (field === 'passengerAccommodation') {
+                day.passengerAccommodation = price;
+                day.passengerAccommodationName = label;
+            } else if (field === 'guideMeals') {
+                day.guideMeals = price;
+                day.guideMealsLocation = label;
+            } else if (field === 'passengerMeals') {
+                day.passengerMeals = price;
+                day.passengerMealsLocation = label;
+            }
+
+            currentTour.isDirty = true;
+            closeSupplierPicker();
+            renderDays();
+            updateCalc();
+        }
+        // ── End Supplier Picker ──────────────────────────────────────
        function addStop(dayIndex) {
             if (!currentTour.days[dayIndex].stops) currentTour.days[dayIndex].stops = [];
             currentTour.days[dayIndex].stops.push({
