@@ -2434,8 +2434,8 @@ function normalizeTolls(day) {
         }
 
         function handleDragEnd(e) {
-            e.currentTarget.classList.remove('dragging');
-            document.querySelectorAll('.day-card').forEach(card => {
+            const card = e.currentTarget.closest('.day-card');
+            if (card) card.classList.remove('dragging');
                 card.classList.remove('drag-over');
             });
             draggedIndex = null;
