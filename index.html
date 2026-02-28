@@ -2232,7 +2232,8 @@ function normalizeTolls(day) {
 
             currentTour.days.forEach(day => {
                 totalDistance += day.distance;
-                totalTolls += day.tolls;
+                const d = normalizeTolls(day);
+                totalTolls += d.tollItems.reduce((sum, t) => sum + (t.price || 0), 0);
                 totalGuideAccommodation += day.guideAccommodation;
                 totalGuideMeals += day.guideMeals;
                 totalPassengerAccommodation += day.passengerAccommodation;
