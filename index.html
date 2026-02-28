@@ -1898,7 +1898,64 @@ function validatePassengers() {
             }
             return day;
         }
+        
+function normalizeTolls(day) {
+            if (!day.tollItems || !Array.isArray(day.tollItems)) {
+                if (day.tolls && day.tolls > 0) {
+                    day.tollItems = [{
+                        id: String(Date.now() + Math.random()),
+                        name: 'Putarina/Parking',
+                        price: day.tolls
+                    }];
+                } else {
+                    day.tollItems = [];
+                }
+            }
+            return day;
+        }
 
+        function addTollItem(dayIndex) {
+            currentTour.days[dayIndex] = normalizeTolls(currentTour.days[dayIndex]);
+            currentTour.days[dayIndex].tollItems.push({
+                id: String(Date.now() + Math.random()),
+                name: '',
+                price: 0
+            });
+            currentTour.isDirty = true;
+            renderDays();
+            updateCalc();
+        }
+
+        function removeTollItem(dayIndex, itemId) {
+            currentTour.days[dayIndex] = normalizeTolls(currentTour.days[dayIndex]);
+            currentTour.days[dayIndex].tollItems = currentTour.days[dayIndex].tollItems.filter(
+                t => t.id !== itemId
+            );
+            currentTour.isDirty = true;
+            renderDays();
+            updateCalc();
+        }
+
+        function updateTollItem(dayIndex, itemId, field, value) {
+            currentTour.days[dayIndex] = normalizeTolls(currentTour.days[dayIndex]);
+            const item = currentTour.days[dayIndex].tollItems.find(t => t.id === itemId);
+            if (item) {
+                item[field] = field === 'name' ? value : parseFloat(value) || 0;
+                const total = currentTour.days[dayIndex].tollItems.reduce(
+                    (sum, t) => sum + (t.price || 0), 0
+                );
+                currentTour.days[dayIndex].tolls = total;
+
+                const ukupnoEl = document.getElementById(`tollTotal_${dayIndex}`);
+                if (ukupnoEl) {
+                    ukupnoEl.innerHTML = total % 1 === 0 ? total.toFixed(0) : total.toFixed(2);
+                }
+
+                currentTour.isDirty = true;
+                updateCalc();
+            }
+        }
+        
         function addTicketItem(dayIndex) {
             currentTour.days[dayIndex] = normalizeTickets(currentTour.days[dayIndex]);
             currentTour.days[dayIndex].ticketItems.push({
