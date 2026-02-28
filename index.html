@@ -2374,7 +2374,9 @@ function normalizeTolls(day) {
                                    placeholder="Restoran / Mesto">
                         </div>
                         <div class="param-item">
-                            <label>Ulaznice/Aktivnosti pp</label>
+                            <label>Ulaznice/Aktivnosti pp
+                                <span onclick="openSupplierPicker(${index}, 'ticket')" style="cursor:pointer; color:var(--primary); margin-left:5px;" title="Odaberi iz cenovnika">🔍</span>
+                            </label>
                             ${(() => {
                                 const d = normalizeTickets(day);
                                 const total = d.ticketItems.reduce((sum, t) => sum + (t.price || 0), 0);
