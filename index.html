@@ -1900,6 +1900,38 @@ function validatePassengers() {
             }
             return day;
         }
+function addStop(dayIndex) {
+            if (!currentTour.days[dayIndex].stops) currentTour.days[dayIndex].stops = [];
+            currentTour.days[dayIndex].stops.push({
+                id: String(Date.now() + Math.random()),
+                time: '',
+                place: '',
+                description: ''
+            });
+            currentTour.isDirty = true;
+            renderDays();
+        }
+
+        function removeStop(dayIndex, stopId) {
+            currentTour.days[dayIndex].stops = (currentTour.days[dayIndex].stops || []).filter(
+                s => s.id !== stopId
+            );
+            currentTour.isDirty = true;
+            renderDays();
+        }
+
+        function updateStop(dayIndex, stopId, field, value) {
+            const stop = (currentTour.days[dayIndex].stops || []).find(s => s.id === stopId);
+            if (stop) {
+                stop[field] = value;
+                currentTour.isDirty = true;
+            }
+        }
+
+        function updateDayDescription(dayIndex, value) {
+            currentTour.days[dayIndex].dayDescription = value;
+            currentTour.isDirty = true;
+        }
         
 function normalizeTolls(day) {
             if (!day.tollItems || !Array.isArray(day.tollItems)) {
