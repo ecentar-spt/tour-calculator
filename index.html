@@ -2407,16 +2407,9 @@ function normalizeTolls(day) {
         }
 
         // Drag and Drop handlers
-        function handleDragStart(e, index) {
-            const tag = e.target.tagName.toLowerCase();
-            if (tag === 'input' || tag === 'textarea' || tag === 'button' || tag === 'select') {
-                e.preventDefault();
-                return;
-            }
+       function handleDragStart(e, index) {
             draggedIndex = index;
-            e.dataTransfer.effectAllowed = 'move';
-            const card = e.currentTarget.closest('.day-card');
-            if (card) card.classList.add('dragging');
+            e.currentTarget.classList.add('dragging');
         }
 
         function handleDragOver(e) {
