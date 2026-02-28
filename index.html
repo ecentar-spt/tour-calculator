@@ -2408,7 +2408,9 @@ function normalizeTolls(day) {
         // Drag and Drop handlers
         function handleDragStart(e, index) {
             draggedIndex = index;
-            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            const card = e.currentTarget.closest('.day-card');
+            if (card) card.classList.add('dragging');
         }
 
         function handleDragOver(e) {
