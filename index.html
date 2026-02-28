@@ -6297,5 +6297,19 @@ for (let i = 1; i < existingData.length; i++) {
             </div>
         </div>
     </div>
+    <!-- Supplier Picker Modal -->
+<div id="supplierPickerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; overflow-y:auto;">
+    <div style="background:#fff; margin:40px auto; max-width:600px; border-radius:8px; padding:24px; position:relative;">
+        <h3 id="supplierPickerTitle" style="margin:0 0 15px;">Odaberi iz cenovnika</h3>
+        <input type="text" id="supplierPickerSearch" class="form-control" placeholder="Pretraga dobavljača ili usluge..."
+               oninput="renderSupplierPicker()" style="margin-bottom:12px;">
+        <div id="supplierPickerList" style="max-height:400px; overflow-y:auto;"></div>
+        <div style="margin-top:15px; text-align:right;">
+            <button class="btn btn-secondary" onclick="closeSupplierPicker()">Zatvori</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
 </body>
 </html>
