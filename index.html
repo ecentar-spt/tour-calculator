@@ -2330,7 +2330,8 @@ function normalizeTolls(day) {
                         <div class="param-item">
                             <label>
                                 Smeštaj osoblja (EUR)
-                                ${index > 0 ? '<span onclick="cloneValue(\'guideAccommodation\', ' + index + ')" style="cursor: pointer; color: var(--primary); margin-left: 5px;" title="Kopiraj iz prethodnog dana">↑</span>' : ''}
+                               ${index > 0 ? '<span onclick="cloneValue(\'guideAccommodation\', ' + index + ')" style="cursor: pointer; color: var(--primary); margin-left: 5px;" title="Kopiraj iz prethodnog dana">↑</span>' : ''}
+                                <span onclick="openSupplierPicker(${index}, 'guideAccommodation')" style="cursor:pointer; color:var(--primary); margin-left:5px;" title="Odaberi iz cenovnika">🔍</span>
                             </label>
                             <input type="number" value="${day.guideAccommodation}" 
                                    onchange="currentTour.days[${index}].guideAccommodation = parseFloat(this.value) || 0; updateCalc();">
