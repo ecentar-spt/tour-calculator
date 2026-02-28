@@ -2173,8 +2173,8 @@ function normalizeTolls(day) {
                                 <tbody>
                                     ${(day.stops || []).map(stop => `
                                     <tr>
-                                        <td><input type="text" value="${stop.time}" placeholder="09:00"
-                                                   onchange="updateStop(${index}, '${stop.id}', 'time', this.value)"></td>
+                                       <td><input type="text" value="${stop.time}" placeholder="09:00"
+                                                   onblur="formatStopTime(${index}, '${stop.id}', this)"></td>
                                         <td><input type="text" value="${stop.place}" placeholder="Npr. Novi Sad"
                                                    onchange="updateStop(${index}, '${stop.id}', 'place', this.value)"></td>
                                         <td><input type="text" value="${stop.description}" placeholder="Kratak opis"
