@@ -1990,8 +1990,8 @@ function validatePassengers() {
             if (!pickerContext) return;
             const search = document.getElementById('supplierPickerSearch').value.toLowerCase();
             const categories = getPickerCategories(pickerContext.field);
-            const filtered = suppliers.filter(s =>
-                categories.includes(s.category) &&
+           const filtered = suppliers.filter(s =>
+                (s.items || []).some(i => categories.includes(i.category)) &&
                 (s.name.toLowerCase().includes(search) ||
                  (s.items || []).some(i => i.service.toLowerCase().includes(search)))
             );
