@@ -2898,9 +2898,7 @@ function normalizeTolls(day) {
             if (!currentTour.localGuides) {
                 currentTour.localGuides = [];
             }
-            
-            console.log('📖 Loaded tour:', currentTour.name, 'ID:', currentTour.id, 'Version:', currentTour.version || 'unknown');
-            
+                       
             // Update form
             document.getElementById('tourName').value = currentTour.name;
             document.getElementById('clientName').value = currentTour.client || '';
