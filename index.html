@@ -2887,6 +2887,8 @@ function normalizeTolls(day) {
             if (!tour) return;
 
             currentTour = {...tour};
+            if (tour.tourSettings) currentTour.tourSettings = {...tour.tourSettings};
+            if (tour.days) currentTour.days = tour.days.map(d => ({...d}));
             
             // CRITICAL: Reset isDirty flag - loading is NOT editing!
             currentTour.isDirty = false;
