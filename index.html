@@ -2434,6 +2434,7 @@ function normalizeTolls(day) {
         }
 
         function moveDragGhost(e) {
+            lastMouseY = e.clientY;
             if (dragGhost) {
                 dragGhost.style.left = (e.clientX + 12) + 'px';
                 dragGhost.style.top = (e.clientY - 16) + 'px';
