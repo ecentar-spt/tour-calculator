@@ -2403,7 +2403,9 @@ function normalizeTolls(day) {
 
         // Drag and Drop handlers
        // ── Mouse-based drag & drop ──────────────────────────────────
-       let dragGhost = null;
+        let dragGhost = null;
+        let scrollInterval = null;
+        let lastMouseY = 0;
 
         function initDrag(e, index) {
             e.preventDefault();
