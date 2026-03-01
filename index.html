@@ -2432,13 +2432,17 @@ function normalizeTolls(day) {
             document.addEventListener('mousemove', onDragMove);
             document.addEventListener('mouseup', onDragEnd);
            scrollInterval = setInterval(() => {
-                const scrollZone = 150;
-                const distanceBottom = window.innerHeight - lastMouseY;
-                console.log('scroll interval, lastMouseY:', lastMouseY, 'distanceBottom:', distanceBottom);
-                if (lastMouseY < scrollZone) {
-                    window.scrollBy(0, -15);
-                } else if (distanceBottom < scrollZone) {
-                    window.scrollBy(0, 15);
+                const container = document.querySelector('.content');
+                if (!container) return;
+                const rect = container.getBoundingClientRect();
+                const relY = lastMouseY - rect.top;
+                const halfHeight = rect.height / 2;
+                if (relY > halfHeight) {
+                    const speed = Math.round((relY - halfHeight) / 20);
+                    container.scrollBy(0, speed);
+                } else if (relY < halfHeight) {
+                    const speed = Math.round((halfHeight - relY) / 20);
+                    container.scrollBy(0, -speed);
                 }
             }, 20);
         }
