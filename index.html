@@ -1611,9 +1611,9 @@
                 vanConsumption: parseFloat(document.getElementById('tourVanConsumption').value),
                 depreciation: parseFloat(document.getElementById('tourDepreciation').value),
                 distanceAdjustment: parseFloat(document.getElementById('tourDistanceAdjustment').value),
-                guideDailyCar: parseFloat(document.getElementById('tourGuideDailyCar').value),
-                guideDailyVan: parseFloat(document.getElementById('tourGuideDailyVan').value),
-                guideDailyMinibus: parseFloat(document.getElementById('tourGuideDailyMinibus').value),
+                guideDailyCar: parseFloat(document.getElementById('tourGuideDailyCar').value) || 0,
+                guideDailyVan: parseFloat(document.getElementById('tourGuideDailyVan').value) || 0,
+                guideDailyMinibus: parseFloat(document.getElementById('tourGuideDailyMinibus').value) || 0,
                 defaultMargin: parseFloat(document.getElementById('tourDefaultMargin').value),
                 trekkSoftCommission: parseFloat(document.getElementById('tourTrekkSoftCommission').value),
                 partnerCommission: parseFloat(document.getElementById('tourPartnerCommission').value)
