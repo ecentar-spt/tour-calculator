@@ -2434,6 +2434,7 @@ function normalizeTolls(day) {
            scrollInterval = setInterval(() => {
                 const scrollZone = 150;
                 const distanceBottom = window.innerHeight - lastMouseY;
+                console.log('scroll interval, lastMouseY:', lastMouseY, 'distanceBottom:', distanceBottom);
                 if (lastMouseY < scrollZone) {
                     window.scrollBy(0, -15);
                 } else if (distanceBottom < scrollZone) {
