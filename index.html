@@ -2548,7 +2548,6 @@ function normalizeTolls(day) {
             // Apply distance adjustment (for local manipulation)
             const adjustmentPercent = effectiveSettings.distanceAdjustment ?? 10;
             const adjustedDistance = totalDistance * (1 + adjustmentPercent / 100);
-            console.log('DEBUG effectiveSettings:', JSON.stringify(effectiveSettings));
 
             // Fuel calculation
             let fuelCost = 0;
