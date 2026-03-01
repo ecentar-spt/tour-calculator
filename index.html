@@ -2994,9 +2994,20 @@ function showUpdateTemplateButton() {
   const btn = document.getElementById('updateTemplateBtn');
   if (!btn) return;
 
-  // Prikaži dugme samo ako je trenutna tura nastala iz šablona
   const shouldShow = !!(currentTour && currentTour.sourceTemplateId);
   btn.style.display = shouldShow ? 'inline-block' : 'none';
+
+  // Prikaži/sakrij info bar u Osnovnim informacijama
+  const bar = document.getElementById('templateInfoBar');
+  if (bar) {
+    if (shouldShow) {
+      bar.style.display = 'flex';
+      const nameEl = document.getElementById('templateInfoName');
+      if (nameEl) nameEl.textContent = currentTour.sourceTemplateName || currentTour.sourceTemplateId;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
 }
 
 function loadTemplates() {
