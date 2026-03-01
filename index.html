@@ -2546,7 +2546,7 @@ function normalizeTolls(day) {
             });
 
             // Apply distance adjustment (for local manipulation)
-            const adjustmentPercent = effectiveSettings.distanceAdjustment || 10;
+            const adjustmentPercent = effectiveSettings.distanceAdjustment ?? 10;
             const adjustedDistance = totalDistance * (1 + adjustmentPercent / 100);
 
             // Fuel calculation
