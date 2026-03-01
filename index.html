@@ -2237,7 +2237,7 @@ function normalizeTolls(day) {
                <div class="day-card" data-index="${index}">
                     <div class="day-card-header">
                         <div class="day-card-title">
-                            <span class="drag-handle" draggable="true" ondragstart="handleDragStart(event, ${index})">☰</span>
+                            <span class="drag-handle" onmousedown="initDrag(event, ${index})">☰</span>
                             Dan ${day.dayNumber}
                         </div>
                         <button class="btn btn-danger btn-sm" onclick="removeDay(${index})" 
