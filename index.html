@@ -2403,39 +2403,99 @@ function normalizeTolls(day) {
         }
 
         // Drag and Drop handlers
-       function handleDragStart(e, index) {
+       // ── Mouse-based drag & drop ──────────────────────────────────
+        let draggedIndex = null;
+        let dragGhost = null;
+
+        function initDrag(e, index) {
+            e.preventDefault();
             draggedIndex = index;
-            e.currentTarget.classList.add('dragging');
+
+            // Označi kartu koja se vuče
+            const cards = document.querySelectorAll('.day-card');
+            cards[index].classList.add('dragging');
+
+            // Kreiraj ghost element koji prati miš
+            dragGhost = document.createElement('div');
+            dragGhost.textContent = 'Dan ' + (index + 1);
+            dragGhost.style.cssText = `
+                position: fixed; pointer-events: none; z-index: 9999;
+                background: var(--primary); color: white;
+                padding: 6px 14px; border-radius: 6px;
+                font-weight: 600; font-size: 0.9em;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                opacity: 0.9;
+            `;
+            document.body.appendChild(dragGhost);
+            moveDragGhost(e);
+
+            document.addEventListener('mousemove', onDragMove);
+            document.addEventListener('mouseup', onDragEnd);
         }
 
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('drag-over');
-        }
-
-        function handleDrop(e, targetIndex) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('drag-over');
-            
-            if (draggedIndex !== null && draggedIndex !== targetIndex) {
-                const draggedDay = currentTour.days[draggedIndex];
-                currentTour.days.splice(draggedIndex, 1);
-                currentTour.days.splice(targetIndex, 0, draggedDay);
-                
-                // Renumber days
-                currentTour.days.forEach((day, i) => day.dayNumber = i + 1);
-                renderDays();
+        function moveDragGhost(e) {
+            if (dragGhost) {
+                dragGhost.style.left = (e.clientX + 12) + 'px';
+                dragGhost.style.top = (e.clientY - 16) + 'px';
             }
         }
 
-       function handleDragEnd(e) {
-            const card = e.currentTarget.closest('.day-card');
-            if (card) card.classList.remove('dragging');
+        function onDragMove(e) {
+            moveDragGhost(e);
+
+            // Auto-scroll
+            const scrollZone = 80;
+            if (e.clientY < scrollZone) {
+                window.scrollBy(0, -8);
+            } else if (e.clientY > window.innerHeight - scrollZone) {
+                window.scrollBy(0, 8);
+            }
+
+            // Highlight drop target
+            document.querySelectorAll('.day-card').forEach(card => card.classList.remove('drag-over'));
+            const target = getDragTarget(e);
+            if (target !== null && target !== draggedIndex) {
+                document.querySelectorAll('.day-card')[target].classList.add('drag-over');
+            }
+        }
+
+        function getDragTarget(e) {
+            const cards = document.querySelectorAll('.day-card');
+            for (let i = 0; i < cards.length; i++) {
+                const rect = cards[i].getBoundingClientRect();
+                if (e.clientY >= rect.top && e.clientY <= rect.bottom &&
+                    e.clientX >= rect.left && e.clientX <= rect.right) {
+                    return i;
+                }
+            }
+            return null;
+        }
+
+        function onDragEnd(e) {
+            document.removeEventListener('mousemove', onDragMove);
+            document.removeEventListener('mouseup', onDragEnd);
+
+            // Ukloni ghost
+            if (dragGhost) { dragGhost.remove(); dragGhost = null; }
+
+            // Ukloni CSS klase
             document.querySelectorAll('.day-card').forEach(card => {
-                card.classList.remove('drag-over');
+                card.classList.remove('dragging', 'drag-over');
             });
+
+            // Izvrši reorder
+            const targetIndex = getDragTarget(e);
+            if (draggedIndex !== null && targetIndex !== null && targetIndex !== draggedIndex) {
+                const draggedDay = currentTour.days[draggedIndex];
+                currentTour.days.splice(draggedIndex, 1);
+                currentTour.days.splice(targetIndex, 0, draggedDay);
+                currentTour.days.forEach((day, i) => day.dayNumber = i + 1);
+                renderDays();
+            }
+
             draggedIndex = null;
         }
+        // ── End Mouse-based drag & drop ──────────────────────────────
 
         // Calculate tour
         function updateCalc() {
