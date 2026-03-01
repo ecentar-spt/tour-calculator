@@ -2476,6 +2476,7 @@ function normalizeTolls(day) {
         function onDragEnd(e) {
             document.removeEventListener('mousemove', onDragMove);
             document.removeEventListener('mouseup', onDragEnd);
+            if (scrollInterval) { clearInterval(scrollInterval); scrollInterval = null; }
 
             // Ukloni ghost
             if (dragGhost) { dragGhost.remove(); dragGhost = null; }
