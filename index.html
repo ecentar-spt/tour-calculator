@@ -1019,7 +1019,15 @@
         <div class="content">
             <!-- Basic Info Section -->
             <div id="basic" class="section active">
-                <h2 style="margin-bottom: 25px;">Osnovne informacije</h2>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+                    <h2 style="margin: 0;">Osnovne informacije</h2>
+                    <div id="templateInfoBar" style="display: none; align-items: center; gap: 15px; padding: 8px 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+                        <span style="font-size: 0.9em;">📋 Šablon: <strong id="templateInfoName"></strong></span>
+                        <button class="btn btn-success" onclick="updateCurrentTemplate()" style="padding: 5px 12px; font-size: 0.85em;">
+                            🔄 Ažuriraj šablon
+                        </button>
+                    </div>
+                </div>
                 
                 <div class="form-row">
                     <div class="form-group">
