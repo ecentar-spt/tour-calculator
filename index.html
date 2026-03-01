@@ -2440,15 +2440,7 @@ function normalizeTolls(day) {
 
         function onDragMove(e) {
             moveDragGhost(e);
-
-            // Auto-scroll
-            const scrollZone = 80;
-            if (e.clientY < scrollZone) {
-                window.scrollBy(0, -8);
-            } else if (e.clientY > window.innerHeight - scrollZone) {
-                window.scrollBy(0, 8);
-            }
-
+         
             // Highlight drop target
             document.querySelectorAll('.day-card').forEach(card => card.classList.remove('drag-over'));
             const target = getDragTarget(e);
