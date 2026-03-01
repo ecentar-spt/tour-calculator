@@ -2924,6 +2924,8 @@ function normalizeTolls(day) {
             if (!tour) return;
 
             currentTour = {...tour};
+            if (tour.tourSettings) currentTour.tourSettings = {...tour.tourSettings};
+            if (tour.days) currentTour.days = tour.days.map(d => ({...d}));
             currentTour.id = Date.now();
             currentTour.name = tour.name + ' (kopija)';
             currentTour.createdAt = new Date().toISOString();
