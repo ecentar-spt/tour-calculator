@@ -2431,6 +2431,15 @@ function normalizeTolls(day) {
 
             document.addEventListener('mousemove', onDragMove);
             document.addEventListener('mouseup', onDragEnd);
+            scrollInterval = setInterval(() => {
+                const scrollZone = 120;
+                const distanceBottom = window.innerHeight - lastMouseY;
+                if (lastMouseY < scrollZone) {
+                    window.scrollBy(0, -Math.round((scrollZone - lastMouseY) / 3));
+                } else if (distanceBottom < scrollZone) {
+                    window.scrollBy(0, Math.round((scrollZone - distanceBottom) / 3));
+                }
+            }, 30);
         }
 
         function moveDragGhost(e) {
