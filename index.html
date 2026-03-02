@@ -3594,7 +3594,7 @@ function showTemplateSelection() {
                             <label style="display:flex; align-items:center; justify-content:space-between;">
                                 <span>Opis usluge</span>
                                 <button type="button" class="btn btn-secondary btn-sm"
-                                        onclick="openSupplierPicker('localGuide')"
+                                        onclick="openSupplierPicker('localGuide', undefined, ${guide.id})"
                                         title="Odaberi iz dobavljača">🔍</button>
                             </label>
                             <input type="text" class="form-control" value="${guide.serviceName || guide.description || ''}" 
