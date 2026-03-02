@@ -1966,8 +1966,16 @@ function validatePassengers() {
         // ── Supplier Picker ──────────────────────────────────────────
         let pickerContext = null; // { dayIndex, field, targetGuideId }
 
-        function openSupplierPicker(dayIndex, field) {
-            pickerContext = { dayIndex, field };
+        function openSupplierPicker(dayIndex, field, targetGuideId) {
+            // Overload:
+            // openSupplierPicker(dayIndex, field)  -> existing usage (days)
+            // openSupplierPicker(field)           -> new usage (local guides)
+            if (typeof dayIndex === 'string' && field === undefined) {
+                targetGuideId = null;
+                field = dayIndex;
+                dayIndex = null;
+            }
+            pickerContext = { dayIndex, field, targetGuideId: targetGuideId ?? null };
             const titles = {
                 'guideAccommodation': 'Smeštaj osoblja',
                 'passengerAccommodation': 'Smeštaj putnika',
