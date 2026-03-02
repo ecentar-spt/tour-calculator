@@ -2028,7 +2028,7 @@ function validatePassengers() {
                             <div style="display:flex; flex-wrap:wrap; gap:6px;">
                                 ${(item.prices || []).map(p => `
                                 <button class="btn btn-secondary" style="font-size:0.8em; padding:3px 10px;"
-                                        onclick="applySupplierItem('${s.name}', '${item.service}', ${p.value}, '${p.label}')">
+                                        onclick="applySupplierItem('${s.name}', '${item.service}', ${p.value}, '${p.label}', '${(item.location || s.location || '').replace(/'/g, '\\\'')}')"
                                     ${p.label}: ${p.value} ${p.currency}
                                 </button>`).join('')}
                             </div>
