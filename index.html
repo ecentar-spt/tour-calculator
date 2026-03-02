@@ -2041,6 +2041,10 @@ function validatePassengers() {
         function applySupplierItem(supplierName, serviceName, price, tierLabel) {
             if (!pickerContext) return;
             const { dayIndex, field } = pickerContext;
+
+               // Privremeni guard: localGuide picker još nije vezan na konkretan guide red
+            if (field === 'localGuide') return;
+
             const day = currentTour.days[dayIndex];
             const label = supplierName + (serviceName ? ' — ' + serviceName : '');
 
