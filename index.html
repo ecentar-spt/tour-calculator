@@ -3606,15 +3606,22 @@ function showTemplateSelection() {
                                    placeholder="Npr: Sarajevo, Zagreb...">
                         </div>
                         <div class="form-group">
-                            <label style="display:flex; align-items:center; justify-content:space-between;">
-                                <span>Opis usluge</span>
+                            <label>Opis usluge</label>
+
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <input type="text" class="form-control" value="${guide.serviceName || guide.description || ''}" 
+                                       onchange="updateLocalGuide(${guide.id}, 'serviceName', this.value)"
+                                       placeholder="Npr: Walking tour, Old Town tour...">
+
                                 <button type="button" class="btn btn-secondary btn-sm"
+                                        style="height:38px; width:44px; padding:0; display:flex; align-items:center; justify-content:center;"
                                         onclick="openSupplierPicker('localGuide', undefined, ${guide.id})"
                                         title="Odaberi iz dobavljača">🔍</button>
-                            </label>
-                            <input type="text" class="form-control" value="${guide.serviceName || guide.description || ''}" 
-                                   onchange="updateLocalGuide(${guide.id}, 'serviceName', this.value)"
-                                   placeholder="Npr: Walking tour, Old Town tour...">
+                            </div>
+
+                            <div style="margin-top:6px; color:#777; font-size:0.9em;">
+                                Dobavljač: <span style="color:#333;">${guide.supplierName || '-'}</span>
+                            </div>
                         </div>
                         <div style="margin-top:-8px; margin-bottom:12px; color:#777; font-size:0.9em;">
                                  Dobavljač: <span style="color:#333;">${guide.supplierName || '-'}</span>
