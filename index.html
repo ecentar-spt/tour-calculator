@@ -3654,7 +3654,7 @@ function showTemplateSelection() {
             const guide = currentTour.localGuides.find(g => g.id === id);
             if (guide) {
                 guide[field] = value;
-                renderLocalGuides();
+                currentTour.isDirty = true;
                 updateCalc();
             }
         }
