@@ -2046,6 +2046,7 @@ function validatePassengers() {
            const guide = (currentTour.localGuides || []).find(g => g.id === targetGuideId);
            if (guide) {
            guide.supplierName = supplierName || '';
+           guide.location = location || guide.location || '';
            guide.serviceName = serviceName || '';
            // backward compatibility (staro polje)
            guide.description = guide.serviceName;
