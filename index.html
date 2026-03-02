@@ -2029,7 +2029,7 @@ function validatePassengers() {
                                 ${(item.prices || []).map(p => `
                                 <button class="btn btn-secondary" style="font-size:0.8em; padding:3px 10px;"
                                         onclick="applySupplierItem('${(s.name || '').replace(/'/g, '\\\'')}', '${(item.service || '').replace(/'/g, '\\\'')}', ${p.value}, '${(p.label || '').replace(/'/g, '\\\'')}', '${((item.location || s.location || '')).replace(/'/g, '\\\'')}')"
-                                    ${p.label}: ${p.value} ${p.currency}
+                                    ${(p.label ?? p.name ?? p.tier ?? 'Tier')}: ${(p.value ?? p.price ?? p.cost ?? 0)} ${(p.currency ?? 'EUR')}
                                 </button>`).join('')}
                             </div>
                         </div>`).join('')}
