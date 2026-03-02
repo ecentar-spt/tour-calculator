@@ -4550,8 +4550,10 @@ ${text.slice(0, 8000)}`;
             const category = document.getElementById('supplierCategory').value;
             const taxFields = document.getElementById('touristTaxFields');
             taxFields.style.display = category === 'smestaj' ? 'block' : 'none';
+            const locationRow = document.getElementById('supplierLocationRow');
+            if (locationRow) locationRow.style.display = category === 'vodic' ? 'block' : 'none';
         }
-
+        
        function saveSupplier() {
             const id = document.getElementById('supplierId').value;
             const name = document.getElementById('supplierName').value.trim();
