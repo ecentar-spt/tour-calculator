@@ -2053,6 +2053,7 @@ function validatePassengers() {
            guide.cost = Number(price) || 0;
     }
            currentTour.isDirty = true;
+           pickerContext = null;
            closeSupplierPicker();
            renderLocalGuides();
            updateCalc();
