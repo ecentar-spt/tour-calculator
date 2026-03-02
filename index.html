@@ -3527,12 +3527,15 @@ function showTemplateSelection() {
 
         // Local Guides Management
         function addLocalGuide() {
-            const guide = {
-                id: Date.now(),
-                location: '',
-                description: '',
-                cost: 0
-            };
+           const guide = {
+            id: Date.now(),
+            supplierName: '',
+            location: '',
+            serviceName: '',
+        // backward compatibility (stari podaci i UI još koristi description)
+            description: '',
+            cost: 0
+        };
             currentTour.localGuides.push(guide);
             renderLocalGuides();
         }
