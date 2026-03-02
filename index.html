@@ -3579,7 +3579,12 @@ function showTemplateSelection() {
                                    placeholder="Npr: Sarajevo, Zagreb...">
                         </div>
                         <div class="form-group">
-                            <label>Opis usluge</label>
+                            <label style="display:flex; align-items:center; justify-content:space-between;">
+                                <span>Opis usluge</span>
+                                <button type="button" class="btn btn-secondary btn-sm"
+                                        onclick="openSupplierPicker('localGuide')"
+                                        title="Odaberi iz dobavljača">🔍</button>
+                            </label>
                             <input type="text" class="form-control" value="${guide.serviceName || guide.description || ''}" 
                                    onchange="updateLocalGuide(${guide.id}, 'serviceName', this.value)"
                                    placeholder="Npr: Walking tour, Old Town tour...">
