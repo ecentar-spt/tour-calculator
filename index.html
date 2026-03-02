@@ -1970,11 +1970,10 @@ function validatePassengers() {
             // Overload:
             // openSupplierPicker(dayIndex, field)  -> existing usage (days)
             // openSupplierPicker(field)           -> new usage (local guides)
-            if (typeof dayIndex === 'string' && field === undefined) {
-                targetGuideId = null;
-                field = dayIndex;
-                dayIndex = null;
-            }
+             if (typeof dayIndex === 'string' && field === undefined) {
+             field = dayIndex;
+             dayIndex = null;
+        }
             pickerContext = { dayIndex, field, targetGuideId: targetGuideId ?? null };
             const titles = {
                 'guideAccommodation': 'Smeštaj osoblja',
