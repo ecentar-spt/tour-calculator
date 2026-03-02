@@ -2040,10 +2040,24 @@ function validatePassengers() {
 
         function applySupplierItem(supplierName, serviceName, price, tierLabel) {
             if (!pickerContext) return;
-            const { dayIndex, field } = pickerContext;
+           const { dayIndex, field, targetGuideId } = pickerContext;
 
-               // Privremeni guard: localGuide picker još nije vezan na konkretan guide red
-            if (field === 'localGuide') return;
+            // Local Guide: upis u currentTour.localGuides
+        if (field === 'localGuide') {
+           const guide = (currentTour.localGuides || []).find(g => g.id === targetGuideId);
+           if (guide) {
+           guide.supplierName = supplierName || '';
+           guide.serviceName = serviceName || '';
+           // backward compatibility (staro polje)
+           guide.description = guide.serviceName;
+           guide.cost = Number(price) || 0;
+    }
+           currentTour.isDirty = true;
+           closeSupplierPicker();
+           renderLocalGuides();
+           updateCalc();
+                return;
+}
 
             const day = currentTour.days[dayIndex];
             const label = supplierName + (serviceName ? ' — ' + serviceName : '');
