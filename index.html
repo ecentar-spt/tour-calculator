@@ -1964,7 +1964,7 @@ function validatePassengers() {
             updateStop(dayIndex, stopId, 'time', val);
         }
         // ── Supplier Picker ──────────────────────────────────────────
-        let pickerContext = null; // { dayIndex, field }
+        let pickerContext = null; // { dayIndex, field, targetGuideId }
 
         function openSupplierPicker(dayIndex, field) {
             pickerContext = { dayIndex, field };
