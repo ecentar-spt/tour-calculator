@@ -1991,6 +1991,7 @@ function validatePassengers() {
             if (field === 'guideAccommodation' || field === 'passengerAccommodation') return ['smestaj'];
             if (field === 'guideMeals' || field === 'passengerMeals') return ['obrok'];
             if (field === 'ticket') return ['ulaznica', 'aktivnost'];
+            if (field === 'localGuide') return ['vodic'];
             return [];
         }
 
