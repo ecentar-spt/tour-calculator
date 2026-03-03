@@ -3629,14 +3629,66 @@ function showTemplateSelection() {
 
         // Navigation
         function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            
-            // Render suppliers when opening pricelists section
-            if (sectionId === 'pricelists') {
-                renderSuppliers();
-            }
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+
+    // Ažuriraj aktivnu stavku u sidebaru
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    const sectionNavMap = {
+        'basic': 'history',
+        'itinerary': 'history',
+        'localguides': 'history',
+        'history': 'history',
+        'templates': 'templates',
+        'pricelists': 'pricelists',
+        'settings': 'settings'
+    };
+    const activeNav = sectionNavMap[sectionId];
+    if (activeNav) {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.textContent.trim().includes(
+                activeNav === 'history' ? 'Istorija' :
+                activeNav === 'templates' ? 'Šabloni' :
+                activeNav === 'pricelists' ? 'Cenovnici' : 'Postavke'
+            )) item.classList.add('active');
+        });
+    }
+
+    // Breadcrumb
+    const breadcrumbTitles = {
+        'history': 'Istorija tura',
+        'templates': 'Šabloni',
+        'pricelists': 'Cenovnici dobavljača',
+        'settings': 'Postavke'
+    };
+    const breadcrumb = document.getElementById('headerBreadcrumb');
+    if (breadcrumb) {
+        if (breadcrumbTitles[sectionId]) {
+            breadcrumb.innerHTML = `<span>${breadcrumbTitles[sectionId]}</span>`;
         }
+        // Ako je basic/itinerary/localguides — breadcrumb se ažurira iz loadTour
+    }
+
+    // Sekundarni tabovi — prikaži samo kada je tura otvorena
+    const tourSections = ['basic', 'itinerary', 'localguides'];
+    const secondaryTabs = document.getElementById('secondaryTabs');
+    if (secondaryTabs) {
+        secondaryTabs.style.display = tourSections.includes(sectionId) ? 'flex' : 'none';
+    }
+
+    // Aktivni sekundarni tab
+    if (tourSections.includes(sectionId)) {
+        document.querySelectorAll('.sec-tab').forEach(t => t.classList.remove('active'));
+        const tabMap = { 'basic': 0, 'itinerary': 1, 'localguides': 2 };
+        const tabs = document.querySelectorAll('.sec-tab');
+        if (tabs[tabMap[sectionId]]) tabs[tabMap[sectionId]].classList.add('active');
+    }
+
+    // Render suppliers when opening pricelists section
+    if (sectionId === 'pricelists') {
+        renderSuppliers();
+    }
+}
 
         function goToItinerary() {
             showSection('itinerary');
