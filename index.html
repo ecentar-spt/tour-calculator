@@ -3613,7 +3613,7 @@ function updateCurrentTemplate() {
   const updatedTemplate = {
     ...currentTour,
     id: currentTour.sourceTemplateId,
-    name: templates[templateIndex].name,
+    name: document.getElementById('tourName').value || templates[templateIndex].name,
     description: `${currentTour.numDays} dana, ${currentTour.vehicleType}`,
     createdAt: templates[templateIndex].createdAt,
     updatedAt: new Date().toISOString(),
