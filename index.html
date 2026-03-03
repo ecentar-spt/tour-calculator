@@ -3688,8 +3688,12 @@ function showTemplateSelection() {
     if (sectionId === 'pricelists') {
         renderSuppliers();
     }
-}
+        }
 
+        function showSubSection(sectionId) {
+            showSection(sectionId);
+        }
+        
         function goToItinerary() {
             showSection('itinerary');
             document.querySelectorAll('.nav-item')[1].click();
