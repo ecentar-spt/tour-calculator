@@ -3633,14 +3633,15 @@ function showTemplateSelection() {
 };
     const activeNav = sectionNavMap[sectionId];
     if (activeNav) {
-        document.querySelectorAll('.nav-item').forEach(item => {
-            if (item.textContent.trim().includes(
-                activeNav === 'history' ? 'Istorija' :
-                activeNav === 'templates' ? 'Šabloni' :
-                activeNav === 'pricelists' ? 'Cenovnici' : 'Postavke'
-            )) item.classList.add('active');
-        });
-    }
+    document.querySelectorAll('.nav-item').forEach(item => {
+        if (item.textContent.trim().includes(
+            activeNav === 'history' ? 'Istorija' :
+            activeNav === 'templates' ? 'Šabloni' :
+            activeNav === 'pricelists' ? 'Cenovnici' :
+            activeNav === 'new' ? 'Nova tura' : 'Postavke'
+        )) item.classList.add('active');
+    });
+}
 
     // Breadcrumb
     const breadcrumbTitles = {
