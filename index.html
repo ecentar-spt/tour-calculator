@@ -1994,9 +1994,11 @@ function validatePassengers() {
         }
 
         function closeSupplierPicker() {
-            document.getElementById('supplierPickerModal').style.display = 'none';
-            pickerContext = null;
-        }
+    document.getElementById('supplierPickerModal').style.display = 'none';
+    pickerContext = null;
+    pickerStep = 1;
+    pickerSelectedSupplier = null;
+       }
 
         function getPickerCategories(field) {
             if (field === 'guideAccommodation' || field === 'passengerAccommodation') return ['smestaj'];
