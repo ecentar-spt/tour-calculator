@@ -3004,6 +3004,12 @@ function normalizeTolls(day) {
                         📊 Export u Excel
                     </button>
                 `;
+                
+                // Ažuriraj calculation tab
+                const calcContent = document.getElementById('calculationContent');
+                if (calcContent) {
+                calcContent.innerHTML = detailsEl.innerHTML;
+            }
             } else {
                 summaryEl.style.display = 'none';
                 toggleBtn.style.display = 'none';
