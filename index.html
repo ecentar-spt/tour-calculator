@@ -3685,9 +3685,13 @@ function showTemplateSelection() {
         'settings': 'Postavke'
     };
     const breadcrumb = document.getElementById('headerBreadcrumb');
-    if (breadcrumb) {
+   if (breadcrumb) {
         if (breadcrumbTitles[sectionId]) {
             breadcrumb.innerHTML = `<span>${breadcrumbTitles[sectionId]}</span>`;
+            // Sakrij tastere kada smo na listi
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('saveAsTemplateBtn').style.display = 'none';
+            document.getElementById('updateTemplateBtn').style.display = 'none';
         }
         // Ako je basic/itinerary/localguides — breadcrumb se ažurira iz loadTour
     }
