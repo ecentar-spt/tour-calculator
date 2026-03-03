@@ -2052,6 +2052,67 @@ function validatePassengers() {
             </div>
         </div>`).join('');
 }
+        function renderGuidePickerStep1() {
+    const search = document.getElementById('supplierPickerSearch').value.toLowerCase();
+    const guideSuppliers = suppliers.filter(s =>
+        (s.items || []).some(i => i.category === 'vodic') &&
+        (s.name.toLowerCase().includes(search) || !search)
+    );
+    document.getElementById('supplierPickerTitle').textContent = 'Odaberi vodiča — Korak 1: Dobavljač';
+    const container = document.getElementById('supplierPickerList');
+    if (guideSuppliers.length === 0) {
+        container.innerHTML = '<p style="color:#999; text-align:center;">Nema dobavljača kategorije Vodič</p>';
+        return;
+    }
+    container.innerHTML = guideSuppliers.map(s => `
+        <div onclick="selectGuideSupplier('${(s.id || '').replace(/'/g, "\\'")}')"
+             style="border:1px solid #e0e0e0; border-radius:6px; margin-bottom:8px; padding:12px 16px;
+                    cursor:pointer; display:flex; align-items:center; gap:10px;"
+             onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'">
+            <span style="font-size:1.3em;">👤</span>
+            <div>
+                <div style="font-weight:600;">${s.name}</div>
+                ${s.location ? `<div style="font-size:0.85em; color:#666;">${s.location}</div>` : ''}
+            </div>
+            <span style="margin-left:auto; color:#999;">›</span>
+        </div>`).join('');
+}
+
+function selectGuideSupplier(supplierId) {
+    pickerSelectedSupplier = suppliers.find(s => s.id === supplierId) || null;
+    pickerStep = 2;
+    document.getElementById('supplierPickerSearch').value = '';
+    renderGuidePickerStep2();
+}
+
+function renderGuidePickerStep2() {
+    if (!pickerSelectedSupplier) { pickerStep = 1; renderGuidePickerStep1(); return; }
+    const s = pickerSelectedSupplier;
+    const guideItems = (s.items || []).filter(i => i.category === 'vodic');
+    document.getElementById('supplierPickerTitle').textContent = `${s.name} — Korak 2: Odaberi uslugu`;
+    const container = document.getElementById('supplierPickerList');
+    if (guideItems.length === 0) {
+        container.innerHTML = '<p style="color:#999; text-align:center;">Nema stavki za ovog dobavljača</p>';
+        return;
+    }
+    container.innerHTML = `
+        <div style="margin-bottom:12px;">
+            <button class="btn btn-secondary" style="font-size:0.85em;" onclick="pickerStep=1; renderGuidePickerStep1();">
+                ← Nazad na listu dobavljača
+            </button>
+        </div>` +
+        guideItems.map(item => `
+        <div style="border:1px solid #e0e0e0; border-radius:6px; margin-bottom:10px; overflow:hidden;">
+            <div style="background:#f5f5f5; padding:8px 12px; font-weight:500;">${item.service}</div>
+            <div style="display:flex; flex-wrap:wrap; gap:6px; padding:10px 12px;">
+                ${(item.prices || []).map(p => `
+                <button class="btn btn-secondary" style="font-size:0.85em; padding:5px 14px;"
+                  onclick="applySupplierItem('${(s.name || '').replace(/'/g, "\\'")}', '${(item.service || '').replace(/'/g, "\\'")}', ${p.value}, '${(p.label || '').replace(/'/g, "\\'")}', '${((item.location || s.location || '')).replace(/'/g, "\\'")}')">
+                    ${(p.label ?? p.name ?? p.tier ?? 'Tier')}: ${(p.value ?? p.price ?? p.cost ?? 0)} ${(p.currency ?? 'EUR')}
+                </button>`).join('')}
+            </div>
+        </div>`).join('');
+}
         function applySupplierItem(supplierName, serviceName, price, tierLabel, location) {
             if (!pickerContext) return;
            const { dayIndex, field, targetGuideId } = pickerContext;
