@@ -3413,7 +3413,11 @@ function loadTemplate(id) {
   showUpdateTemplateButton();
 
   currentTourSource = 'templates';
-  showSection('basic');
+  const breadcrumb = document.getElementById('headerBreadcrumb');
+  if (breadcrumb) {
+    breadcrumb.innerHTML = `<span style="color: #9BA8C0; cursor:pointer;" onclick="showSection('templates')">Šabloni</span> <span style="color: #9BA8C0; margin: 0 4px;">›</span> <span style="font-weight:700; color:#1C2333;">${template.name}</span>`;
+ }
+ showSection('basic');
   }
 
 function deleteTemplate(id) {
