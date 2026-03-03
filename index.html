@@ -3677,7 +3677,7 @@ function showTemplateSelection() {
     // Aktivni sekundarni tab
     if (tourSections.includes(sectionId)) {
         document.querySelectorAll('.sec-tab').forEach(t => t.classList.remove('active'));
-        const tabMap = { 'basic': 0, 'itinerary': 1, 'localguides': 2 };
+        const tabMap = { 'basic': 0, 'itinerary': 1, 'localguides': 2, 'calculation': 3 };
         const tabs = document.querySelectorAll('.sec-tab');
         if (tabs[tabMap[sectionId]]) tabs[tabMap[sectionId]].classList.add('active');
     }
