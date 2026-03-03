@@ -3300,10 +3300,7 @@ function normalizeTolls(day) {
 function showUpdateTemplateButton() {
   const btn = document.getElementById('updateTemplateBtn');
   if (!btn) return;
-  const isInTour = ['basic', 'itinerary', 'localguides', 'calculation'].includes(
-      document.querySelector('.section.active')?.id
-  );
-  const shouldShow = !!(isInTour && currentTour && currentTour.sourceTemplateId);
+  const shouldShow = !!(currentTour && currentTour.sourceTemplateId);
   btn.style.display = shouldShow ? 'inline-block' : 'none';
 
   // Prikaži/sakrij info bar u Osnovnim informacijama
