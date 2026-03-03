@@ -3435,6 +3435,23 @@ function loadTemplate(id) {
  showSection('basic');
   }
 
+ function cloneTemplate(id) {
+    const templates = JSON.parse(localStorage.getItem('templates') || '[]');
+    const template = templates.find(t => String(t.id) === String(id));
+    if (!template) return;
+
+    const newTemplate = {...template};
+    if (template.tourSettings) newTemplate.tourSettings = {...template.tourSettings};
+    if (template.days) newTemplate.days = template.days.map(d => ({...d}));
+    newTemplate.id = String(Date.now());
+    newTemplate.name = template.name + ' (kopija)';
+    newTemplate.createdAt = new Date().toISOString();
+
+    templates.push(newTemplate);
+    localStorage.setItem('templates', JSON.stringify(templates));
+    loadTemplates();
+}       
+        
 function deleteTemplate(id) {
   if (!confirm('Da li ste sigurni da želite da obrišete ovaj šablon?')) return;
 
