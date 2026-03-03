@@ -2824,12 +2824,6 @@ function normalizeTolls(day) {
            document.getElementById('saveBtn').style.display = hasTourName;
            document.getElementById('saveAsTemplateBtn').style.display = hasTourName;
 
-            // Sakrij tastere ako smo na listi (ne u turi)
-           if (['history', 'templates', 'pricelists', 'settings', 'newTour'].includes(sectionId)) {
-           document.getElementById('saveBtn').style.display = 'none';
-           document.getElementById('saveAsTemplateBtn').style.display = 'none';
-           document.getElementById('updateTemplateBtn').style.display = 'none';
-           }
             // Get effective settings (tour-specific or global)
             const effectiveSettings = getEffectiveSettings();
 
