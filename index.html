@@ -2080,8 +2080,8 @@ function validatePassengers() {
         </div>`).join('');
 }
 
-function selectGuideSupplier(supplierId) {
-    pickerSelectedSupplier = suppliers.find(s => s.id === supplierId) || null;
+function selectGuideSupplier(supplierIndex) {
+    pickerSelectedSupplier = suppliers[supplierIndex] || null;
     pickerStep = 2;
     document.getElementById('supplierPickerSearch').value = '';
     renderGuidePickerStep2();
