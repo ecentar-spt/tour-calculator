@@ -1965,6 +1965,8 @@ function validatePassengers() {
         }
         // ── Supplier Picker ──────────────────────────────────────────
         let pickerContext = null; // { dayIndex, field, targetGuideId }
+        let pickerStep = 1; // za dvostepeni picker (localGuide): 1 = lista dobavljača, 2 = lista stavki
+        let pickerSelectedSupplier = null; // izabrani dobavljač u koraku 1
 
         function openSupplierPicker(dayIndex, field, targetGuideId) {
             // Overload:
