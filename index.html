@@ -1148,6 +1148,38 @@ body {
 </head>
 <body>
     <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-title">🚌 Tour Calculator</div>
+                <div class="logo-sub">Serbian Private Tours</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-group-label">Ture</div>
+                <div class="nav" id="mainNav">
+                    <div class="nav-item" onclick="showSection('newTour')">
+                        <span class="nav-icon">➕</span> Nova tura
+                    </div>
+                    <div class="nav-item active" onclick="showSection('history')">
+                        <span class="nav-icon">📚</span> Istorija
+                    </div>
+                    <div class="nav-item" onclick="showSection('templates')">
+                        <span class="nav-icon">📋</span> Šabloni
+                    </div>
+                </div>
+                <div class="sidebar-divider"></div>
+                <div class="nav-group-label">Alati</div>
+                <div class="nav">
+                    <div class="nav-item" onclick="showSection('pricelists')">
+                        <span class="nav-icon">💰</span> Cenovnici
+                    </div>
+                    <div class="nav-item" onclick="showSection('settings')">
+                        <span class="nav-icon">⚙️</span> Postavke
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <div class="main-area">
         <div class="header">
             <div>
                 <h1>🚌 Tour Calculator</h1>
