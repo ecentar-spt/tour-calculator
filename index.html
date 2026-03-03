@@ -3730,6 +3730,11 @@ function showTemplateSelection() {
             document.getElementById('numDays').value = 5;
             
             closeModal('newTourModal');
+            currentTourSource = 'new';
+            const breadcrumb = document.getElementById('headerBreadcrumb');
+            if (breadcrumb) {
+            breadcrumb.innerHTML = `<span style="font-weight:600; color:#1C2333;">Nova tura</span> <span style="color: #9BA8C0; margin: 0 4px;">›</span> <span style="font-weight:700; color:#1C2333;">Unos od nule</span>`;
+            }
             initVehicleOptions();
             updateDays();
             renderLocalGuides();
