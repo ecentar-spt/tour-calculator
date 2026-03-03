@@ -2821,7 +2821,9 @@ function normalizeTolls(day) {
             currentTour.numPassengers = parseInt(document.getElementById('numPassengers').value);
 
             // Show save button if tour has name
-            document.getElementById('saveBtn').style.display = currentTour.name ? 'block' : 'none';
+            const hasTourName = currentTour.name ? 'block' : 'none';
+            document.getElementById('saveBtn').style.display = hasTourName;
+            document.getElementById('saveAsTemplateBtn').style.display = hasTourName;
 
             // Get effective settings (tour-specific or global)
             const effectiveSettings = getEffectiveSettings();
