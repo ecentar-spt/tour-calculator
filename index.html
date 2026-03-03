@@ -3232,7 +3232,7 @@ function normalizeTolls(day) {
             updateCalc();
             
             showSection('basic');
-            document.querySelectorAll('.nav-item')[0].click();
+            showSection('history');
         }
 
         function cloneTour(id) {
@@ -3265,7 +3265,7 @@ function normalizeTolls(day) {
             updateCalc();
             
             showSection('basic');
-            document.querySelectorAll('.nav-item')[0].click();
+            showSection('history');
         }
 
          function deleteTour(id) {
@@ -3430,7 +3430,7 @@ function loadTemplate(id) {
   showUpdateTemplateButton();
 
   showSection('basic');
-  document.querySelectorAll('.nav-item')[0].click();
+  showSection('history');
 }
 
 function deleteTemplate(id) {
@@ -3751,7 +3751,7 @@ function showTemplateSelection() {
             showUpdateTemplateButton();  // Hide update button
             updateCalc(); // Force recalculation
             showSection('basic');
-            document.querySelectorAll('.nav-item')[0].click();
+            showSection('history');
         }
 
         // Export/Import functionality
