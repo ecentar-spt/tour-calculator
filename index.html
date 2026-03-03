@@ -3209,7 +3209,7 @@ function normalizeTolls(day) {
             
             const breadcrumb = document.getElementById('headerBreadcrumb');
             if (breadcrumb) {
-            breadcrumb.innerHTML = `<span style="color: rgba(255,255,255,0.7); cursor:pointer;" onclick="showSection('history')">Istorija tura</span> <span style="color: rgba(255,255,255,0.5);">›</span> <span style="font-weight:700;">${currentTour.name}</span>`;
+           breadcrumb.innerHTML = `<span style="color: #9BA8C0; cursor:pointer;" onclick="showSection('history')">Istorija tura</span> <span style="color: #9BA8C0; margin: 0 4px;">›</span> <span style="font-weight:700; color:#1C2333;">${currentTour.name}</span>`;
             }
             showSection('basic');
         }
