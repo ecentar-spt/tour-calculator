@@ -3442,36 +3442,17 @@ function loadTemplate(id) {
     const template = templates.find(t => String(t.id) === String(id));
     if (!template) return;
 
-    currentTour = {...template};
-    if (template.tourSettings) currentTour.tourSettings = {...template.tourSettings};
-    if (template.days) currentTour.days = template.days.map(d => ({...d}));
-    currentTour.id = String(Date.now());
-    currentTour.name = template.name + ' (kopija)';
-    currentTour.createdAt = new Date().toISOString();
-    currentTour.isDirty = false;
+    const newTemplate = {...template};
+    if (template.tourSettings) newTemplate.tourSettings = {...template.tourSettings};
+    if (template.days) newTemplate.days = template.days.map(d => ({...d}));
+    newTemplate.id = String(Date.now());
+    newTemplate.name = template.name + ' (kopija)';
+    newTemplate.createdAt = new Date().toISOString();
 
-    if (!currentTour.localGuides) {
-        currentTour.localGuides = [];
-    }
-
-    document.getElementById('tourName').value = currentTour.name;
-    document.getElementById('clientName').value = currentTour.client || '';
-    document.getElementById('numPassengers').value = currentTour.numPassengers;
-    document.getElementById('numDays').value = currentTour.numDays;
-
-    initVehicleOptions();
-    renderDays();
-    renderLocalGuides();
-    updateTourSettingsInfo();
-    showUpdateTemplateButton();
-    updateCalc();
-
-    currentTourSource = 'templates';
-    const breadcrumb = document.getElementById('headerBreadcrumb');
-    if (breadcrumb) {
-        breadcrumb.innerHTML = `<span style="color: #9BA8C0; cursor:pointer;" onclick="showSection('templates')">Šabloni</span> <span style="color: #9BA8C0; margin: 0 4px;">›</span> <span style="font-weight:700; color:#1C2333;">${currentTour.name}</span>`;
-    }
-    showSection('basic');
+    const updatedTemplates = [...templates, newTemplate];
+    localStorage.setItem('templates', JSON.stringify(updatedTemplates));
+    loadTemplates();
+    loadTemplate(newTemplate.id);
 }
         
 function deleteTemplate(id) {
