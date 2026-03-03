@@ -1205,7 +1205,14 @@ body {
             </div>
         </div>
 
-        <div class="nav">
+        <div class="secondary-tabs" id="secondaryTabs" style="display:none;">
+            <div class="sec-tab active" onclick="showSubSection('basic')">📝 Osnovno</div>
+            <div class="sec-tab" onclick="showSubSection('itinerary')">🗓️ Itinerer</div>
+            <div class="sec-tab" onclick="showSubSection('localguides')">👥 Lokalni vodiči</div>
+            <div class="sec-tab" onclick="showSubSection('calculation')">🧮 Kalkulacija</div>
+        </div>
+
+        <div class="nav" style="display:none;">
             <div class="nav-item active" onclick="showSection('basic')">
                 📝 Osnovno
             </div>
