@@ -3668,7 +3668,7 @@ function showTemplateSelection() {
     }
 
     // Sekundarni tabovi — prikaži samo kada je tura otvorena
-    const tourSections = ['basic', 'itinerary', 'localguides'];
+    const tourSections = ['basic', 'itinerary', 'localguides', 'calculation'];
     const secondaryTabs = document.getElementById('secondaryTabs');
     if (secondaryTabs) {
         secondaryTabs.style.display = tourSections.includes(sectionId) ? 'flex' : 'none';
