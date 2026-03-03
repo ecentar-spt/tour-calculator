@@ -3449,10 +3449,10 @@ function loadTemplate(id) {
     newTemplate.name = template.name + ' (kopija)';
     newTemplate.createdAt = new Date().toISOString();
 
-    templates.push(newTemplate);
-    localStorage.setItem('templates', JSON.stringify(templates));
+    const updatedTemplates = [...templates, newTemplate];
+    localStorage.setItem('templates', JSON.stringify(updatedTemplates));
     loadTemplates();
-}       
+}
         
 function deleteTemplate(id) {
   if (!confirm('Da li ste sigurni da želite da obrišete ovaj šablon?')) return;
