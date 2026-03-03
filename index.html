@@ -2007,40 +2007,51 @@ function validatePassengers() {
         }
 
         function renderSupplierPicker() {
-            if (!pickerContext) return;
-            const search = document.getElementById('supplierPickerSearch').value.toLowerCase();
-            const categories = getPickerCategories(pickerContext.field);
-           const filtered = suppliers.filter(s =>
-                (s.items || []).some(i => categories.includes(i.category)) &&
-                (s.name.toLowerCase().includes(search) ||
-                 (s.items || []).some(i => i.service.toLowerCase().includes(search)))
-            );
-            const container = document.getElementById('supplierPickerList');
-            if (filtered.length === 0) {
-                container.innerHTML = '<p style="color:#999; text-align:center;">Nema rezultata</p>';
-                return;
-            }
-            container.innerHTML = filtered.map(s => `
-                <div style="border:1px solid #e0e0e0; border-radius:6px; margin-bottom:10px; overflow:hidden;">
-                    <div style="background:#f5f5f5; padding:8px 12px; font-weight:600;">
-                        ${getCategoryIcon(s.category)} ${s.name}
-                    </div>
-                    <div>
-                        ${(s.items || []).filter(i => categories.includes(i.category) && (!search || i.service.toLowerCase().includes(search))).map(item => `
-                        <div style="padding:8px 12px; border-top:1px solid #eee;">
-                            <div style="font-weight:500; margin-bottom:4px;">${item.service}</div>
-                            <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                                ${(item.prices || []).map(p => `
-                                <button class="btn btn-secondary" style="font-size:0.8em; padding:3px 10px;"
-                                  onclick="applySupplierItem('${(s.name || '').replace(/'/g, '\\\'')}', '${(item.service || '').replace(/'/g, '\\\'')}', ${p.value}, '${(p.label || '').replace(/'/g, '\\\'')}', '${((item.location || s.location || '')).replace(/'/g, '\\\'')}')">
-                                    ${(p.label ?? p.name ?? p.tier ?? 'Tier')}: ${(p.value ?? p.price ?? p.cost ?? 0)} ${(p.currency ?? 'EUR')}
-                                </button>`).join('')}
-                            </div>
-                        </div>`).join('')}
-                    </div>
-                </div>`).join('');
-        }
+    if (!pickerContext) return;
 
+    // Dvostepeni picker za lokalnog vodiča
+    if (pickerContext.field === 'localGuide') {
+        if (pickerStep === 1) {
+            renderGuidePickerStep1();
+        } else {
+            renderGuidePickerStep2();
+        }
+        return;
+    }
+
+    // Standardni jednokorački picker (smeštaj, obroci, ulaznice)
+    const search = document.getElementById('supplierPickerSearch').value.toLowerCase();
+    const categories = getPickerCategories(pickerContext.field);
+    const filtered = suppliers.filter(s =>
+        (s.items || []).some(i => categories.includes(i.category)) &&
+        (s.name.toLowerCase().includes(search) ||
+         (s.items || []).some(i => i.service.toLowerCase().includes(search)))
+    );
+    const container = document.getElementById('supplierPickerList');
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="color:#999; text-align:center;">Nema rezultata</p>';
+        return;
+    }
+    container.innerHTML = filtered.map(s => `
+        <div style="border:1px solid #e0e0e0; border-radius:6px; margin-bottom:10px; overflow:hidden;">
+            <div style="background:#f5f5f5; padding:8px 12px; font-weight:600;">
+                ${getCategoryIcon(s.category)} ${s.name}
+            </div>
+            <div>
+                ${(s.items || []).filter(i => categories.includes(i.category) && (!search || i.service.toLowerCase().includes(search))).map(item => `
+                <div style="padding:8px 12px; border-top:1px solid #eee;">
+                    <div style="font-weight:500; margin-bottom:4px;">${item.service}</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        ${(item.prices || []).map(p => `
+                        <button class="btn btn-secondary" style="font-size:0.8em; padding:3px 10px;"
+                          onclick="applySupplierItem('${(s.name || '').replace(/'/g, "\\'")}', '${(item.service || '').replace(/'/g, "\\'")}', ${p.value}, '${(p.label || '').replace(/'/g, "\\'")}', '${((item.location || s.location || '')).replace(/'/g, "\\'")}')">
+                            ${(p.label ?? p.name ?? p.tier ?? 'Tier')}: ${(p.value ?? p.price ?? p.cost ?? 0)} ${(p.currency ?? 'EUR')}
+                        </button>`).join('')}
+                    </div>
+                </div>`).join('')}
+            </div>
+        </div>`).join('');
+}
         function applySupplierItem(supplierName, serviceName, price, tierLabel, location) {
             if (!pickerContext) return;
            const { dayIndex, field, targetGuideId } = pickerContext;
