@@ -2820,8 +2820,7 @@ function normalizeTolls(day) {
             currentTour.numPassengers = parseInt(document.getElementById('numPassengers').value);
 
             // Show save button if tour has name
-           const isInTour = ['basic', 'itinerary', 'localguides', 'calculation'].includes(sectionId);
-           const hasTourName = (isInTour && currentTour.name) ? 'block' : 'none';
+           const hasTourName = currentTour.name ? 'block' : 'none';
            document.getElementById('saveBtn').style.display = hasTourName;
            document.getElementById('saveAsTemplateBtn').style.display = hasTourName;
 
