@@ -1988,6 +1988,8 @@ function validatePassengers() {
             document.getElementById('supplierPickerTitle').textContent = 'Odaberi: ' + (titles[field] || '');
             document.getElementById('supplierPickerSearch').value = '';
             document.getElementById('supplierPickerModal').style.display = 'block';
+            pickerStep = 1;
+            pickerSelectedSupplier = null;
             renderSupplierPicker();
         }
 
