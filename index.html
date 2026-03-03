@@ -3614,15 +3614,15 @@ function showTemplateSelection() {
 
     // Ažuriraj aktivnu stavku u sidebaru
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    const sectionNavMap = {
-        'basic': 'history',
-        'itinerary': 'history',
-        'localguides': 'history',
-        'history': 'history',
-        'templates': 'templates',
-        'pricelists': 'pricelists',
-        'settings': 'settings'
-    };
+   const sectionNavMap = {
+    'basic': currentTourSource || 'history',
+    'itinerary': currentTourSource || 'history',
+    'localguides': currentTourSource || 'history',
+    'history': 'history',
+    'templates': 'templates',
+    'pricelists': 'pricelists',
+    'settings': 'settings'
+};
     const activeNav = sectionNavMap[sectionId];
     if (activeNav) {
         document.querySelectorAll('.nav-item').forEach(item => {
