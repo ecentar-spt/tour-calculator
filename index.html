@@ -2125,7 +2125,7 @@ function renderGuidePickerStep2() {
            if (guide) {
            guide.supplierName = supplierName || '';
            guide.location = location || guide.location || '';
-           guide.serviceName = serviceName || '';
+           guide.serviceName = serviceName ? (tierLabel ? serviceName + ' / ' + tierLabel : serviceName) : '';
            // backward compatibility (staro polje)
            guide.description = guide.serviceName;
            guide.cost = Number(price) || 0;
