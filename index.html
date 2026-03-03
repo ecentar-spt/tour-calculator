@@ -3338,13 +3338,17 @@ function loadTemplates() {
       <div class="template-card" onclick="loadTemplate('${String(id)}')">
         <h4>${template.name}</h4>
         <p style="color: #6c757d; margin: 10px 0;">${template.description || ''}</p>
-        <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
-          <span><strong>${template.numDays} dana</strong></span>
-          <span><strong>${template.calculations?.totalDistance?.toFixed(0) || 0} km</strong></span>
-          <button class="btn btn-warning btn-sm"
-            onclick="event.stopPropagation(); cloneTemplate('${String(id)}')">📋 Kloniraj</button>
-          <button class="btn btn-danger btn-sm"
-            onclick="event.stopPropagation(); deleteTemplate('${String(id)}')">🗑️</button>
+        <<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+          <div style="display: flex; gap: 16px;">
+            <span><strong>${template.numDays} dana</strong></span>
+            <span><strong>${template.calculations?.totalDistance?.toFixed(0) || 0} km</strong></span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-warning btn-sm"
+              onclick="event.stopPropagation(); cloneTemplate('${String(id)}')">📋 Kloniraj</button>
+            <button class="btn btn-danger btn-sm"
+              onclick="event.stopPropagation(); deleteTemplate('${String(id)}')">🗑️</button>
+          </div>
         </div>
       </div>
     `;
