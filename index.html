@@ -2535,7 +2535,13 @@ function normalizeTolls(day) {
                 updateCalc();
             }
         }
-
+        function getTourDayDate(dayIndex) {
+            if (!currentTour.startDate) return '';
+            const start = new Date(currentTour.startDate);
+            start.setDate(start.getDate() + dayIndex);
+            return start.toLocaleDateString('sr-RS', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        
         function renderDays() {
             const container = document.getElementById('daysContainer');
             if (currentTour.days.length === 0) {
