@@ -2670,9 +2670,15 @@ function openDayRoute(dayIndex) {
 
                     <div class="day-params">
                         <div class="param-item">
-                            <label>Pređeni put (km)</label>
-                            <input type="number" value="${day.distance}" 
-                                   onchange="currentTour.days[${index}].distance = parseFloat(this.value) || 0; updateCalc();">
+                            <label>Pređeni put (km) ${day.distanceFromGM ? '<span style="font-size:0.75em; color:#4285f4; font-weight:400;">📍 GM</span>' : ''}</label>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <input type="number" value="${day.distance}" 
+                                       onchange="currentTour.days[${index}].distance = parseFloat(this.value) || 0; currentTour.days[${index}].distanceFromGM = false; updateCalc();">
+                                <button id="calcKmBtn_${index}" onclick="calculateDayDistance(${index})" title="Izračunaj distancu via Google Maps"
+                                        style="padding:4px 8px; background:#4285f4; color:white; border:none; border-radius:4px; cursor:pointer; font-size:1em; white-space:nowrap;">📍</button>
+                                <button onclick="openDayRoute(${index})" title="Prikaži rutu na Google Maps"
+                                        style="padding:4px 8px; background:#34a853; color:white; border:none; border-radius:4px; cursor:pointer; font-size:1em; white-space:nowrap;">🗺️</button>
+                            </div>
                         </div>
                         <div class="param-item">
                             <label>Putarina/Parking</label>
