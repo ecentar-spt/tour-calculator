@@ -2542,7 +2542,7 @@ function normalizeTolls(day) {
             if (!currentTour.startDate) return '';
             const start = new Date(currentTour.startDate);
             start.setDate(start.getDate() + dayIndex);
-            return start.toLocaleDateString('sr-RS', { day: 'numeric', month: 'long', year: 'numeric' });
+            return start.toLocaleDateString('en-GB', { day: 'numeric', month: 'numeric', year: 'numeric' });
         }
         
         function renderDays() {
