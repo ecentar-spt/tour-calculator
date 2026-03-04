@@ -4253,8 +4253,10 @@ function showTemplateSelection() {
                                 <span style="font-size:1.3em;">${getCategoryIcon(supplier.category)}</span>
                                 <div>
                                     <strong style="font-size:1.05em;">${supplier.name}</strong>
-                                    ${supplier.country ? `<span style="color:#666; font-size:0.85em; margin-left:8px;">• ${supplier.country}</span>` : ''}
-                                    ${categoryBadges ? `<div style="margin-top:4px;">${categoryBadges}</div>` : ''}
+                                     ${supplier.country ? `<span style="color:#666; font-size:0.85em; margin-left:8px;">• ${supplier.country}</span>` : ''}
+                                     ${supplier.contact ? `<span style="color:#666; font-size:0.85em; margin-left:8px;">• 📞 ${supplier.contact}</span>` : ''}
+                                     ${supplier.link ? `<a href="${supplier.link}" target="_blank" onclick="event.stopPropagation();" style="font-size:0.85em; margin-left:8px; color:var(--primary);">🔗 Cenovnik</a>` : ''}
+                                     ${categoryBadges ? `<div style="margin-top:4px;">${categoryBadges}</div>` : ''}
                                 </div>
                             </div>
                             <div class="supplier-card-header-right">
