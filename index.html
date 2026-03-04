@@ -2554,7 +2554,8 @@ function normalizeTolls(day) {
                     <div class="day-card-header">
                         <div class="day-card-title">
                             <span class="drag-handle" onmousedown="initDrag(event, ${index})">☰</span>
-                            Dan ${day.dayNumber}
+                            Dan ${day.dayNumber} / Day ${day.dayNumber}
+                            ${getTourDayDate(index) ? `<span style="font-size:0.85em; font-weight:400; color:#666; margin-left:8px;">· ${getTourDayDate(index)}</span>` : ''}
                         </div>
                         <button class="btn btn-danger btn-sm" onclick="removeDay(${index})" 
                                 ${currentTour.days.length === 1 ? 'disabled' : ''}>
