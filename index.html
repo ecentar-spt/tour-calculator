@@ -4266,6 +4266,11 @@ function showTemplateSelection() {
                             </div>
                         </div>
                         <div class="supplier-card-body">
+                            ${(supplier.contact || supplier.sourceFile) ? `
+                            <div style="display:flex; gap:20px; margin-bottom:15px; font-size:0.9em; color:#555;">
+                                ${supplier.contact ? `<span>📞 ${supplier.contact}</span>` : ''}
+                                ${supplier.sourceFile ? `<a href="${supplier.sourceFile}" target="_blank" style="color:var(--primary);">🔗 Cenovnik</a>` : ''}
+                            </div>` : ''}
                             ${supplier.notes ? `<div class="alert alert-info" style="margin-bottom:15px;"><strong>Napomena:</strong> ${supplier.notes}</div>` : ''}
                             ${itemsHTML}
                             <button class="btn btn-secondary" style="margin-top:15px; font-size:0.9em;" onclick="openItemModal('${supplier.id}')">+ Dodaj stavku</button>
