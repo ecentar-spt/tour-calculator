@@ -3233,6 +3233,7 @@ function normalizeTolls(day) {
             document.getElementById('clientName').value = currentTour.client || '';
             document.getElementById('numPassengers').value = currentTour.numPassengers;
             document.getElementById('numDays').value = currentTour.numDays;
+            document.getElementById('startDate').value = currentTour.startDate || '';
             
             initVehicleOptions();
             renderDays();
