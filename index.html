@@ -3708,6 +3708,10 @@ function showTemplateSelection() {
     if (secondaryTabs) {
         secondaryTabs.style.display = tourSections.includes(sectionId) ? 'flex' : 'none';
     }
+    const pricelistToggle = document.getElementById('pricelistToggle');
+    if (pricelistToggle) {
+        pricelistToggle.style.display = tourSections.includes(sectionId) ? 'block' : 'none';
+    }
 
     // Aktivni sekundarni tab
     if (tourSections.includes(sectionId)) {
