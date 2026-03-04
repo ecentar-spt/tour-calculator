@@ -3408,14 +3408,20 @@ function loadTemplate(id) {
   console.log('✅ Found template:', template.name);
 
   currentTour = { ...template };
+  currentTour.isDirty = false;
 
-  // New tour instance derived from template
- currentTour.id = String(Date.now());
-  currentTour.name = '';
-  currentTour.client = '';
-  currentTour.sourceTemplateId = template.id;
-  currentTour.sourceTemplateName = template.name;
-  currentTour.isDirty = false; // New tour from template is NOT dirty yet
+  if (currentTourSource !== 'new') {
+    // Edit mode — uređujemo šablon direktno
+    currentTour.sourceTemplateId = template.id;
+    currentTour.sourceTemplateName = template.name;
+  } else {
+    // New tour mode — nova tura iz šablona
+    currentTour.id = String(Date.now());
+    currentTour.name = '';
+    currentTour.client = '';
+    currentTour.sourceTemplateId = template.id;
+    currentTour.sourceTemplateName = template.name;
+  }
 
   // Ensure localGuides array exists
   if (!currentTour.localGuides) {
