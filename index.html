@@ -2538,6 +2538,60 @@ function normalizeTolls(day) {
                 updateCalc();
             }
         }
+        async function calculateDayDistance(dayIndex) {
+    const day = currentTour.days[dayIndex];
+    const stops = (day.stops || []).filter(s => s.place && s.place.trim() !== '');
+    
+    if (stops.length < 2) {
+        alert('Potrebno je najmanje 2 stopа sa unesenim mestima da bi se izračunala distanca.');
+        return;
+    }
+    
+    const origin = encodeURIComponent(stops[0].place);
+    const destination = encodeURIComponent(stops[stops.length - 1].place);
+    const waypoints = stops.slice(1, -1).map(s => encodeURIComponent(s.place)).join('|');
+    
+    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}${waypoints ? '&waypoints=' + waypoints : ''}&key=${MAPS_API_KEY}`;
+    
+    try {
+        const btn = document.getElementById(`calcKmBtn_${dayIndex}`);
+        btn.textContent = '⏳';
+        btn.disabled = true;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.status === 'OK') {
+            const totalMeters = data.routes[0].legs.reduce((sum, leg) => sum + leg.distance.value, 0);
+            const totalKm = Math.round(totalMeters / 1000);
+            currentTour.days[dayIndex].distance = totalKm;
+            currentTour.days[dayIndex].distanceFromGM = true;
+            currentTour.isDirty = true;
+            renderDays();
+            updateCalc();
+        } else {
+            alert('Google Maps greška: ' + data.status + '. Proveri nazive mesta.');
+        }
+    } catch (e) {
+        alert('Greška pri povezivanju sa Google Maps. Pokušaj ponovo.');
+    } finally {
+        const btn = document.getElementById(`calcKmBtn_${dayIndex}`);
+        if (btn) { btn.textContent = '📍'; btn.disabled = false; }
+    }
+}
+
+function openDayRoute(dayIndex) {
+    const day = currentTour.days[dayIndex];
+    const stops = (day.stops || []).filter(s => s.place && s.place.trim() !== '');
+    
+    if (stops.length < 2) {
+        alert('Potrebno je najmanje 2 stopа sa unesenim mestima.');
+        return;
+    }
+    
+    const places = stops.map(s => encodeURIComponent(s.place)).join('/');
+    window.open(`https://www.google.com/maps/dir/${places}`, '_blank');
+}
         function getTourDayDate(dayIndex) {
             if (!currentTour.startDate) return '';
             const start = new Date(currentTour.startDate);
