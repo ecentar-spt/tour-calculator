@@ -3428,8 +3428,8 @@ function loadTemplate(id) {
     currentTour.localGuides = [];
   }
 
-  document.getElementById('tourName').value = '';
-  document.getElementById('clientName').value = '';
+  document.getElementById('tourName').value = currentTourSource !== 'new' ? template.name : '';
+  document.getElementById('clientName').value = currentTourSource !== 'new' ? (template.client || '') : '';
   document.getElementById('numPassengers').value = currentTour.numPassengers;
   document.getElementById('numDays').value = currentTour.numDays;
 
