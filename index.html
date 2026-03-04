@@ -3885,6 +3885,62 @@ function showTemplateSelection() {
         // Initialize on load
         init();
         
+        function openQuickPricelist() {
+    document.getElementById('quickPricelistModal').style.display = 'block';
+    document.getElementById('quickPricelistSearch').value = '';
+    renderQuickPricelist();
+}
+
+function closeQuickPricelist() {
+    document.getElementById('quickPricelistModal').style.display = 'none';
+}
+
+function renderQuickPricelist() {
+    const search = document.getElementById('quickPricelistSearch').value.toLowerCase();
+    const container = document.getElementById('quickPricelistContent');
+    
+    const filtered = suppliers.filter(s => {
+        if (!search) return true;
+        return s.name.toLowerCase().includes(search) ||
+               s.items.some(item => item.service.toLowerCase().includes(search));
+    });
+    
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Nema rezultata.</p>';
+        return;
+    }
+    
+    container.innerHTML = filtered.map(s => `
+        <div style="margin-bottom:20px; border:1px solid #dee2e6; border-radius:8px; overflow:hidden;">
+            <div style="background:#f8f9fa; padding:12px 16px; font-weight:700; font-size:1em;">
+                ${getCategoryIcon(s.category)} ${s.name}
+                ${s.country ? `<span style="color:#666; font-size:0.85em; font-weight:400; margin-left:8px;">• ${s.country}</span>` : ''}
+                ${s.contact ? `<span style="color:#666; font-size:0.85em; font-weight:400; margin-left:8px;">• 📞 ${s.contact}</span>` : ''}
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.9em;">
+                <thead>
+                    <tr style="background:#f0f0f0;">
+                        <th style="padding:8px 12px; text-align:left;">Usluga</th>
+                        <th style="padding:8px 12px; text-align:left;">Tip</th>
+                        <th style="padding:8px 12px; text-align:left;">Cene</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${s.items.map(item => `
+                        <tr style="border-top:1px solid #dee2e6;">
+                            <td style="padding:8px 12px;"><strong>${item.service}</strong>${item.notes ? `<br><small style="color:#999;">${item.notes}</small>` : ''}</td>
+                            <td style="padding:8px 12px; color:#666; font-size:0.85em;">${getPricingTypeLabel(item.pricingType)}</td>
+                            <td style="padding:8px 12px;">
+                                ${item.prices.map(p => `<span style="margin-right:10px;"><strong>${p.value} ${p.currency}</strong> <small style="color:#999;">${p.label}</small></span>`).join('')}
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `).join('');
+}
+        
         // Toggle sidebar function
         function toggleSidebar() {
             const sidebar = document.getElementById('costSummary');
