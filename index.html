@@ -1262,7 +1262,14 @@
                         ➕ Dodaj dan
                     </button>
                 </div>
-
+                
+             <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 16px;">
+                    <div class="form-group" style="margin: 0; min-width: 220px;">
+                        <label>Datum početka ture</label>
+                        <input type="date" class="form-control" id="startDate" onchange="currentTour.startDate = this.value; currentTour.isDirty = true; renderDays();">
+                    </div>
+                </div>
+                
                 <div class="alert alert-info">
                     <strong>💡 Saveti:</strong> Možete pomerati dane prevlačenjem (drag & drop). Kliknite na "💾 Sačuvaj" da sačuvate turu.
                 </div>
