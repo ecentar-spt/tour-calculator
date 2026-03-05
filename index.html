@@ -1235,9 +1235,26 @@
                 <button class="btn btn-secondary" onclick="calculateAndSave()" id="saveBtn" style="display: none; font-size:12px; padding:7px 14px;">
                     💾 Sačuvaj
                 </button>
-                <button class="btn btn-secondary" onclick="saveAsTemplate()" id="saveAsTemplateBtn" style="display: none; font-size:12px; padding:7px 14px;">
+               <button class="btn btn-secondary" onclick="saveAsTemplate()" id="saveAsTemplateBtn" style="display: none; font-size:12px; padding:7px 14px;">
                     ➕ Sačuvaj kao šablon
                 </button>
+                
+                <!-- Export dropdown -->
+                <div class="export-dropdown" id="exportDropdown">
+                    <button class="btn btn-secondary export-dropdown-toggle" onclick="toggleExportDropdown()" style="font-size:12px; padding:7px 14px;">
+                        📤 Export
+                        <span class="export-dropdown-arrow">▼</span>
+                    </button>
+                    <div class="export-dropdown-content">
+                        <button onclick="exportToExcel(); closeExportDropdown();">
+                            📊 Excel (kalkulacija)
+                        </button>
+                        <button onclick="exportToCanva(); closeExportDropdown();">
+                            🎨 Canva (itinerer)
+                        </button>
+                    </div>
+                </div>
+                
                 <button class="btn btn-success sync-btn" onclick="syncToCloud()" id="syncBtn" disabled title="Morate biti ulogovani da biste sinhronizovali" style="font-size:12px; padding:7px 14px;">
                     ☁️ Sync to Cloud
                 </button>
