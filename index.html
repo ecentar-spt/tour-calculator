@@ -1130,6 +1130,64 @@
         .offline-mode-btn:hover {
             color: var(--primary);
         }
+
+        /* Export dropdown */
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .export-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            min-width: 180px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 6px;
+            z-index: 1000;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .export-dropdown-content button {
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-dropdown-content button:hover {
+            background-color: #f8f9fa;
+        }
+
+        .export-dropdown.active .export-dropdown-content {
+            display: block;
+        }
+
+        .export-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .export-dropdown-arrow {
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .export-dropdown.active .export-dropdown-arrow {
+            transform: rotate(180deg);
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDGsBnEYB1QbIhdqgVBIUe7bD_lt_C2oA&libraries=places"></script>
