@@ -4401,6 +4401,157 @@ function renderQuickPricelist() {
             XLSX.writeFile(wb, filename);
         }
 
+       }
+
+        // ===== EXPORT DROPDOWN FUNCTIONS =====
+
+        function toggleExportDropdown() {
+            const dropdown = document.getElementById('exportDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function closeExportDropdown() {
+            const dropdown = document.getElementById('exportDropdown');
+            dropdown.classList.remove('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('exportDropdown');
+            if (dropdown && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // ===== CANVA EXPORT FUNCTION =====
+
+        function exportToCanva() {
+            if (!currentTour.name) {
+                alert('⚠️ Molimo prvo sačuvajte turu!');
+                return;
+            }
+
+            if (!currentTour.startDate) {
+                alert('⚠️ Molimo unesite datum početka ture u Itinerer sekciji!');
+                return;
+            }
+
+            // Pripremi podatke za Canva
+            const canvaData = {
+                tourName: currentTour.name || '',
+                guestName: currentTour.client || '',
+                startDate: currentTour.startDate,
+                days: currentTour.days.map((day, index) => {
+                    // Računaj datum za svaki dan
+                    const dayDate = new Date(currentTour.startDate);
+                    dayDate.setDate(dayDate.getDate() + index);
+                    const formattedDate = `${String(dayDate.getDate()).padStart(2, '0')}.${String(dayDate.getMonth() + 1).padStart(2, '0')}.${dayDate.getFullYear()}`;
+
+                    return {
+                        dayNumber: index + 1,
+                        date: formattedDate,
+                        title: day.description || `Dan ${index + 1}`,
+                        description: day.dayDescription || '',
+                        hotel: day.accommodation || ''
+                    };
+                })
+            };
+
+            // Konvertuj u JSON string
+            const jsonData = JSON.stringify(canvaData, null, 2);
+
+            // Kopiraj u clipboard
+            navigator.clipboard.writeText(jsonData).then(() => {
+                // Prikaži modal sa instrukcijama
+                showCanvaModal(jsonData);
+            }).catch(err => {
+                console.error('Greška pri kopiranju:', err);
+                alert('⚠️ Greška pri kopiranju podataka. Pokušajte ponovo.');
+            });
+        }
+
+        function showCanvaModal(jsonData) {
+            const modal = document.createElement('div');
+            modal.id = 'canvaModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 30px; max-width: 600px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                    <h3 style="margin-top: 0; color: #1C2333;">🎨 Export u Canva - Instrukcije</h3>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+                        <p style="margin: 0; font-weight: 600; color: #28a745;">✅ Podaci su kopirani u clipboard!</p>
+                    </div>
+
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                        <h4 style="margin-top: 0; color: #856404;">📋 Sledeći koraci:</h4>
+                        <ol style="margin: 10px 0; padding-left: 20px; color: #856404;">
+                            <li>Otvori <strong>novi Claude čet</strong></li>
+                            <li>Nalepi <strong>(Ctrl+V ili Cmd+V)</strong> kopirane podatke</li>
+                            <li>Dodaj poruku: <em>"Popuni Canva template sa ovim podacima"</em></li>
+                            <li>Claude će kreirati popunjen itinerer i vratiti link</li>
+                        </ol>
+                    </div>
+
+                    <details style="margin: 20px 0; cursor: pointer;">
+                        <summary style="font-weight: 600; padding: 10px; background: #e9ecef; border-radius: 6px;">
+                            📄 Pregled podataka (klikni za prikaz)
+                        </summary>
+                        <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px; margin-top: 10px; max-height: 300px; overflow-y: auto;">${jsonData}</pre>
+                    </details>
+
+                    <div style="display: flex; gap: 10px; margin-top: 25px;">
+                        <button onclick="copyCanvaDataAgain()" style="flex: 1; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            📋 Kopiraj ponovo
+                        </button>
+                        <button onclick="closeCanvaModal()" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            Zatvori
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Sačuvaj podatke u privremenu promenljivu
+            window.tempCanvaData = jsonData;
+
+            // Zatvori modal klikom van njega
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeCanvaModal();
+                }
+            });
+        }
+
+        function copyCanvaDataAgain() {
+            navigator.clipboard.writeText(window.tempCanvaData).then(() => {
+                alert('✅ Podaci ponovo kopirani u clipboard!');
+            }).catch(err => {
+                console.error('Greška pri kopiranju:', err);
+                alert('⚠️ Greška pri kopiranju. Pokušajte ponovo.');
+            });
+        }
+
+        function closeCanvaModal() {
+            const modal = document.getElementById('canvaModal');
+            if (modal) {
+                modal.remove();
+            }
+            delete window.tempCanvaData;
+        }
+
         // ===== SUPPLIERS CRUD FUNCTIONS =====
 
         function renderSuppliers() {
