@@ -2425,7 +2425,7 @@ function renderGuidePickerStep2() {
     
     // Handle per_room pricing (BUG #5)
     if (pricingType === 'per_room' && (field === 'passengerAccommodation' || field === 'guideAccommodation')) {
-        const roomCapacity = detectRoomCapacity(serviceName);
+        const roomCapacity = detectRoomCapacity(serviceName, tierLabel);
         if (roomCapacity > 0) {
             finalPrice = price / roomCapacity;
             console.log(`🛏️ Detected ${roomCapacity}-person room. Price per person: ${finalPrice.toFixed(2)} EUR`);
