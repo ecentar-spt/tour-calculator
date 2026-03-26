@@ -3627,17 +3627,39 @@ function loadTemplate(id) {
     const template = templates.find(t => String(t.id) === String(id));
     if (!template) return;
 
-    const newTemplate = {...template};
-    if (template.tourSettings) newTemplate.tourSettings = {...template.tourSettings};
-    if (template.days) newTemplate.days = template.days.map(d => ({...d}));
-    newTemplate.id = String(Date.now());
-    newTemplate.name = template.name + ' (kopija)';
-    newTemplate.createdAt = new Date().toISOString();
-
-    const updatedTemplates = [...templates, newTemplate];
-    localStorage.setItem('templates', JSON.stringify(updatedTemplates));
-    loadTemplates();
-    loadTemplate(newTemplate.id);
+    // Create new tour from template
+    currentTour = {...template};
+    if (template.tourSettings) currentTour.tourSettings = {...template.tourSettings};
+    if (template.days) currentTour.days = template.days.map(d => ({...d}));
+    if (template.localGuides) currentTour.localGuides = template.localGuides.map(lg => ({...lg}));
+    
+    currentTour.id = String(Date.now());
+    currentTour.name = template.name + ' (kopija)';
+    currentTour.client = '';  // Clear client name for new tour
+    currentTour.createdAt = new Date().toISOString();
+    currentTour.updatedAt = new Date().toISOString();
+    currentTour.version = 1;
+    currentTour.isDirty = false;
+    
+    // Set source to 'new' so we know it came from template
+    currentTourSource = 'new';
+    currentTourSourceTemplateId = String(id);
+    
+    // Load tour data into form
+    document.getElementById('tourName').value = currentTour.name;
+    document.getElementById('clientName').value = '';
+    document.getElementById('numPassengers').value = currentTour.numPassengers;
+    document.getElementById('numDays').value = currentTour.numDays;
+    document.getElementById('startDate').value = currentTour.startDate || '';
+    
+    initVehicleOptions();
+    renderDays();
+    renderLocalGuides();
+    updateTourSettingsInfo();
+    showUpdateTemplateButton();
+    updateCalc();
+    
+    showSection('basic');
 }
         
 function deleteTemplate(id) {
