@@ -5920,7 +5920,48 @@ ${text.slice(0, 8000)}`;
                 alert('Greška pri preuzimanju informacija o korisniku.');
             }
         }
+// Schedule automatic token refresh
+function scheduleTokenRefresh(expiresAt) {
+    // Clear any existing timeout
+    if (window.tokenRefreshTimeout) {
+        clearTimeout(window.tokenRefreshTimeout);
+    }
+    
+    // Schedule refresh 5 minutes before expiry
+    const refreshTime = expiresAt - Date.now() - (5 * 60 * 1000); // 5 minutes before
+    
+    if (refreshTime > 0) {
+        console.log(`⏰ Token refresh scheduled in ${Math.round(refreshTime / 1000 / 60)} minutes`);
+        window.tokenRefreshTimeout = setTimeout(() => {
+            console.log('🔄 Auto-refreshing token...');
+            refreshToken();
+        }, refreshTime);
+    } else {
+        console.warn('⚠️ Token already expired or expires very soon - refreshing now');
+        refreshToken();
+    }
+}
 
+// Refresh token silently
+function refreshToken() {
+    if (!gapiInited || !gisInited || !googleUser) {
+        console.error('Cannot refresh - not logged in');
+        return;
+    }
+    
+    console.log('🔄 Requesting fresh token...');
+    
+    // Request new token silently (no prompt)
+    tokenClient.requestAccessToken({prompt: ''});
+}
+
+// Check if token is expired
+function isTokenExpired() {
+    const expiresAt = localStorage.getItem('tokenExpiresAt');
+    if (!expiresAt) return true;
+    
+    return Date.now() >= parseInt(expiresAt);
+}
         // Update UI after login
         function updateUserInterface() {
             const userSection = document.getElementById('userSection');
