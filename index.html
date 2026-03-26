@@ -6916,8 +6916,35 @@ for (let i = 1; i < existingData.length; i++) {
                     loadTemplates();
                 }
                 
-            } catch (error) {
+           } catch (error) {
                 console.error('Error loading templates:', error);
+                
+                // Check if it's a 401 or 403 auth error
+                const isAuthError = 
+                    error.status === 401 || 
+                    error.status === 403 || 
+                    error.result?.error?.code === 401 || 
+                    error.result?.error?.code === 403 ||
+                    error.message?.includes('401') ||
+                    error.message?.includes('403') ||
+                    error.result?.error?.status === 'UNAUTHENTICATED' ||
+                    error.result?.error?.status === 'PERMISSION_DENIED';
+                
+                if (isAuthError) {
+                    console.log('🔒 Auth error detected - token expired or invalid');
+                    
+                    const retry = confirm(
+                        '🔒 Vaša sesija je istekla tokom sinhronizacije.\n\n' +
+                        'Kliknite OK da se ponovo prijavite i nastavite.'
+                    );
+                    
+                    if (retry) {
+                        handleSignOut();
+                        showLoginModal();
+                    }
+                    return;
+                }
+                
                 throw error;
             }
         }
