@@ -6418,9 +6418,26 @@ function isTokenExpired() {
                 loadHistory(); // Refresh UI
                 
             } catch (error) {
-                console.error('❌ Error saving tours:', error);
-                throw error;
-            }
+    console.error('❌ Error saving tours:', error);
+    
+    // Check if it's a 401 Unauthorized error
+    if (error.status === 401 || error.result?.error?.code === 401 || error.message?.includes('401')) {
+        console.log('🔒 Got 401 - token expired during sync');
+        
+        const retry = confirm(
+            '🔒 Vaša sesija je istekla tokom sinhronizacije.\n\n' +
+            'Kliknite OK da se ponovo prijavite i nastavite.'
+        );
+        
+        if (retry) {
+            handleSignOut();
+            showLoginModal();
+        }
+        return; // Ne throw-uj grešku dalje
+    }
+    
+    throw error;
+}
         }
 
         async function saveTemplatesToSheet() {
