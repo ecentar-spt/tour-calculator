@@ -2390,12 +2390,23 @@ function renderGuidePickerStep2() {
             </div>
         </div>`).join('');
 }
-     function detectRoomCapacity(serviceName) {
+     function detectRoomCapacity(serviceName, tierLabel) {
     if (!serviceName) return 0;
     const lower = serviceName.toLowerCase();
+    const labelLower = (tierLabel || '').toLowerCase();
     
-    // PRIORITET: Single use patterns (mora biti PRVO!)
-    if (/(single[\s-]*use|1\/1)/i.test(lower)) return 1;
+    // PRIORITET 1: Proveri label za X/Y format (1/1, 1/2, 2/1, etc.)
+    const labelMatch = labelLower.match(/(\d+)\/(\d+)/);
+    if (labelMatch) {
+        const numerator = parseInt(labelMatch[1]);
+        if (numerator > 0 && numerator <= 4) {
+            console.log(`🏷️ Detected ${numerator} person(s) from label: "${tierLabel}"`);
+            return numerator;
+        }
+    }
+    
+    // PRIORITET 2: Single use u nazivu usluge
+    if (/(single[\s-]*use)/i.test(lower)) return 1;
     
     // Single patterns
     if (/(single|jednokrevetna|1\s*bed|1\s*krevet)/i.test(lower)) return 1;
@@ -2411,32 +2422,6 @@ function renderGuidePickerStep2() {
     
     // Could not detect
     return 0;
-}
-
-        function applySupplierItem(supplierName, serviceName, price, tierLabel, location, pricingType, touristTax) {
-    if (!pickerContext) return;
-    const { dayIndex, field, targetGuideId } = pickerContext;
-    
-    // Default values
-    pricingType = pricingType || 'per_person';
-    touristTax = parseFloat(touristTax) || 0;
-    
-    let finalPrice = price;
-    
-    // Handle per_room pricing (BUG #5)
-    if (pricingType === 'per_room' && (field === 'passengerAccommodation' || field === 'guideAccommodation')) {
-        const roomCapacity = detectRoomCapacity(serviceName, tierLabel);
-        if (roomCapacity > 0) {
-            finalPrice = price / roomCapacity;
-            console.log(`🛏️ Detected ${roomCapacity}-person room. Price per person: ${finalPrice.toFixed(2)} EUR`);
-        } else {
-            const userInput = prompt(`Koliko osoba ima soba "${serviceName}"?\n(Unesite broj: 1, 2, 3, 4...)`, '2');
-            const capacity = parseInt(userInput);
-            if (capacity > 0) {
-                finalPrice = price / capacity;
-                console.log(`🛏️ User entered ${capacity}-person room. Price per person: ${finalPrice.toFixed(2)} EUR`);
-            } else {
-                alert('⚠️ Nevažeći broj. Koristim originalnu cenu.');
             }
         }
     }
