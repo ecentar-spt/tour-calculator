@@ -2390,6 +2390,63 @@ function renderGuidePickerStep2() {
             </div>
         </div>`).join('');
 }
+     function detectRoomCapacity(serviceName) {
+    if (!serviceName) return 0;
+    const lower = serviceName.toLowerCase();
+    
+    // Single patterns
+    if (/(single|jednokrevetna|1\s*bed|1\s*krevet)/i.test(lower)) return 1;
+    
+    // Double patterns
+    if (/(double|dvokrevetna|twin|2\s*bed|2\s*krevet)/i.test(lower)) return 2;
+    
+    // Triple patterns
+    if (/(triple|trokrevetna|3\s*bed|3\s*krevet)/i.test(lower)) return 3;
+    
+    // Quad patterns
+    if (/(quad|četvorokrevetna|4\s*bed|4\s*krevet)/i.test(lower)) return 4;
+    
+    // Could not detect
+    return 0;
+}
+```
+
+---
+
+## 📊 **ŠTA OVE IZMENE RADE:**
+
+### **Scenario 1: Cena po sobi SA turističkom taksом**
+```
+Dobavljač: Hotel Park
+Usluga: Double Room
+Cena: 100 EUR (per_room)
+Turistička taksa: 2 EUR
+
+Kalkulacija:
+1. 100 / 2 = 50 EUR (per person)
+2. 50 + 2 = 52 EUR (sa turističkom taksом)
+→ Upisuje se: 52 EUR u passengerAccommodation
+```
+
+### **Scenario 2: Cena po osobi SA turističkom taksом**
+```
+Dobavljač: Hostel Central
+Usluga: Bed in Dorm
+Cena: 25 EUR (per_person)
+Turistička taksa: 1.5 EUR
+
+Kalkulacija:
+1. 25 EUR (već per person)
+2. 25 + 1.5 = 26.5 EUR (sa turističkom taksом)
+→ Upisuje se: 26.5 EUR u passengerAccommodation
+```
+
+### **Scenario 3: Turistička taksa = 0**
+```
+Dobavljač: Vila Sunce
+Turistička taksa: 0 (uračunata u cenu)
+
+→ Ne dodaje ništa, koristi originalnu cenu   
         function applySupplierItem(supplierName, serviceName, price, tierLabel, location, pricingType, touristTax) {
     if (!pickerContext) return;
     const { dayIndex, field, targetGuideId } = pickerContext;
