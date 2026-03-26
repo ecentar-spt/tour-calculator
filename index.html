@@ -2390,60 +2390,88 @@ function renderGuidePickerStep2() {
             </div>
         </div>`).join('');
 }
-        function applySupplierItem(supplierName, serviceName, price, tierLabel, location) {
-            if (!pickerContext) return;
-           const { dayIndex, field, targetGuideId } = pickerContext;
-
-            // Local Guide: upis u currentTour.localGuides
-        if (field === 'localGuide') {
-           const guide = (currentTour.localGuides || []).find(g => g.id === targetGuideId);
-           if (guide) {
-           guide.supplierName = supplierName || '';
-           guide.location = location || guide.location || '';
-           guide.serviceName = serviceName ? (tierLabel ? serviceName + ' / ' + tierLabel : serviceName) : '';
-           // backward compatibility (staro polje)
-           guide.description = guide.serviceName;
-           guide.cost = Number(price) || 0;
-    }
-           currentTour.isDirty = true;
-           pickerContext = null;
-           closeSupplierPicker();
-           renderLocalGuides();
-           updateCalc();
-                return;
-}
-
-            const day = currentTour.days[dayIndex];
-            const label = supplierName + (serviceName ? ' — ' + serviceName : '');
-
-            if (field === 'ticket') {
-                // Dodaj kao novu stavku u listu ulaznica
-                currentTour.days[dayIndex] = normalizeTickets(day);
-                currentTour.days[dayIndex].ticketItems.push({
-                    id: String(Date.now() + Math.random()),
-                    name: label,
-                    price: price
-                });
-                currentTour.days[dayIndex].tickets = currentTour.days[dayIndex].ticketItems.reduce((s, t) => s + t.price, 0);
-            } else if (field === 'guideAccommodation') {
-                day.guideAccommodation = price;
-                day.guideAccommodationName = label;
-            } else if (field === 'passengerAccommodation') {
-                day.passengerAccommodation = price;
-                day.passengerAccommodationName = label;
-            } else if (field === 'guideMeals') {
-                day.guideMeals = price;
-                day.guideMealsLocation = label;
-            } else if (field === 'passengerMeals') {
-                day.passengerMeals = price;
-                day.passengerMealsLocation = label;
+        function applySupplierItem(supplierName, serviceName, price, tierLabel, location, pricingType, touristTax) {
+    if (!pickerContext) return;
+    const { dayIndex, field, targetGuideId } = pickerContext;
+    
+    // Default values
+    pricingType = pricingType || 'per_person';
+    touristTax = parseFloat(touristTax) || 0;
+    
+    let finalPrice = price;
+    
+    // Handle per_room pricing (BUG #5)
+    if (pricingType === 'per_room' && (field === 'passengerAccommodation' || field === 'guideAccommodation')) {
+        const roomCapacity = detectRoomCapacity(serviceName);
+        if (roomCapacity > 0) {
+            finalPrice = price / roomCapacity;
+            console.log(`🛏️ Detected ${roomCapacity}-person room. Price per person: ${finalPrice.toFixed(2)} EUR`);
+        } else {
+            const userInput = prompt(`Koliko osoba ima soba "${serviceName}"?\n(Unesite broj: 1, 2, 3, 4...)`, '2');
+            const capacity = parseInt(userInput);
+            if (capacity > 0) {
+                finalPrice = price / capacity;
+                console.log(`🛏️ User entered ${capacity}-person room. Price per person: ${finalPrice.toFixed(2)} EUR`);
+            } else {
+                alert('⚠️ Nevažeći broj. Koristim originalnu cenu.');
             }
-
-            currentTour.isDirty = true;
-            closeSupplierPicker();
-            renderDays();
-            updateCalc();
         }
+    }
+    
+    // Add tourist tax for accommodation (BUG #2)
+    if (touristTax > 0 && (field === 'passengerAccommodation' || field === 'guideAccommodation')) {
+        finalPrice = finalPrice + touristTax;
+        console.log(`🏨 Added tourist tax: ${touristTax} EUR. Final price: ${finalPrice.toFixed(2)} EUR per person per night`);
+    }
+
+    // Local Guide: upis u currentTour.localGuides
+    if (field === 'localGuide') {
+        const guide = (currentTour.localGuides || []).find(g => g.id === targetGuideId);
+        if (guide) {
+            guide.supplierName = supplierName || '';
+            guide.location = location || guide.location || '';
+            guide.serviceName = serviceName ? (tierLabel ? serviceName + ' / ' + tierLabel : serviceName) : '';
+            guide.description = guide.serviceName;
+            guide.cost = Number(finalPrice) || 0;
+        }
+        currentTour.isDirty = true;
+        pickerContext = null;
+        closeSupplierPicker();
+        renderLocalGuides();
+        updateCalc();
+        return;
+    }
+
+    const day = currentTour.days[dayIndex];
+    const label = supplierName + (serviceName ? ' — ' + serviceName : '');
+
+    if (field === 'ticket') {
+        currentTour.days[dayIndex] = normalizeTickets(day);
+        currentTour.days[dayIndex].ticketItems.push({
+            id: String(Date.now() + Math.random()),
+            name: label,
+            price: finalPrice
+        });
+        currentTour.days[dayIndex].tickets = currentTour.days[dayIndex].ticketItems.reduce((s, t) => s + t.price, 0);
+    } else if (field === 'guideAccommodation') {
+        day.guideAccommodation = finalPrice;
+        day.guideAccommodationName = label;
+    } else if (field === 'passengerAccommodation') {
+        day.passengerAccommodation = finalPrice;
+        day.passengerAccommodationName = label;
+    } else if (field === 'guideMeals') {
+        day.guideMeals = finalPrice;
+        day.guideMealsLocation = label;
+    } else if (field === 'passengerMeals') {
+        day.passengerMeals = finalPrice;
+        day.passengerMealsLocation = label;
+    }
+
+    currentTour.isDirty = true;
+    closeSupplierPicker();
+    renderDays();
+    updateCalc();
+}
         // ── End Supplier Picker ──────────────────────────────────────
        function addStop(dayIndex) {
             if (!currentTour.days[dayIndex].stops) currentTour.days[dayIndex].stops = [];
