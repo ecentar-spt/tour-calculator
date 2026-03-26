@@ -5942,17 +5942,27 @@ function scheduleTokenRefresh(expiresAt) {
     }
 }
 
-// Refresh token silently
+// Refresh token with user confirmation
 function refreshToken() {
     if (!gapiInited || !gisInited || !googleUser) {
         console.error('Cannot refresh - not logged in');
         return;
     }
     
-    console.log('🔄 Requesting fresh token...');
+    console.log('🔄 Token će uskoro da istekne...');
     
-    // Request new token silently (no prompt)
-    tokenClient.requestAccessToken({prompt: ''});
+    // Prikaži notification korisniku
+    const notification = confirm(
+        '⏰ Vaša sesija će uskoro isteći.\n\n' +
+        'Kliknite OK da osvežite sesiju i nastavite rad.'
+    );
+    
+    if (notification) {
+        console.log('🔄 User clicked - requesting fresh token...');
+        tokenClient.requestAccessToken({prompt: ''});
+    } else {
+        console.log('⏭️ User skipped refresh - will prompt again at next sync');
+    }
 }
 
 // Check if token is expired
