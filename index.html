@@ -5857,6 +5857,15 @@ ${text.slice(0, 8000)}`;
             try {
                 console.log('Fetching user info...');
                 const token = gapi.client.getToken();
+                // Track token expiry time
+        if (token && token.expires_in) {
+            const expiresAt = Date.now() + (token.expires_in * 1000); // Convert to milliseconds
+            localStorage.setItem('tokenExpiresAt', expiresAt);
+            console.log(`🔑 Token will expire at: ${new Date(expiresAt).toLocaleString()}`);
+            
+            // Schedule token refresh 5 minutes before expiry
+            scheduleTokenRefresh(expiresAt);
+        }
                 console.log('Token:', token);
                 
                 const userInfo = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
