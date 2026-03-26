@@ -6193,31 +6193,13 @@ function isTokenExpired() {
             console.log('📤 Saving tours to sheet...');
             
             try {
-                // Check if token is expired and refresh if needed
-        if (isTokenExpired()) {
-            console.log('⚠️ Token expired - refreshing before sync...');
-            await new Promise((resolve, reject) => {
-                const originalCallback = tokenClient.callback;
-                tokenClient.callback = (resp) => {
-                    if (resp.error) {
-                        console.error('❌ Token refresh failed:', resp.error);
-                        reject(new Error('Token refresh failed'));
-                        return;
-                    }
-                    // Update expiry tracking
-                    const token = gapi.client.getToken();
-                    if (token && token.expires_in) {
-                        const expiresAt = Date.now() + (token.expires_in * 1000);
-                        localStorage.setItem('tokenExpiresAt', expiresAt);
-                        console.log(`🔑 Token refreshed! New expiry: ${new Date(expiresAt).toLocaleString()}`);
-                        scheduleTokenRefresh(expiresAt);
-                    }
-                    tokenClient.callback = originalCallback;
-                    resolve();
-                };
-                tokenClient.requestAccessToken({prompt: ''});
-            });
-        }
+               // Check if token is expired
+               if (isTokenExpired()) {
+               console.log('⚠️ Token istekao - molimo ponovo se prijavite');
+               alert('🔒 Vaša sesija je istekla.\n\nMolimo ponovo se prijavite da nastavite sa sinhronizacijom.');
+               handleSignOut();
+               throw new Error('Token expired - user needs to re-login');
+               }
                 // Initialize sheet if needed
                 await initializeSheet('Tours', ['id', 'name', 'user_email', 'data', 'updated_at', 'updated_by', 'version']);
 
