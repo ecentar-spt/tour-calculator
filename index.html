@@ -6193,14 +6193,7 @@ function isTokenExpired() {
             console.log('📤 Saving tours to sheet...');
             
             try {
-               // Check if token is expired
-               if (isTokenExpired()) {
-               console.log('⚠️ Token istekao - molimo ponovo se prijavite');
-               handleSignOut();
-               alert('🔒 Vaša sesija je istekla.\n\nMolimo ponovo se prijavite da nastavite sa sinhronizacijom.');
-               return; // Prekini funkciju bez greške
-               }
-                // Initialize sheet if needed
+               // Initialize sheet if needed
                 await initializeSheet('Tours', ['id', 'name', 'user_email', 'data', 'updated_at', 'updated_by', 'version']);
 
                 // Get tours from localStorage
