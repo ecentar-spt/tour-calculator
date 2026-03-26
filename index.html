@@ -2384,7 +2384,7 @@ function renderGuidePickerStep2() {
             <div style="display:flex; flex-wrap:wrap; gap:6px; padding:10px 12px;">
                 ${(item.prices || []).map(p => `
                 <button class="btn btn-secondary" style="font-size:0.85em; padding:5px 14px;"
-                  onclick="applySupplierItem('${(s.name || '').replace(/'/g, "\\'")}', '${(item.service || '').replace(/'/g, "\\'")}', ${p.value}, '${(p.label || '').replace(/'/g, "\\'")}', '${((item.location || s.location || '')).replace(/'/g, "\\'")}')">
+                  onclick=\"applySupplierItem('${(s.name || '').replace(/'/g, \"\\\\'\")}', '${(item.service || '').replace(/'/g, \"\\\\'\")}', ${p.value}, '${(p.label || '').replace(/'/g, \"\\\\'\")}', '${((item.location || s.location || '')).replace(/'/g, \"\\\\'\")}', '${item.pricingType || 'per_person'}', ${s.touristTax || 0})\"
                     ${(p.label ?? p.name ?? p.tier ?? 'Tier')}: ${(p.value ?? p.price ?? p.cost ?? 0)} ${(p.currency ?? 'EUR')}
                 </button>`).join('')}
             </div>
