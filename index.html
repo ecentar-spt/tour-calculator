@@ -2394,6 +2394,9 @@ function renderGuidePickerStep2() {
     if (!serviceName) return 0;
     const lower = serviceName.toLowerCase();
     
+    // PRIORITET: Single use patterns (mora biti PRVO!)
+    if (/(single[\s-]*use|1\/1)/i.test(lower)) return 1;
+    
     // Single patterns
     if (/(single|jednokrevetna|1\s*bed|1\s*krevet)/i.test(lower)) return 1;
     
