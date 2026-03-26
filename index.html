@@ -2507,36 +2507,7 @@ function applySupplierItem(supplierName, serviceName, price, tierLabel, location
     updateCalc();
 }
 
-    const day = currentTour.days[dayIndex];
-    const label = supplierName + (serviceName ? ' — ' + serviceName : '');
-
-    if (field === 'ticket') {
-        currentTour.days[dayIndex] = normalizeTickets(day);
-        currentTour.days[dayIndex].ticketItems.push({
-            id: String(Date.now() + Math.random()),
-            name: label,
-            price: finalPrice
-        });
-        currentTour.days[dayIndex].tickets = currentTour.days[dayIndex].ticketItems.reduce((s, t) => s + t.price, 0);
-    } else if (field === 'guideAccommodation') {
-        day.guideAccommodation = finalPrice;
-        day.guideAccommodationName = label;
-    } else if (field === 'passengerAccommodation') {
-        day.passengerAccommodation = finalPrice;
-        day.passengerAccommodationName = label;
-    } else if (field === 'guideMeals') {
-        day.guideMeals = finalPrice;
-        day.guideMealsLocation = label;
-    } else if (field === 'passengerMeals') {
-        day.passengerMeals = finalPrice;
-        day.passengerMealsLocation = label;
     }
-
-    currentTour.isDirty = true;
-    closeSupplierPicker();
-    renderDays();
-    updateCalc();
-}
         // ── End Supplier Picker ──────────────────────────────────────
        function addStop(dayIndex) {
             if (!currentTour.days[dayIndex].stops) currentTour.days[dayIndex].stops = [];
