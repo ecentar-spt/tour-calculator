@@ -4301,7 +4301,7 @@ function renderQuickPricelist() {
     <div class="form-group" style="flex:1;">
         <label>Dobavljač / Vodič</label>
         <div style="display:flex; gap:8px;">
-            <input type="text" class="form-control" tabindex="1"
+            <input type="text" class="form-control"
                    value="${guide.supplierName || ''}"
                    onchange="updateLocalGuide(${guide.id}, 'supplierName', this.value)"
                    placeholder="Ime vodiča ili agencije">
@@ -4317,7 +4317,7 @@ function renderQuickPricelist() {
 
     <div class="form-group" style="flex:1;">
         <label>Lokacija/Mesto</label>
-        <input type="text" class="form-control" tabindex="2"
+        <input type="text" class="form-control"
                value="${guide.location || ''}"
                onchange="updateLocalGuide(${guide.id}, 'location', this.value)"
                placeholder="Npr: Sarajevo">
@@ -4325,7 +4325,7 @@ function renderQuickPricelist() {
 
     <div class="form-group" style="flex:1;">
         <label>Usluga</label>
-        <input type="text" class="form-control" tabindex="3"
+        <input type="text" class="form-control"
                value="${guide.serviceName || guide.description || ''}"
                onchange="updateLocalGuide(${guide.id}, 'serviceName', this.value)"
                placeholder="Npr: Walking tour">
@@ -4333,7 +4333,7 @@ function renderQuickPricelist() {
 
     <div class="form-group" style="flex:1;">
         <label>Trošak (EUR)</label>
-        <input type="number" class="form-control" tabindex="4"
+        <input type="number" class="form-control"
                value="${guide.cost || 0}"
                onchange="updateLocalGuide(${guide.id}, 'cost', parseFloat(this.value) || 0)">
     </div>
