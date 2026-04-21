@@ -4292,8 +4292,8 @@ function renderQuickPricelist() {
                 <div class="local-guide-card">
                     <div class="local-guide-header">
                         <h4>📍 Lokalni vodič</h4>
-                        <button class="btn btn-danger btn-sm" onclick="removeLocalGuide(${guide.id})">
-                            🗑️ Ukloni
+                        <button class="btn btn-danger btn-sm" tabindex="-1" onclick="removeLocalGuide(${guide.id})">
+                           🗑️ Ukloni
                         </button>
                     </div>
                     <div class="form-row" style="display:flex; gap:16px;">
@@ -4307,11 +4307,12 @@ function renderQuickPricelist() {
                    placeholder="Ime vodiča ili agencije">
 
             <button type="button"
-                    class="btn btn-secondary btn-sm"
-                    style="width:44px; min-width:44px;"
-                    onclick="openSupplierPicker('localGuide', undefined, ${guide.id})">
-                🔍
-            </button>
+                   class="btn btn-secondary btn-sm"
+                   style="width:44px; min-width:44px;"
+                   tabindex="-1"
+                   onclick="openSupplierPicker('localGuide', undefined, ${guide.id})">
+            🔍
+          </button>
         </div>
     </div>
 
