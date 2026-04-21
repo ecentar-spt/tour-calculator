@@ -4350,14 +4350,20 @@ function renderQuickPricelist() {
         }
 
         function updateLocalGuide(id, field, value) {
-        const guide = currentTour.localGuides.find(g => g.id === id);
-        if (guide) {
+    const guide = currentTour.localGuides.find(g => g.id === id);
+    if (guide) {
         guide[field] = value;
         currentTour.isDirty = true;
         updateCalc();
-        renderLocalGuides();  // ✅ Ažuriraj zeleni box
-        }
-        }
+        
+        // Update ONLY the total box, without re-rendering cards
+        const total = currentTour.localGuides.reduce((sum, g) => sum + g.cost, 0);
+        const totalAmount = document.getElementById('localGuidesTotalAmount');
+        const totalBox = document.getElementById('localGuidesTotal');
+        if (totalAmount) totalAmount.textContent = `${total.toFixed(0)} EUR`;
+        if (totalBox) totalBox.style.display = total > 0 ? 'block' : 'none';
+    }
+}
 
         // Export to Excel
         function exportToExcel() {
