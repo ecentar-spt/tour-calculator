@@ -4349,12 +4349,13 @@ function renderQuickPricelist() {
         }
 
         function updateLocalGuide(id, field, value) {
-            const guide = currentTour.localGuides.find(g => g.id === id);
-            if (guide) {
-                guide[field] = value;
-                currentTour.isDirty = true;
-                updateCalc();
-            }
+        const guide = currentTour.localGuides.find(g => g.id === id);
+        if (guide) {
+        guide[field] = value;
+        currentTour.isDirty = true;
+        updateCalc();
+        renderLocalGuides();  // ✅ Ažuriraj zeleni box
+        }
         }
 
         // Export to Excel
